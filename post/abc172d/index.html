@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <title>ねぼこの日記</title>
+  <link rel="stylesheet" href="https://nebocco.github.io/main.css">
+  <meta charset="utf-8">
+  <meta name="description" content="nebocco のブログ">
+  <meta property="og:site_name" content="ねぼこの日記" />
+  
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css"
+  integrity="sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib" crossorigin="anonymous">
+
+<!-- The loading of KaTeX is deferred to speed up page rendering -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js"
+  integrity="sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh" crossorigin="anonymous"></script>
+
+<!-- To automatically render math in text elements, include the auto-render extension: -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js"
+  integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh" crossorigin="anonymous"
+  onload="renderMathInElement(document.body);"></script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    renderMathInElement(document.body, {
+      // customised options
+      // • auto-render specific keys, e.g.:
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$', right: '$', display: false },
+        { left: '\\(', right: '\\)', display: false },
+        { left: '\\[', right: '\\]', display: true }
+      ],
+      // • rendering keys, e.g.:
+      throwOnError: false
+    });
+  });
+</script>
+
+
+</head>
+
+<body>
+  <div class="page-container">
+    <header>
+      <div id="title">
+        <a href="/">ねぼこの日記</a>
+      </div>
+      <nav>
+        <a href="/post">Posts</a>
+        <a href="/tags">Tags</a>
+        <a href="https://github.com/nebocco" target="_blank" rel="noreferrer noopener">Github</a>
+        <a href="https://twitter.com/nebocco27" target="_blank" rel="noreferrer noopener">Twitter</a>
+        
+        <a href="https://nebocco.github.io/atom.xml" target="_blank" rel="noreferrer noopener">Feed</a>
+        
+      </nav>
+    </header>
+
+    <main id="main">
+      <article id="post">
+        
+<div class="headline">
+  <h1 class="page-title">
+    ABC172-D Sum of Divisors 解説
+  </h1>
+  
+<div class="subtitle">
+  <span class="page-date">
+    2020-06-28
+  </span>
+  
+  <span class="page-tags">
+    
+    
+    <a class="page-tag" href="https://nebocco.github.io/tags/atcoder/">AtCoder</a>
+    
+  </span>
+  
+</div>
+
+</div>
+
+<p>$O(\sqrt N)$ で解きます。</p>
+<h2 id="問題">問題</h2>
+<p><a href="https://atcoder.jp/contests/abc172/tasks/abc172_d">AtCoder Beginner Contest 172 | D - Sum of Divisors</a></p>
+<h3 id="概要">概要</h3>
+<p>$$
+\sum _ {i=1} ^ {N} i \cdot \mathit{d}(i)
+$$</p>
+<p>を求めなさい。</p>
+<h2 id="解法">解法</h2>
+<p>公式editorialの $O(N)$ 解法を高速化することを考えたいです。結局、 $S[k] := \sum _ {i=1} ^ {k} i$ として</p>
+<p>$$
+\sum _ {i=1} ^ {N} i \cdot S \lbrack \frac{N}{i} \rbrack
+$$</p>
+<p>を求めればよいですが、 $i$ が後半になるにつれ、 $\frac{N}{i}$ の値は同じものが連続するようになってきます。</p>
+<p>そこで、 $S[\frac{N}{i}]$ の値が等しくなるような $i$ についてまとめて計算することを考えます。その準備として、 $M := \sqrt N$ とおき、</p>
+<ul>
+<li>前半 ( $i &lt; M$ )</li>
+<li>後半 ( $i \geq M$ )</li>
+</ul>
+<p>の範囲に分けて考えます。</p>
+<h4 id="前半_(_$i_&lt;_M$_)">前半 ( $i &lt; M$ )</h4>
+<p>公式解説通り一つずつ足し合わせます。計算量は $O(M)$ です。</p>
+<h4 id="後半_(_$i_\geq_M$_)">後半 ( $i \geq M$ )</h4>
+<p>$M$の定義から、この範囲では $\frac{N}{i} \leq M$ が成り立ちます。そこで、 $\frac{N}{i}$ の側を全探索してみましょう。</p>
+<p>$\frac{N}{i} = k$ となるようなiの範囲を計算すると $\frac{N}{k+1} + 1 \leq i \leq \frac{N}{k}$ であるので、</p>
+<p>$$
+\sum _ {i = \frac{N}{k+1} + 1} ^ {\frac{N}{k}} i \cdot S[k]
+$$</p>
+<p>が高速で求められると嬉しいです。変形すると、</p>
+<p>$$
+\begin{aligned}
+\sum _ {i = \frac{N}{k+1} + 1} ^ {\frac{N}{k}} i \cdot S[k]
+&amp;= S[k] \cdot\sum _ {i = \frac{N}{k+1} + 1} ^ {\frac{N}{k}} i \\
+&amp;= S[k] \cdot (S[\frac{N}{k}] - S[\frac{N}{k+1}])
+\end{aligned}
+$$</p>
+<p>であり、これは $O(1)$ で求められます。</p>
+<p>あとは、これを $k = 1, 2, ..., M$ について足し上げればよいです。計算量は $O(M)$ です。</p>
+<h3 id="$S$_の前計算について">$S$ の前計算について</h3>
+<p>累積和の要領で $S$ を前計算しようとすると $O(N)$ かかってしまい本末転倒です。これは簡単な等差数列の和なので、配列で持つのをやめて毎回</p>
+<p>$$
+S(k) = \frac{k(k+1)}{2}
+$$</p>
+<p>と計算してしまえば前計算が必要ありません。</p>
+<p>以上より、全体の答えを $O(M) = O(\sqrt N)$ で求めることができました。</p>
+<p>実装は前半後半の境界（$M$）付近がごちゃごちゃになりがちなので、前半部分を求める時は $M$ まで求めてしまうのではなく、後半部分がどこまでカバーできるのかを計算して、それに合わせて計算範囲を決めると楽です。また、 $M$ の計算方法によっては $N$ が極端に大きい・小さいケースや $N$ が平方数のケースなどでおかしくなることもあるので、注意が必要です。</p>
+<h2 id="実装">実装</h2>
+<p><a href="https://atcoder.jp/contests/abc172/submissions/14798227">提出コード（Python）</a></p>
+<pre data-lang="python" style="background-color:#282c34;color:#abb2bf;" class="language-python "><code class="language-python" data-lang="python"><span style="color:#c678dd;">def </span><span style="color:#61afef;">S</span><span>(</span><span style="font-style:italic;color:#e06c75;">k</span><span>):
+</span><span>    </span><span style="color:#c678dd;">return </span><span>k </span><span style="color:#56b6c2;">* </span><span>(k </span><span style="color:#56b6c2;">+ </span><span style="color:#d19a66;">1</span><span>) </span><span style="color:#56b6c2;">// </span><span style="color:#d19a66;">2
+</span><span>
+</span><span>N </span><span style="color:#56b6c2;">= int</span><span>(</span><span style="color:#56b6c2;">input</span><span>())
+</span><span>M </span><span style="color:#56b6c2;">= int</span><span>((N</span><span style="color:#56b6c2;">+</span><span style="color:#d19a66;">1</span><span>)</span><span style="color:#56b6c2;">**</span><span style="color:#d19a66;">.5</span><span>)
+</span><span>ans </span><span style="color:#56b6c2;">= </span><span style="color:#d19a66;">0
+</span><span style="color:#7f848e;"># 前半
+</span><span style="color:#c678dd;">for </span><span>i </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(</span><span style="color:#d19a66;">1</span><span>, N </span><span style="color:#56b6c2;">// </span><span>(M</span><span style="color:#56b6c2;">+</span><span style="color:#d19a66;">1</span><span>) </span><span style="color:#56b6c2;">+ </span><span style="color:#d19a66;">1</span><span>):
+</span><span>    ans </span><span style="color:#56b6c2;">+= </span><span>i </span><span style="color:#56b6c2;">* </span><span style="color:#e06c75;">S</span><span>(N </span><span style="color:#56b6c2;">// </span><span>i)
+</span><span style="color:#7f848e;"># 後半
+</span><span style="color:#c678dd;">for </span><span>k </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(</span><span style="color:#d19a66;">1</span><span>, M</span><span style="color:#56b6c2;">+</span><span style="color:#d19a66;">1</span><span>):
+</span><span>    ans </span><span style="color:#56b6c2;">+= </span><span style="color:#e06c75;">S</span><span>(k) </span><span style="color:#56b6c2;">* </span><span>(</span><span style="color:#e06c75;">S</span><span>(N</span><span style="color:#56b6c2;">//</span><span>k) </span><span style="color:#56b6c2;">- </span><span style="color:#e06c75;">S</span><span>(N</span><span style="color:#56b6c2;">//</span><span>(k</span><span style="color:#56b6c2;">+</span><span style="color:#d19a66;">1</span><span>)))
+</span><span style="color:#56b6c2;">print</span><span>(ans)
+</span></code></pre>
+<p>時間も余裕ですね。 $O(N \log N)$ ってなんですか？</p>
+
+
+
+<div class="pagination">
+  
+  <a class="next" href="https:&#x2F;&#x2F;nebocco.github.io&#x2F;post&#x2F;abc175d&#x2F;">ABC175-D Moving Piece 解説</a>
+  
+  
+</div>
+
+
+      </article>
+    </main>
+
+    <footer>
+      <span>© 2025 nebocco</span>
+      <br />
+      <span>Generated with <a href="https://www.getzola.org/">Zola</a></span>
+    </footer>
+  </div>
+</body>
+
+</html>

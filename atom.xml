@@ -1,0 +1,878 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="ja">
+    <title>ねぼこの日記</title>
+    <link rel="self" type="application/atom+xml" href="https://nebocco.github.io/atom.xml"/>
+    <link rel="alternate" type="text/html" href="https://nebocco.github.io"/>
+    <generator uri="https://www.getzola.org/">Zola</generator>
+    <updated>2021-01-13T00:00:00+00:00</updated>
+    <id>https://nebocco.github.io/atom.xml</id>
+    <entry xml:lang="ja">
+        <title>ABC128-C Switches 解説</title>
+        <published>2021-01-13T00:00:00+00:00</published>
+        <updated>2021-01-13T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              nebocco
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://nebocco.github.io/post/abc128c/"/>
+        <id>https://nebocco.github.io/post/abc128c/</id>
+        
+        <content type="html" xml:base="https://nebocco.github.io/post/abc128c/">&lt;p&gt;$O(M ^ 2)$ （一般の $N, M$ については $O(NM ^ 2)$ ）で解きます。&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;問題&quot;&gt;問題&lt;&#x2F;h2&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;atcoder.jp&#x2F;contests&#x2F;abc128&#x2F;tasks&#x2F;abc128_c&quot;&gt;AtCoder Beginner Contest 128 | C - Switches&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;概要&quot;&gt;概要&lt;&#x2F;h3&gt;
+&lt;p&gt;$N$ 個のスイッチと $M$ 個の電球がある。$i$ 番目のスイッチ $ (1\leq i\leq N) $ は $k_i$ 個の電球 $s_{i1}, s_{i2}, \ldots, s_{ik_i} (1 \leq s_{ij} \leq M)$ の状態を切り替える。
+全ての電球を ON にするスイッチの ON &#x2F; OFF の決め方は何通りか？&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;解法&quot;&gt;解法&lt;&#x2F;h2&gt;
+&lt;p&gt;editorial 解は素朴な全探索ですが、線形代数を用いて計算量を改善します。
+(大学一年生レベルの線形代数の知識が必要になります。)&lt;&#x2F;p&gt;
+&lt;p&gt;$N$ 次元ベクトル $\bm{x}$、$N \times M $ 行列 $A$ をそれぞれ&lt;&#x2F;p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+\bm{x} _ i &amp;amp;=
+\begin{cases}
+1 &amp;amp; \text{(スイッチ $i$ が ON)} \newline
+0 &amp;amp; \text{(OFF)}
+\end{cases} \newline
+A _ {ij} &amp;amp;=
+\begin{cases}
+1 &amp;amp; \text{(電球 $i$ がスイッチ $j$ の影響を受ける)} \newline
+0 &amp;amp; \text{(受けない)}
+\end{cases}
+\end{aligned}
+$$&lt;&#x2F;p&gt;
+&lt;p&gt;と定義します。求める答えは入力で与えられる $\bm{p}$ を用いて、$\bm{x}$ についての&lt;&#x2F;p&gt;
+&lt;p&gt;$$
+A\bm{x} \equiv \bm{p} \quad (\mathrm{mod}\:2)
+$$&lt;&#x2F;p&gt;
+&lt;p&gt;の解の個数に等しいです。&lt;&#x2F;p&gt;
+&lt;p&gt;この解は拡大係数行列 $(A\mid\bm{p})$ に掃き出し法を行うことで求めることができます。また、解の自由度を $r$ とすると $r = N - \mathrm{rank}(A\mid\bm{p})$ です。
+つまり $r$ 個のスイッチについては ON &#x2F; OFF を自由に決定することができるので、解の個数は $2 ^ r$ です。
+ただし、係数行列部分が全て $0$ なのに定数項が $0$ でないような行が存在した場合は &lt;strong&gt;解なし&lt;&#x2F;strong&gt; となるため注意してください。計算量は $O(NM ^ 2)$ です。&lt;&#x2F;p&gt;
+&lt;p&gt;さらに、演算が $\mathrm{mod}\:2$ 上で行われること、 $N$ がワードサイズに収まる $(\leq 32)$ ことから、
+以下の実装では $A$ をビットで表現し、掃き出し法をビット演算によって行っています。&lt;&#x2F;p&gt;
+&lt;p&gt;$$
+\begin{array}{ccc}
+A =
+\begin{pmatrix}
+0 &amp;amp; 1 &amp;amp; 1 &amp;amp; 0 &amp;amp; 1 \newline
+0 &amp;amp; 0 &amp;amp; 0 &amp;amp; 1 &amp;amp; 1 \newline
+1 &amp;amp; 0 &amp;amp; 0 &amp;amp; 1 &amp;amp; 0 \newline
+0 &amp;amp; 1 &amp;amp; 1 &amp;amp; 0 &amp;amp; 0 \newline
+0 &amp;amp; 1 &amp;amp; 0 &amp;amp; 0 &amp;amp; 1 \newline
+1 &amp;amp; 1 &amp;amp; 1 &amp;amp; 0 &amp;amp; 0
+\end{pmatrix} &amp;amp;
+\longrightarrow &amp;amp;
+A =
+\begin{pmatrix}
+\mathrm{01101} _ {(2)} \newline
+\mathrm{00011} _ {(2)} \newline
+\mathrm{10010} _ {(2)} \newline
+\mathrm{01100} _ {(2)} \newline
+\mathrm{01001} _ {(2)} \newline
+\mathrm{11100} _ {(2)}
+\end{pmatrix} =
+\begin{pmatrix}
+13 \newline 3 \newline 18 \newline 12 \newline 9 \newline 28
+\end{pmatrix}
+\end{array}
+$$&lt;&#x2F;p&gt;
+&lt;p&gt;これにより計算量は $O(M ^ 2)$ になっています。 $N$ が大きい場合にも、Python の多倍長整数や C++ の &lt;code&gt;bitset&lt;&#x2F;code&gt; を用いて同様の工夫を行なうことで、定数倍を大きく改善することができます。&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;実装&quot;&gt;実装&lt;&#x2F;h2&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;atcoder.jp&#x2F;contests&#x2F;abc128&#x2F;submissions&#x2F;19415164&quot;&gt;提出コード&lt;&#x2F;a&gt; (Python)&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;python&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-python &quot;&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span&gt;N, M &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= map&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;input&lt;&#x2F;span&gt;&lt;span&gt;().&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;split&lt;&#x2F;span&gt;&lt;span&gt;())
+&lt;&#x2F;span&gt;&lt;span&gt;s &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;list&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;map&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;input&lt;&#x2F;span&gt;&lt;span&gt;().&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;split&lt;&#x2F;span&gt;&lt;span&gt;()))[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;:] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e5c07b;&quot;&gt;_ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(M)]
+&lt;&#x2F;span&gt;&lt;span&gt;p &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= list&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;map&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;input&lt;&#x2F;span&gt;&lt;span&gt;().&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;split&lt;&#x2F;span&gt;&lt;span&gt;()))
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# 行列 A の構築
+&lt;&#x2F;span&gt;&lt;span&gt;A &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span&gt;M
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(M):
+&lt;&#x2F;span&gt;&lt;span&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;x &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span&gt;s[i]:
+&lt;&#x2F;span&gt;&lt;span&gt;    A[i] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;|= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;lt;&amp;lt; &lt;&#x2F;span&gt;&lt;span&gt;(N &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;- &lt;&#x2F;span&gt;&lt;span&gt;x)
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# 拡大
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(M):
+&lt;&#x2F;span&gt;&lt;span&gt;  A[i] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;A[i] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;lt;&amp;lt; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;| &lt;&#x2F;span&gt;&lt;span&gt;p[i]
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# 掃き出し法
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# mod2 なので XOR でよい
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(M):
+&lt;&#x2F;span&gt;&lt;span&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# 最も高い bit が立っている行を探す
+&lt;&#x2F;span&gt;&lt;span&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;j &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(i&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;, M):
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span&gt;A[i] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;lt; &lt;&#x2F;span&gt;&lt;span&gt;A[j]:
+&lt;&#x2F;span&gt;&lt;span&gt;      A[i], A[j] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;A[j], A[i]
+&lt;&#x2F;span&gt;&lt;span&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span&gt;A[i] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;== &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;break
+&lt;&#x2F;span&gt;&lt;span&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# 掃き出す
+&lt;&#x2F;span&gt;&lt;span&gt;  msb &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;lt;&amp;lt; &lt;&#x2F;span&gt;&lt;span&gt;(A[i].&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;bit_length&lt;&#x2F;span&gt;&lt;span&gt;() &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;- &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;j &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(M):
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span&gt;j &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;== &lt;&#x2F;span&gt;&lt;span&gt;i:
+&lt;&#x2F;span&gt;&lt;span&gt;      &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;continue
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span&gt;A[j] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;amp; &lt;&#x2F;span&gt;&lt;span&gt;msb:
+&lt;&#x2F;span&gt;&lt;span&gt;      A[j] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;^= &lt;&#x2F;span&gt;&lt;span&gt;A[i]
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# 係数が全て0 かつ 定数項が1 の行がある &amp;lt;=&amp;gt; 解なし
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span&gt;A:
+&lt;&#x2F;span&gt;&lt;span&gt;  ans &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;else&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;  rank &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= sum&lt;&#x2F;span&gt;&lt;span&gt;(x &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;gt; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;x &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span&gt;A)
+&lt;&#x2F;span&gt;&lt;span&gt;  ans &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= pow&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;2&lt;&#x2F;span&gt;&lt;span&gt;, N &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;- &lt;&#x2F;span&gt;&lt;span&gt;rank)
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;print&lt;&#x2F;span&gt;&lt;span&gt;(ans)
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="ja">
+        <title>ABC142-F Pure 解説</title>
+        <published>2021-01-13T00:00:00+00:00</published>
+        <updated>2021-01-13T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              nebocco
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://nebocco.github.io/post/abc142f/"/>
+        <id>https://nebocco.github.io/post/abc142f/</id>
+        
+        <content type="html" xml:base="https://nebocco.github.io/post/abc142f/">&lt;p&gt;$O(N+M)$ で解きます。&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;問題&quot;&gt;問題&lt;&#x2F;h2&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;atcoder.jp&#x2F;contests&#x2F;abc142&#x2F;tasks&#x2F;abc142_f&quot;&gt;AtCoder Beginner Contest 142 | F - Pure&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;概要&quot;&gt;概要&lt;&#x2F;h3&gt;
+&lt;p&gt;$N$ 頂点 $M $ 辺の有向グラフが与えられる。極小のサイクルを一つ見つけよ。&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;解法&quot;&gt;解法&lt;&#x2F;h2&gt;
+&lt;p&gt;問題文に書かれている条件は「概要」のように言い換えることができます。
+editorial では&lt;&#x2F;p&gt;
+&lt;ol&gt;
+&lt;li&gt;最小のサイクルを見つける&lt;&#x2F;li&gt;
+&lt;li&gt;サイクルを一つ見つけ、どんどん小さくしていく&lt;&#x2F;li&gt;
+&lt;&#x2F;ol&gt;
+&lt;p&gt;の二通りの方法で解いており、どちらも計算量は $O(N(N + M))$ です。&lt;&#x2F;p&gt;
+&lt;p&gt;このうち後者の方法は&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;サイクルを一つ見つける&lt;&#x2F;li&gt;
+&lt;li&gt;ショートカットができる限り、より小さなサイクルに更新していく&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;の二つのステップからなっています。この解法をベースに進めていきます。&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;サイクルを一つ見つける&quot;&gt;サイクルを一つ見つける&lt;&#x2F;h3&gt;
+&lt;p&gt;このパートは特に工夫は要りません。
+「有向グラフ サイクル 検出」などで検索するとたくさん出てくるので調べてみてください。
+深さ優先探索を行うだけではありますが、非再帰で実装するのはちょっとだけ大変です。
+計算量は $O(N + M)$ です。&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;小さなサイクルに更新していく&quot;&gt;小さなサイクルに更新していく&lt;&#x2F;h3&gt;
+&lt;p&gt;準備として、&lt;&#x2F;p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+\mathit{used}[v] &amp;amp;= \begin{cases}
+\mathrm{true} &amp;amp; \text{(頂点 $v$ がサイクルに使われている)} \\
+\mathrm{false} &amp;amp; \text{(使われていない)}
+\end{cases} \\
+\mathit{next}[v] &amp;amp;= \text{サイクル上で $v$ の次の頂点}
+\end{aligned}
+$$&lt;&#x2F;p&gt;
+&lt;p&gt;であるような配列 $\mathit{used}, \mathit{next}$ を作っておきます。サイクルに使われていない頂点は $\mathit{next}$ に何が入っていてもいいこととします。サイクルの長さは高々 $N$ なので、これらの配列は $O(N)$ で計算可能です。&lt;&#x2F;p&gt;
+&lt;p&gt;準備ができたら、辺を順番に見ていきます。辺 $uv$ について $\mathit{used}[u] = \mathrm{true}, \mathit{used}[v] = \mathrm{true}, \mathit{next}[u] \neq v$ であるような時は、下図のような状況です。&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;&#x2F;assets&#x2F;2021-01-13_abc142f&#x2F;20210113193158.png&quot; alt=&quot;赤い辺を使えばショートカットできる&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;このように、 $u$ から $v$ への経路を辺 $uv$ に置き換えることで、より小さなサイクルを作ることができます。ここでの更新処理が重要で、
+&lt;strong&gt;サイクル上で $u$ から $v$ の間にある頂点の $\mathit{used}$ を $\mathrm{false}$ にする&lt;&#x2F;strong&gt;
+という処理を行います。もちろん $\mathit{next}[u]$ の更新も忘れずに行ってください。&lt;&#x2F;p&gt;
+&lt;p&gt;サイクルを縮める操作は何度か行う可能性がありますが、この方法では一度 $\mathrm{false}$ になった頂点はその後処理の対象となりません。そのため、全ての辺に対する処理は合計しても $O(N+M)$ で済みます。
+一方、$v$ から $u$ へと辿ってサイクルを再構成しようとすると、サイクルの大きさが $N \to N-1 \to N-2 \to \cdots$ と変化するような場合に $O(N ^ 2)$ かかってしまいます。&lt;&#x2F;p&gt;
+&lt;p&gt;また、この処理の過程でサイクルに新たな頂点が追加されることはないので、それまでショートカットに使えなかった辺が新しく使えるようになることはありません。
+なので、順番を気にすることなく全ての辺を一回ずつ見るだけで、それ以上のショートカットが不可能な極小のサイクルを得ることができます。&lt;&#x2F;p&gt;
+&lt;p&gt;計算量は全体で $O(N+M)$ です。&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;実装&quot;&gt;実装&lt;&#x2F;h2&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;atcoder.jp&#x2F;contests&#x2F;abc142&#x2F;submissions&#x2F;19417394&quot;&gt;提出コード&lt;&#x2F;a&gt; (Python)&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;python&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-python &quot;&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span&gt;N, M &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= map&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;input&lt;&#x2F;span&gt;&lt;span&gt;().&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;split&lt;&#x2F;span&gt;&lt;span&gt;())
+&lt;&#x2F;span&gt;&lt;span&gt;edges &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;tuple&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;map&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;input&lt;&#x2F;span&gt;&lt;span&gt;().&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;split&lt;&#x2F;span&gt;&lt;span&gt;())) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e5c07b;&quot;&gt;_ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(M)]
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;G &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;list&lt;&#x2F;span&gt;&lt;span&gt;() &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e5c07b;&quot;&gt;_ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(N&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;)]
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;(u, v) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span&gt;edges:
+&lt;&#x2F;span&gt;&lt;span&gt;  G[u].&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;append&lt;&#x2F;span&gt;&lt;span&gt;(v)
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# サイクル検出
+&lt;&#x2F;span&gt;&lt;span&gt;seen &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;]&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span&gt;(N&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# -1: 未到達
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# 0: stack追加済み
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# 1: 行きがけで通過済み(cycle候補)
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# 2: 帰りがけで通過済み
+&lt;&#x2F;span&gt;&lt;span&gt;curr_path &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;[]
+&lt;&#x2F;span&gt;&lt;span&gt;stack &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;[]
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;def &lt;&#x2F;span&gt;&lt;span style=&quot;color:#61afef;&quot;&gt;dfs&lt;&#x2F;span&gt;&lt;span&gt;():
+&lt;&#x2F;span&gt;&lt;span&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;, N&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;):
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span&gt;seen[i] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;== &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;2&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;      &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;continue
+&lt;&#x2F;span&gt;&lt;span&gt;    stack.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;append&lt;&#x2F;span&gt;&lt;span&gt;(i)
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;while &lt;&#x2F;span&gt;&lt;span&gt;stack:
+&lt;&#x2F;span&gt;&lt;span&gt;      u &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;stack.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;pop&lt;&#x2F;span&gt;&lt;span&gt;()
+&lt;&#x2F;span&gt;&lt;span&gt;      &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span&gt;u &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;gt; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# 行きがけ
+&lt;&#x2F;span&gt;&lt;span&gt;        stack.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;append&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span&gt;u)
+&lt;&#x2F;span&gt;&lt;span&gt;        curr_path.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;append&lt;&#x2F;span&gt;&lt;span&gt;(u)
+&lt;&#x2F;span&gt;&lt;span&gt;        seen[u] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;v &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span&gt;G[u]:
+&lt;&#x2F;span&gt;&lt;span&gt;          &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span&gt;seen[v] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;== -&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;            seen[v] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0
+&lt;&#x2F;span&gt;&lt;span&gt;            stack.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;append&lt;&#x2F;span&gt;&lt;span&gt;(v)
+&lt;&#x2F;span&gt;&lt;span&gt;          &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;elif &lt;&#x2F;span&gt;&lt;span&gt;seen[v] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;== &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;            cycle &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;curr_path[curr_path.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;index&lt;&#x2F;span&gt;&lt;span&gt;(v):]
+&lt;&#x2F;span&gt;&lt;span&gt;            &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;return &lt;&#x2F;span&gt;&lt;span&gt;cycle
+&lt;&#x2F;span&gt;&lt;span&gt;      &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;else&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# 帰りがけ
+&lt;&#x2F;span&gt;&lt;span&gt;        seen[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span&gt;u] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;2
+&lt;&#x2F;span&gt;&lt;span&gt;        curr_path.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;pop&lt;&#x2F;span&gt;&lt;span&gt;()
+&lt;&#x2F;span&gt;&lt;span&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;return &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;list&lt;&#x2F;span&gt;&lt;span&gt;()
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;cycle &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;dfs&lt;&#x2F;span&gt;&lt;span&gt;()
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;if not &lt;&#x2F;span&gt;&lt;span&gt;cycle:
+&lt;&#x2F;span&gt;&lt;span&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;print&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;exit&lt;&#x2F;span&gt;&lt;span&gt;()
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# サイクルを小さくする
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# 準備
+&lt;&#x2F;span&gt;&lt;span&gt;used &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;False&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span&gt;(N&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;next = &lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span&gt;(N&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;len&lt;&#x2F;span&gt;&lt;span&gt;(cycle)):
+&lt;&#x2F;span&gt;&lt;span&gt;  used[cycle[i]] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;True
+&lt;&#x2F;span&gt;&lt;span&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;next&lt;&#x2F;span&gt;&lt;span&gt;[cycle[i&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;]] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;cycle[i]
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# ショートカットできるか確かめる
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;(u, v) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span&gt;edges:
+&lt;&#x2F;span&gt;&lt;span&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span&gt;used[u] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;and &lt;&#x2F;span&gt;&lt;span&gt;used[v] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;and &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;next&lt;&#x2F;span&gt;&lt;span&gt;[u] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;!= &lt;&#x2F;span&gt;&lt;span&gt;v:
+&lt;&#x2F;span&gt;&lt;span&gt;    w &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= next&lt;&#x2F;span&gt;&lt;span&gt;[u]
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;while &lt;&#x2F;span&gt;&lt;span&gt;w &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;!= &lt;&#x2F;span&gt;&lt;span&gt;v:
+&lt;&#x2F;span&gt;&lt;span&gt;      used[w] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;False
+&lt;&#x2F;span&gt;&lt;span&gt;      w &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= next&lt;&#x2F;span&gt;&lt;span&gt;[w]
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;next&lt;&#x2F;span&gt;&lt;span&gt;[u] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;v
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# サイクル復元
+&lt;&#x2F;span&gt;&lt;span&gt;u &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;used.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;index&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;True&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;ans &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;[u]
+&lt;&#x2F;span&gt;&lt;span&gt;v &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= next&lt;&#x2F;span&gt;&lt;span&gt;[u]
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;while &lt;&#x2F;span&gt;&lt;span&gt;v &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;!= &lt;&#x2F;span&gt;&lt;span&gt;u:
+&lt;&#x2F;span&gt;&lt;span&gt;  ans.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;append&lt;&#x2F;span&gt;&lt;span&gt;(v)
+&lt;&#x2F;span&gt;&lt;span&gt;  v &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= next&lt;&#x2F;span&gt;&lt;span&gt;[v]
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;print&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;len&lt;&#x2F;span&gt;&lt;span&gt;(ans))
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;x &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span&gt;ans:
+&lt;&#x2F;span&gt;&lt;span&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;print&lt;&#x2F;span&gt;&lt;span&gt;(x)
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;h4 id=&quot;余談&quot;&gt;余談&lt;&#x2F;h4&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;atcoder.jp&#x2F;contests&#x2F;abc142&#x2F;submissions&#x2F;19417479&quot;&gt;提出コード&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;ウケますね&lt;&#x2F;p&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="ja">
+        <title>ABC187-B Gentle Pairs 解説</title>
+        <published>2021-01-07T00:00:00+00:00</published>
+        <updated>2021-01-07T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              nebocco
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://nebocco.github.io/post/abc187b/"/>
+        <id>https://nebocco.github.io/post/abc187b/</id>
+        
+        <content type="html" xml:base="https://nebocco.github.io/post/abc187b/">&lt;p&gt;\(O(N \log N)\) で解きます。&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;問題&quot;&gt;問題&lt;&#x2F;h2&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;atcoder.jp&#x2F;contests&#x2F;abc187&#x2F;tasks&#x2F;abc187_b&quot;&gt;AtCoder Beginner Contest 187 | B - Gentle Pairs&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;概要&quot;&gt;概要&lt;&#x2F;h3&gt;
+&lt;p&gt;与えられる点の集合 \(S\) の中から二点を選ぶとき、それらを結んだ直線の傾きが \(-1\) 以上 \(1\) 以下になる組み合わせはいくつあるか？&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;解法&quot;&gt;解法&lt;&#x2F;h2&gt;
+&lt;p&gt;editorial 解は単純にすべてのペアについて調べるだけですが、ここでは他の解き方を紹介します。&lt;&#x2F;p&gt;
+&lt;p&gt;まず、こういう図を想像します。&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;&#x2F;assets&#x2F;2021-01-07_abc187b&#x2F;20210108160250.png&quot; alt=&quot;こういうイメージ&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;点 \(\mathrm{P}\) と結んだ時に傾きが \(-1\) 以上 \(1\) 以下になるのは灰色で塗られた範囲です。よって、 \((\mathrm{P}, \mathrm{Q})\) は条件を満たしますが、 \((\mathrm{P}, \mathrm{R})\) は満たさないことが見て取れます。&lt;&#x2F;p&gt;
+&lt;p&gt;この図を左に \(45^\circ\) 回転してみます。&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;&#x2F;assets&#x2F;2021-01-07_abc187b&#x2F;20210108160203.png&quot; alt=&quot;45°回転した図&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;\(45^\circ\) 回転した座標系を新たに考えると、問題の条件は「自分より左下、または右上にある」と言い替えることができます。&lt;&#x2F;p&gt;
+&lt;p&gt;よって、全ての点について自身の左下にいくつの点があるかを数えることで、全てのペアを重複なく数えることができます。
+これは、 \(X\) 座標の小さい順に点を見ていき、今見ている点より \(Y\) 座標の小さな点がこれまでにいくつあったかが計算できれば良いので、
+平衡二分木やFenwick Treeを使うことで \(O(N \log N)\) で解くことができます。
+（「平面走査」と呼ばれるテクニックです。）&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;実装&quot;&gt;実装&lt;&#x2F;h2&gt;
+&lt;p&gt;今回の制約ではわざわざ座標圧縮を行う必要はありませんが、負数がなくなるよう底上げする処理が必要なのでせっかくだしやることにしました。&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;atcoder.jp&#x2F;contests&#x2F;abc187&#x2F;submissions&#x2F;19253538&quot;&gt;提出コード（Python）&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;python&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-python &quot;&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;class &lt;&#x2F;span&gt;&lt;span&gt;FenwickTree:
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# 実装略
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;N &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= int&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;input&lt;&#x2F;span&gt;&lt;span&gt;())
+&lt;&#x2F;span&gt;&lt;span&gt;P &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;tuple&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;map&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;input&lt;&#x2F;span&gt;&lt;span&gt;().&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;split&lt;&#x2F;span&gt;&lt;span&gt;())) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e5c07b;&quot;&gt;_ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(N)]
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# 座標変換
+&lt;&#x2F;span&gt;&lt;span&gt;P &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;[(x&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span&gt;y, x&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span&gt;y) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;(x, y) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span&gt;P]
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# 座標圧縮
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;def &lt;&#x2F;span&gt;&lt;span style=&quot;color:#61afef;&quot;&gt;compress&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;p&lt;&#x2F;span&gt;&lt;span&gt;):
+&lt;&#x2F;span&gt;&lt;span&gt;    x_set &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= sorted&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;set&lt;&#x2F;span&gt;&lt;span&gt;([x &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;(x, y) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span&gt;p]))
+&lt;&#x2F;span&gt;&lt;span&gt;    y_set &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= sorted&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;set&lt;&#x2F;span&gt;&lt;span&gt;([y &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;(x, y) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span&gt;p]))
+&lt;&#x2F;span&gt;&lt;span&gt;    x_dict &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;{x:i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;i, x &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;enumerate&lt;&#x2F;span&gt;&lt;span&gt;(x_set)}
+&lt;&#x2F;span&gt;&lt;span&gt;    y_dict &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;{y:i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;i, y &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;enumerate&lt;&#x2F;span&gt;&lt;span&gt;(y_set)}
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;return &lt;&#x2F;span&gt;&lt;span&gt;[(x_dict[x], y_dict[y]) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;(x, y) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span&gt;p]
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;P &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;compress&lt;&#x2F;span&gt;&lt;span&gt;(P)
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# 平面走査
+&lt;&#x2F;span&gt;&lt;span&gt;P.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;sort&lt;&#x2F;span&gt;&lt;span&gt;()
+&lt;&#x2F;span&gt;&lt;span&gt;bit &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;FenwickTree&lt;&#x2F;span&gt;&lt;span&gt;(N)
+&lt;&#x2F;span&gt;&lt;span&gt;ans &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e5c07b;&quot;&gt;_&lt;&#x2F;span&gt;&lt;span&gt;, y) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span&gt;P:
+&lt;&#x2F;span&gt;&lt;span&gt;    ans &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+= &lt;&#x2F;span&gt;&lt;span&gt;bit.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;bitsum&lt;&#x2F;span&gt;&lt;span&gt;(y&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;    bit.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;bitadd&lt;&#x2F;span&gt;&lt;span&gt;(y, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;print&lt;&#x2F;span&gt;&lt;span&gt;(ans)
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="ja">
+        <title>AGC005-B Minimum Sum 解説</title>
+        <published>2020-08-23T00:00:00+00:00</published>
+        <updated>2020-08-23T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              nebocco
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://nebocco.github.io/post/agc005b/"/>
+        <id>https://nebocco.github.io/post/agc005b/</id>
+        
+        <content type="html" xml:base="https://nebocco.github.io/post/agc005b/">&lt;p&gt;\(O(N )\) で解きます。&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;問題&quot;&gt;問題&lt;&#x2F;h2&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;atcoder.jp&#x2F;contests&#x2F;agc005&#x2F;tasks&#x2F;agc005_b&quot;&gt;AtCoder Grand Contest 005 | B - Minimum Sum&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;概要&quot;&gt;概要&lt;&#x2F;h3&gt;
+&lt;p&gt;$$
+\sum _ {l = 1} ^ N \sum _ {r = l} ^ N \mathrm{min} \left( a _ l, a _ {l + 1} , \ldots , a _ r \right)
+$$&lt;&#x2F;p&gt;
+&lt;p&gt;を求めなさい。&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;解法&quot;&gt;解法&lt;&#x2F;h2&gt;
+&lt;p&gt;editorial 解は平衡二分木を用いたものです。Pythonの標準ライブラリには平衡二分木がないので、&lt;a href=&quot;https:&#x2F;&#x2F;qiita.com&#x2F;nebocco&#x2F;items&#x2F;638da118cd621d2628d1&quot;&gt;別の方法&lt;&#x2F;a&gt;を使う必要があります。（宣伝）&lt;&#x2F;p&gt;
+&lt;p&gt;ほかにもいくつか解法があるので、その中から editorial よりも計算量の小さい方法を二つ紹介します。&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;Dancing_Links&quot;&gt;Dancing Links&lt;&#x2F;h3&gt;
+&lt;p&gt;二つの配列&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;\(\mathit{left}\left[i\right]\) ： \(\mathrm{max} \{\ j\ |\ j &amp;lt; i, a _ j &amp;lt; a _ i  \} \)&lt;&#x2F;li&gt;
+&lt;li&gt;\(\mathit{right}\left[i\right]\) ： \(\mathrm{min} \{\ j\ |\ j &amp;gt; i, a _ j &amp;lt; a _ i  \} \)&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;を用意します。簡単に言うと、それぞれ「自分の左右にある自分より小さいものの中で一番近いもの」のindexを記録したものです。とりあえず、この二つの配列を完成させることを目標にします。&lt;&#x2F;p&gt;
+&lt;p&gt;初めに、 \(\mathit{left}\left[i\right] \leftarrow i-1,\ \mathit{right}\left[i\right] \leftarrow i+1 \) で初期化します。
+\(a _ i\) の大きい順にこの配列を埋めていきます。
+\(a _ i\) を処理しているとき、 \(\mathit{left}\left[i\right]\) より大きく \(\mathit{right}\left[i\right]\) より小さい場所には、
+\(a _ {\mathit{left}\left[i\right]}\) よりも大きく、\(a _ {\mathit{right}\left[i\right]}\) よりも大きい要素しか存在していないはずです。&lt;&#x2F;p&gt;
+&lt;p&gt;＜ここに図を入れる＞&lt;&#x2F;p&gt;
+&lt;p&gt;そこで、 \(a _ {\mathit{left}\left[i\right]} ,\  a _ {\mathit{right}\left[i\right]}\) に対して以下のように更新をしてあげます。&lt;&#x2F;p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+\mathit{left}\left[\mathit{right}\left[i\right]\right] &amp;amp;\leftarrow \mathit{right}\left[i\right] \\
+\mathit{right}\left[\mathit{left}\left[i\right]\right] &amp;amp;\leftarrow \mathit{left}\left[i\right] \\
+\end{aligned}
+$$&lt;&#x2F;p&gt;
+&lt;p&gt;お互いの間にある要素は見る必要がないのでスキップさせるイメージです。これを繰り返していくことで、全 \(a _ i\) に対して正しい \(\mathit{left}\left[i\right],\mathit{right}\left[i\right]\) を求めることができます。&lt;&#x2F;p&gt;
+&lt;p&gt;答えに加算していく区間のうち、左端が \(\mathit{left}\left[i\right] + 1,\ \mathit{left}\left[i\right] + 2 ,\ \ldots ,\ i\) のどれかで、右端が \(i,\ i + 1 ,\ \ldots ,\ \mathit{right}\left[i\right] - 1\) のどれかであるようなものは、 区間内の最小値が \(a _ i\) になります。よって最終的な答えは&lt;&#x2F;p&gt;
+&lt;p&gt;$$
+\sum _ {i = 1} ^ N a _ i ( i - \mathit{left}\left[i\right]) (\mathit{right}\left[i\right] - i)
+$$&lt;&#x2F;p&gt;
+&lt;p&gt;で求めることができます。
+一般的にはソートに \(O( N \log N)\) かかってしまいますが、この問題では \(\{a_ i\}\) が順列であることから、バケツソートの要領で \(O(N)\) で並び替えることができます。全体の計算量も \(O(N)\) です。&lt;&#x2F;p&gt;
+&lt;p&gt;雑に実装すると両端の要素の更新を行う際におかしくなる可能性があるので、if 文などで適切に処理をしてください。以下の Python のコードでは負のインデックスを与えると末尾からアクセスできる仕様を利用して簡便に実装しています。&lt;&#x2F;p&gt;
+&lt;p&gt;ちなみに、更新に Union-Find を利用して \(O(N \alpha (N))\) で解くこともできます。&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;python&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-python &quot;&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span&gt;N &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= int&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;input&lt;&#x2F;span&gt;&lt;span&gt;())
+&lt;&#x2F;span&gt;&lt;span&gt;a &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= list&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;map&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;input&lt;&#x2F;span&gt;&lt;span&gt;().&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;split&lt;&#x2F;span&gt;&lt;span&gt;()))
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# indexをソート
+&lt;&#x2F;span&gt;&lt;span&gt;b &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span&gt;N
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(N):
+&lt;&#x2F;span&gt;&lt;span&gt;    b[a[i] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;- &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;i
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# 初期化端っこ対策としてひとつ余計に取っている
+&lt;&#x2F;span&gt;&lt;span&gt;left &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span&gt;(N &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;right &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span&gt;(N &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(N &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;):
+&lt;&#x2F;span&gt;&lt;span&gt;    left[i] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;i&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1
+&lt;&#x2F;span&gt;&lt;span&gt;    right[i] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;i&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# 更新
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;idx &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;reversed&lt;&#x2F;span&gt;&lt;span&gt;(b):
+&lt;&#x2F;span&gt;&lt;span&gt;    left[right[idx]] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;left[idx]
+&lt;&#x2F;span&gt;&lt;span&gt;    right[left[idx]] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;right[idx]
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;ans &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(N):
+&lt;&#x2F;span&gt;&lt;span&gt;    ans &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+= &lt;&#x2F;span&gt;&lt;span&gt;a[i] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span&gt;(i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;- &lt;&#x2F;span&gt;&lt;span&gt;left[i]) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span&gt;(right[i] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;- &lt;&#x2F;span&gt;&lt;span&gt;i)
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;print&lt;&#x2F;span&gt;&lt;span&gt;(ans)
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;h3 id=&quot;stackの活用&quot;&gt;stackの活用&lt;&#x2F;h3&gt;
+&lt;p&gt;上と同様に \(\mathit{left} ,\ \mathit{right}\) を求めるのですが、今度は先頭の要素から順番に \(\mathit{left}\) を求めていくことにします。&lt;&#x2F;p&gt;
+&lt;p&gt;stack \(\mathit{buf}\) を用意し、これに順に \(1,\ 2,\ 3,\ \ldots\) を追加していきます。
+\(i\) を追加する際、 \(\mathit{buf}\) 末尾の要素 \(j\) が \(a _  j &amp;gt; a _ i\) である限り pop していきます。
+すると、最後に残った末尾 \(j\) は \(a _  j &amp;lt; a _ i\) を満たす最大の \(j\) となっているはずです。（&lt;a href=&quot;https:&#x2F;&#x2F;www.google.com&#x2F;search?rlz=1C1CHBD_jaJP912JP912&amp;amp;sxsrf=ALeKk02VPCL_hZ3beZrnkXDBZ52oHF8K5Q%3A1598060903776&amp;amp;ei=Z3lAX-35LovW-Qaul5XwAg&amp;amp;q=%E3%83%92%E3%82%B9%E3%83%88%E3%82%B0%E3%83%A9%E3%83%A0%E3%80%80%E6%9C%80%E5%A4%A7%E9%95%B7%E6%96%B9%E5%BD%A2%E5%95%8F%E9%A1%8C&amp;amp;oq=%E3%83%92%E3%82%B9%E3%83%88%E3%82%B0%E3%83%A9%E3%83%A0%E3%80%80%E6%9C%80%E5%A4%A7%E9%95%B7%E6%96%B9%E5%BD%A2%E5%95%8F%E9%A1%8C&amp;amp;gs_lcp=CgZwc3ktYWIQAzIECCMQJ1AAWABgtsIPaABwAHgAgAFNiAFNkgEBMZgBAKoBB2d3cy13aXrAAQE&amp;amp;sclient=psy-ab&amp;amp;ved=0ahUKEwityf7j2K3rAhULa94KHa5LBS4Q4dUDCAw&amp;amp;uact=5&quot;&gt;ヒストグラム内最大長方形問題&lt;&#x2F;a&gt;と同じ要領です。
+）
+\(\mathit{left}\left[i\right] \leftarrow j\) と記録して \(\mathit{buf}\) に \(i\) を push し、次に進みます。&lt;&#x2F;p&gt;
+&lt;p&gt;この手順を繰り返すことで、すべての要素について \(\mathit{left}\) を求めることができます。同様の操作を右から行うことで \(\mathit{right}\) も求めることができます。各要素につき高々一度ずつしか push, pop が行われないので、計算量は \(O(N)\) です。&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;python&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-python &quot;&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span&gt;N &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= int&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;input&lt;&#x2F;span&gt;&lt;span&gt;())
+&lt;&#x2F;span&gt;&lt;span&gt;a &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= list&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;map&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;input&lt;&#x2F;span&gt;&lt;span&gt;().&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;split&lt;&#x2F;span&gt;&lt;span&gt;()))
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;left &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span&gt;(N &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;right &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span&gt;(N &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# 左から
+&lt;&#x2F;span&gt;&lt;span&gt;buf &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= list&lt;&#x2F;span&gt;&lt;span&gt;()
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(N):
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;while &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;len&lt;&#x2F;span&gt;&lt;span&gt;(buf) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;gt; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;and &lt;&#x2F;span&gt;&lt;span&gt;a[buf[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;]] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;gt; &lt;&#x2F;span&gt;&lt;span&gt;a[i]:
+&lt;&#x2F;span&gt;&lt;span&gt;        buf.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;pop&lt;&#x2F;span&gt;&lt;span&gt;()
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;len&lt;&#x2F;span&gt;&lt;span&gt;(buf) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;gt; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;        left[i] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;buf[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;]
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;else&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;        left[i] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= -&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1
+&lt;&#x2F;span&gt;&lt;span&gt;    buf.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;append&lt;&#x2F;span&gt;&lt;span&gt;(i)
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# 右から
+&lt;&#x2F;span&gt;&lt;span&gt;buf &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= list&lt;&#x2F;span&gt;&lt;span&gt;()
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;reversed&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(N)):
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;while &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;len&lt;&#x2F;span&gt;&lt;span&gt;(buf) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;gt; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;and &lt;&#x2F;span&gt;&lt;span&gt;a[buf[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;]] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;gt; &lt;&#x2F;span&gt;&lt;span&gt;a[i]:
+&lt;&#x2F;span&gt;&lt;span&gt;        buf.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;pop&lt;&#x2F;span&gt;&lt;span&gt;()
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;len&lt;&#x2F;span&gt;&lt;span&gt;(buf) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;gt; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;        right[i] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;buf[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;]
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;else&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;        right[i] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;N
+&lt;&#x2F;span&gt;&lt;span&gt;    buf.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;append&lt;&#x2F;span&gt;&lt;span&gt;(i)
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;ans &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(N):
+&lt;&#x2F;span&gt;&lt;span&gt;    ans &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+= &lt;&#x2F;span&gt;&lt;span&gt;a[i] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span&gt;(i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;- &lt;&#x2F;span&gt;&lt;span&gt;left[i]) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span&gt;(right[i] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;- &lt;&#x2F;span&gt;&lt;span&gt;i)
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;print&lt;&#x2F;span&gt;&lt;span&gt;(ans)
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;h2 id=&quot;実装&quot;&gt;実装&lt;&#x2F;h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;atcoder.jp&#x2F;contests&#x2F;agc005&#x2F;submissions&#x2F;16085209&quot;&gt;Dancing Links 解法 (Python)&lt;&#x2F;a&gt;: 325 ms&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;atcoder.jp&#x2F;contests&#x2F;agc005&#x2F;submissions&#x2F;16085278&quot;&gt;stack 解法 (Python)&lt;&#x2F;a&gt;: 393 ms&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="ja">
+        <title>ABC122-D We Like AGC 解説</title>
+        <published>2020-08-22T00:00:00+00:00</published>
+        <updated>2020-08-22T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              nebocco
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://nebocco.github.io/post/abc122/"/>
+        <id>https://nebocco.github.io/post/abc122/</id>
+        
+        <content type="html" xml:base="https://nebocco.github.io/post/abc122/">&lt;p&gt;\(O( \log N )\) で解きます。&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;問題&quot;&gt;問題&lt;&#x2F;h2&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;atcoder.jp&#x2F;contests&#x2F;abc122&#x2F;tasks&#x2F;abc122_d&quot;&gt;AtCoder Beginner Contest 122 | D - We Like AGC&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;解法&quot;&gt;解法&lt;&#x2F;h2&gt;
+&lt;p&gt;editorial のDP解法をベースに考えます。 \(i\) 文字目を決める際の遷移は \(i\) の値によらず常に固定なので、漸化式を行列の累乗に落とし込むことができます。64次元線形空間の行列を手書きで入力するのは面倒なので、いい感じにプログラムを組みます。気合いで頑張ってください💪&lt;&#x2F;p&gt;
+&lt;p&gt;始状態は &lt;code&gt;&quot;TTT&quot;&lt;&#x2F;code&gt; にあたる状態だけ1にしておくと特に調節が不要になります。また、しれっとオーバーフローを起こすのでPythonの多倍長整数演算に頼っています。&lt;&#x2F;p&gt;
+&lt;p&gt;定数倍がとても大きいので、この問題の制約の範囲内では素直にDPやメモ化再帰を書くほうが断然早いです。&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;実装&quot;&gt;実装&lt;&#x2F;h2&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;atcoder.jp&#x2F;contests&#x2F;abc122&#x2F;submissions&#x2F;16072743&quot;&gt;提出コード（Python）&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;python&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-python &quot;&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span style=&quot;font-style:italic;color:#c678dd;&quot;&gt;import &lt;&#x2F;span&gt;&lt;span&gt;numpy &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;as &lt;&#x2F;span&gt;&lt;span&gt;np
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#c678dd;&quot;&gt;import &lt;&#x2F;span&gt;&lt;span&gt;re
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;mod &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;10&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;**&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;9 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;7
+&lt;&#x2F;span&gt;&lt;span&gt;letters &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#98c379;&quot;&gt;&amp;quot;ACGT&amp;quot;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# 文字を添え字に
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;def &lt;&#x2F;span&gt;&lt;span style=&quot;color:#61afef;&quot;&gt;to_int&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;s&lt;&#x2F;span&gt;&lt;span&gt;):
+&lt;&#x2F;span&gt;&lt;span&gt;    res &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;x &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span&gt;s:
+&lt;&#x2F;span&gt;&lt;span&gt;        res &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;lt;&amp;lt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;2
+&lt;&#x2F;span&gt;&lt;span&gt;        res &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+= &lt;&#x2F;span&gt;&lt;span&gt;letters.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;index&lt;&#x2F;span&gt;&lt;span&gt;(x)
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;return &lt;&#x2F;span&gt;&lt;span&gt;res
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# 添え字を文字に
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;def &lt;&#x2F;span&gt;&lt;span style=&quot;color:#61afef;&quot;&gt;to_str&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;x&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;digit&lt;&#x2F;span&gt;&lt;span&gt;):
+&lt;&#x2F;span&gt;&lt;span&gt;    res &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#98c379;&quot;&gt;&amp;quot;&amp;quot;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e5c07b;&quot;&gt;_ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(digit):
+&lt;&#x2F;span&gt;&lt;span&gt;        res &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+= &lt;&#x2F;span&gt;&lt;span&gt;letters[x&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;amp;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;3&lt;&#x2F;span&gt;&lt;span&gt;]
+&lt;&#x2F;span&gt;&lt;span&gt;        x &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;gt;&amp;gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;2
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;return &lt;&#x2F;span&gt;&lt;span&gt;res[::&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;]
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# 部分文字列として含んではいけないものを正規表現で判定
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;def &lt;&#x2F;span&gt;&lt;span style=&quot;color:#61afef;&quot;&gt;is_ok&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;s&lt;&#x2F;span&gt;&lt;span&gt;):
+&lt;&#x2F;span&gt;&lt;span&gt;    ng &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;r&lt;&#x2F;span&gt;&lt;span style=&quot;color:#98c379;&quot;&gt;&amp;quot;AGC&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;r&lt;&#x2F;span&gt;&lt;span style=&quot;color:#98c379;&quot;&gt;&amp;quot;ACG&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;r&lt;&#x2F;span&gt;&lt;span style=&quot;color:#98c379;&quot;&gt;&amp;quot;GAC&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;r&lt;&#x2F;span&gt;&lt;span style=&quot;color:#98c379;&quot;&gt;&amp;quot;A&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#98c379;&quot;&gt;GC&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;r&lt;&#x2F;span&gt;&lt;span style=&quot;color:#98c379;&quot;&gt;&amp;quot;AG&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#98c379;&quot;&gt;C&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;]
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;x &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span&gt;ng:
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span&gt;re.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;search&lt;&#x2F;span&gt;&lt;span&gt;(x, s):
+&lt;&#x2F;span&gt;&lt;span&gt;            &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;return &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;False
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;return &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;True
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# 行列の二分累乗
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;def &lt;&#x2F;span&gt;&lt;span style=&quot;color:#61afef;&quot;&gt;mat_power&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;A&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;p&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;mod&lt;&#x2F;span&gt;&lt;span&gt;):
+&lt;&#x2F;span&gt;&lt;span&gt;    res &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;np.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;eye&lt;&#x2F;span&gt;&lt;span&gt;(A.shape[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;], &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;dtype &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#98c379;&quot;&gt;&amp;quot;object&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;while &lt;&#x2F;span&gt;&lt;span&gt;p:
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span&gt;p &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;amp; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;            res &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;np.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;dot&lt;&#x2F;span&gt;&lt;span&gt;(res, A) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;% &lt;&#x2F;span&gt;&lt;span&gt;mod
+&lt;&#x2F;span&gt;&lt;span&gt;        A &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;np.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;dot&lt;&#x2F;span&gt;&lt;span&gt;(A, A) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;% &lt;&#x2F;span&gt;&lt;span&gt;mod
+&lt;&#x2F;span&gt;&lt;span&gt;        p &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;gt;&amp;gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;return &lt;&#x2F;span&gt;&lt;span&gt;res
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# 行列作成各状態からの各遷移が有効か確かめる
+&lt;&#x2F;span&gt;&lt;span&gt;A &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;[[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;]&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;64 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e5c07b;&quot;&gt;_ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;64&lt;&#x2F;span&gt;&lt;span&gt;)]
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;64&lt;&#x2F;span&gt;&lt;span&gt;):
+&lt;&#x2F;span&gt;&lt;span&gt;    s &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;to_str&lt;&#x2F;span&gt;&lt;span&gt;(i, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;3&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;j &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;4&lt;&#x2F;span&gt;&lt;span&gt;):
+&lt;&#x2F;span&gt;&lt;span&gt;        t &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;s &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;to_str&lt;&#x2F;span&gt;&lt;span&gt;(j, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;is_ok&lt;&#x2F;span&gt;&lt;span&gt;(t):
+&lt;&#x2F;span&gt;&lt;span&gt;            A[i][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;to_int&lt;&#x2F;span&gt;&lt;span&gt;(t[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;:])] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1
+&lt;&#x2F;span&gt;&lt;span&gt;A &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;np.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;array&lt;&#x2F;span&gt;&lt;span&gt;(A, &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;dtype &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#98c379;&quot;&gt;&amp;quot;object&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# ベクトル作成TTTのみ立てておく
+&lt;&#x2F;span&gt;&lt;span&gt;x &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;]&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;64
+&lt;&#x2F;span&gt;&lt;span&gt;x[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;63&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1
+&lt;&#x2F;span&gt;&lt;span&gt;x &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;np.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;array&lt;&#x2F;span&gt;&lt;span&gt;(x)
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;N &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= int&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;input&lt;&#x2F;span&gt;&lt;span&gt;())
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;print&lt;&#x2F;span&gt;&lt;span&gt;((np.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;dot&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;mat_power&lt;&#x2F;span&gt;&lt;span&gt;(A, N, mod), x) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;% &lt;&#x2F;span&gt;&lt;span&gt;mod).&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;sum&lt;&#x2F;span&gt;&lt;span&gt;() &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;% &lt;&#x2F;span&gt;&lt;span&gt;mod)
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="ja">
+        <title>ABC156-C Rally 解説</title>
+        <published>2020-08-21T00:00:00+00:00</published>
+        <updated>2020-08-21T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              nebocco
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://nebocco.github.io/post/abc156c/"/>
+        <id>https://nebocco.github.io/post/abc156c/</id>
+        
+        <content type="html" xml:base="https://nebocco.github.io/post/abc156c/">&lt;p&gt;\(O(N)\) で解きます。&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;問題&quot;&gt;問題&lt;&#x2F;h2&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;atcoder.jp&#x2F;contests&#x2F;abc156&#x2F;tasks&#x2F;abc156_c&quot;&gt;AtCoder Beginner Contest 156 | C - Rally&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;概要&quot;&gt;概要&lt;&#x2F;h3&gt;
+&lt;p&gt;$$
+\underset{P}{\min} \sum _ {i=1} ^ {N} (X _ i - P) ^ 2
+$$&lt;&#x2F;p&gt;
+&lt;p&gt;を求めなさい。&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;解法&quot;&gt;解法&lt;&#x2F;h2&gt;
+&lt;p&gt;制約が \( N \leq 100,\ X _ i \leq 100\) と小さいので、 \(X\) の取りうる範囲すべてを調べても\(O(NA) , (A = \max ( X ) - \min ( X ))\) で解くことができます。しかし、少し数学的な考察を挟むと、最小値を取る \(P\) の候補を高々2つに絞ることができます。&lt;&#x2F;p&gt;
+&lt;p&gt;$$
+f(P) = \sum _ {i=1} ^ {N} (X _ i - P) ^ 2
+= \sum _ {i=1} ^ {N} (X ^ 2 _ i  - 2 X _ i  P + P ^ 2)
+$$&lt;&#x2F;p&gt;
+&lt;p&gt;とおくと、&lt;&#x2F;p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+f &#x27; (P) &amp;amp;= \sum _ {i=1} ^ {N} (X ^ 2 _ i - 2 X _ i  P + P ^ 2) &#x27; \\
+&amp;amp;= \sum _ {i=1} ^ {N} ( 0 - 2 X _ i + 2 P ) \\
+&amp;amp;= 2 ( NP -  \sum _ {i=1} ^ {N} X _ i )
+\end{aligned}
+$$&lt;&#x2F;p&gt;
+&lt;p&gt;となります。&lt;&#x2F;p&gt;
+&lt;p&gt;よって、 \( S = \sum X _ i\) とすると \(f(P)\) の増減表（懐かしい響き！）は以下のようになります。&lt;&#x2F;p&gt;
+&lt;p&gt;$$
+\begin{array}{|c| ccc|}\hline
+x     &amp;amp; \cdots &amp;amp;   \frac{S}{N}  &amp;amp;  \cdots  \\ \hline
+f&#x27;(P)&amp;amp;      -     &amp;amp;         0          &amp;amp;      +       \\ \hline
+f(P) &amp;amp;    \searrow   &amp;amp;  f(\frac{S}{N}) &amp;amp;   \nearrow      \\ \hline
+\end{array}
+$$&lt;&#x2F;p&gt;
+&lt;p&gt;つまり、 \(f(P)\) は \(X\) の平均値 \(\overline{X} = \frac{S}{N} \) で最小値をとることがわかります。ただし、この問題の \(P\) は整数の値しか取りえないので、 \( f ( \lfloor \overline{X} \rfloor ) , f ( \lceil \overline{X} \rceil ) \) のうち小さいほうを出力します。&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;実装&quot;&gt;実装&lt;&#x2F;h2&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;atcoder.jp&#x2F;contests&#x2F;abc156&#x2F;submissions&#x2F;16070519&quot;&gt;提出コード（Python）&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;python&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-python &quot;&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span&gt;N &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= int&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;input&lt;&#x2F;span&gt;&lt;span&gt;())
+&lt;&#x2F;span&gt;&lt;span&gt;X &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= list&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;map&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;input&lt;&#x2F;span&gt;&lt;span&gt;().&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;split&lt;&#x2F;span&gt;&lt;span&gt;()))
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;def &lt;&#x2F;span&gt;&lt;span style=&quot;color:#61afef;&quot;&gt;cost&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;p&lt;&#x2F;span&gt;&lt;span&gt;):
+&lt;&#x2F;span&gt;&lt;span&gt;    res &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;x &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span&gt;X:
+&lt;&#x2F;span&gt;&lt;span&gt;        res &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+= &lt;&#x2F;span&gt;&lt;span&gt;(x &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;- &lt;&#x2F;span&gt;&lt;span&gt;p)&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;**&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;2
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;return &lt;&#x2F;span&gt;&lt;span&gt;res
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;m &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= sum&lt;&#x2F;span&gt;&lt;span&gt;(X) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&#x2F;&#x2F; &lt;&#x2F;span&gt;&lt;span&gt;N
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;print&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;min&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;cost&lt;&#x2F;span&gt;&lt;span&gt;(m), &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;cost&lt;&#x2F;span&gt;&lt;span&gt;(m&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;)))
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;余談ですが、 \(P\) に \(\overline{X}\) が入ることを念頭において冒頭の式を見ると、この問題は \(X\) のデータに対して最小二乗法を用いて最確値を求めることに相当している、と気づけます。統計学の素養のある人なら問題を見た瞬間に「あ、残差二乗和の最小値だから \(P = \overline{X}\) だ」と察知できたりするのでしょうか。&lt;&#x2F;p&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="ja">
+        <title>ABC175-D Moving Piece 解説</title>
+        <published>2020-08-16T00:00:00+00:00</published>
+        <updated>2020-08-16T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              nebocco
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://nebocco.github.io/post/abc175d/"/>
+        <id>https://nebocco.github.io/post/abc175d/</id>
+        
+        <content type="html" xml:base="https://nebocco.github.io/post/abc175d/">&lt;p&gt;\(O(N \log K )\) で解きます。また、本問題の「与えられたグラフが巡回置換に分解できる」という特性をほとんど用いていないので、 \(P\) が順列でない場合でも少し書き換えるだけで解くことができます。&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;問題&quot;&gt;問題&lt;&#x2F;h2&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;atcoder.jp&#x2F;contests&#x2F;abc175&#x2F;tasks&#x2F;abc175_d&quot;&gt;AtCoder Beginner Contest 175 | D - Moving Piece&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;解法&quot;&gt;解法&lt;&#x2F;h2&gt;
+&lt;p&gt;ダブリングで前処理をしたあといわゆる桁DPをします。ダブリング、桁DPについてあまり知らないという方はまずはこちらの記事をご覧ください。（TODO:だれかの記事を貼らせてもらう）&lt;&#x2F;p&gt;
+&lt;p&gt;以下に解法に至るまでのなんとなくの思考過程を記します。&lt;&#x2F;p&gt;
+&lt;p&gt;まず、各頂点から行先は一つしかないので、始点と行動回数を決めてしまえばその後の行動と獲得できる点数は一意に定まります。よって、原理的には&lt;&#x2F;p&gt;
+&lt;ol&gt;
+&lt;li&gt;現在どのマスにいるか&lt;&#x2F;li&gt;
+&lt;li&gt;何点取っているか&lt;&#x2F;li&gt;
+&lt;li&gt;あと何回まで移動できるか&lt;&#x2F;li&gt;
+&lt;&#x2F;ol&gt;
+&lt;p&gt;という状態を保持すればDPによって答えを求めることができるはずです。しかし、点数はDPテーブルの値として直接持つことにしても、移動回数を添え字として保持すると状態数が爆発してしまいます。&lt;&#x2F;p&gt;
+&lt;p&gt;そこで、代わりに移動回数の上位ビットから走査してゆけば「 \(K\) より小さい／同じ／大きい」という三状態に絞ることができます。この部分に桁DPの手技を用いることができます。遷移を書く際には、各頂点から \(2 ^ b\) 回移動した際の行先、得点という情報が必要になるので、これらはあらかじめダブリングによって求めておけばOKです。&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;ダブリング&quot;&gt;ダブリング&lt;&#x2F;h3&gt;
+&lt;p&gt;特に凝ったことはしません。&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;\(\mathrm{vertex}[b][i] :=\)頂点 \(i\) から \(2 ^ b\) 回移動したときにどの頂点にいるか&lt;&#x2F;li&gt;
+&lt;li&gt;\(\mathrm{score}[b][i] :=\)頂点 \(i\) から \(2 ^ b\) 回移動したときに何点もらえるか&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;という二つの表を用意します。 \(\mathrm{score}[0][i] = C _  {P _ i}\) となるのがやや気持ち悪いので、公式 editorial 同様に一つずらして考え、 \(\mathrm{score}[0][i] = C _  i\) となるように \(C\) を書き換えてからダブリングを行っています。&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;python&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-python &quot;&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span&gt;vertex &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= list&lt;&#x2F;span&gt;&lt;span&gt;()
+&lt;&#x2F;span&gt;&lt;span&gt;score &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= list&lt;&#x2F;span&gt;&lt;span&gt;()
+&lt;&#x2F;span&gt;&lt;span&gt;vertex.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;append&lt;&#x2F;span&gt;&lt;span&gt;(P)
+&lt;&#x2F;span&gt;&lt;span&gt;score.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;append&lt;&#x2F;span&gt;&lt;span&gt;(C)
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;m &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;31 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# bit数
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;b &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;, m&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;):
+&lt;&#x2F;span&gt;&lt;span&gt;    p_bth &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span&gt;N
+&lt;&#x2F;span&gt;&lt;span&gt;    c_bth &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span&gt;N
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(n):
+&lt;&#x2F;span&gt;&lt;span&gt;        p_bth[i] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;vertex[b&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;][vertex[b&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;][i]]
+&lt;&#x2F;span&gt;&lt;span&gt;        c_bth[i] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;score[b&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;][i] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;score[b&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;][vertex[b&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;][i]]
+&lt;&#x2F;span&gt;&lt;span&gt;    vertex.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;append&lt;&#x2F;span&gt;&lt;span&gt;(p_bth)
+&lt;&#x2F;span&gt;&lt;span&gt;    score.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;append&lt;&#x2F;span&gt;&lt;span&gt;(c_bth)
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;計算量は \(O(Nm) = O(N \log K)\) です。&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;桁DP&quot;&gt;桁DP&lt;&#x2F;h3&gt;
+&lt;p&gt;\(\mathrm{dp}[b][i][j] :=\) 下から \(b\) bit目まで見て、頂点 \(i\) に状態 \(j\) で存在するときのスコアの最大値&lt;&#x2F;p&gt;
+&lt;p&gt;というテーブルを、 \(b\) の降順に埋めていきます。ここで状態 \(j\) は、&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;\(j = 0 :\) 移動回数が \(K\) より小さくなることが確定している&lt;&#x2F;li&gt;
+&lt;li&gt;\(j = 1 :\) 確定していない（\(b + 1\) bit目まで \(K\) に等しい）&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;を表すとします。 \(K\) の \(b\) bit目を \(K _ b\) とすると、 \(K _ b\) と \(j\) の値によって以下の3通りの遷移が考えられます。&lt;&#x2F;p&gt;
+&lt;h4 id=&quot;\(j_=_0\)&quot;&gt;\(j = 0\)&lt;&#x2F;h4&gt;
+&lt;p&gt;既に移動回数が \(K\) より小さくなることが確定しているので、移動するかしないか自由に決めることができます。遷移先の状態も必ず \(j = 0\) です。具体的には&lt;&#x2F;p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+\mathrm{dp}[b-1][\mathrm{vertex}[b][i]][0] &amp;amp;\leftarrow \mathrm{dp}[b][i][0] + \mathrm{score}[b][i] \\
+\mathrm{dp}[b-1][i][0] &amp;amp;\leftarrow \mathrm{dp}[b][i][0]
+\end{aligned}
+$$&lt;&#x2F;p&gt;
+&lt;p&gt;となります。「 \(\leftarrow\) 」はここでは代入ではなく \(\mathrm{chmax}\) だと思ってください。&lt;&#x2F;p&gt;
+&lt;h4 id=&quot;\(K___b_=_1,\,_j_=_1\)&quot;&gt;\(K _ b = 1,\, j = 1\)&lt;&#x2F;h4&gt;
+&lt;p&gt;ここで移動した場合、 \(b\) bit目まで \(K\) に等しくなるため、遷移先の状態は \(j = 1\) です。移動しなかった場合はこの時点で \(K\) より小さくなることが確定するので、遷移先は \(j = 0\) になります。&lt;&#x2F;p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+\mathrm{dp}[b-1][\mathrm{vertex}[b][i]][1] &amp;amp;\leftarrow \mathrm{dp}[b][i][1] + \mathrm{score}[b][i] \\
+\mathrm{dp}[b-1][i][0] &amp;amp;\leftarrow \mathrm{dp}[b][i][1]
+\end{aligned}
+$$&lt;&#x2F;p&gt;
+&lt;h4 id=&quot;\(K___b_=_0,\,_j_=_1\)&quot;&gt;\(K _ b = 0,\, j = 1\)&lt;&#x2F;h4&gt;
+&lt;p&gt;ここで移動すると回数が \(K\) を超えてしまうため、移動せずその場にとどまるしかありません。この場合も \(b\) bit目まで \(K\) に等しくなるため、遷移先の状態は \(j = 1\) です。&lt;&#x2F;p&gt;
+&lt;p&gt;$$
+\mathrm{dp}[b-1][i][1] \leftarrow \mathrm{dp}[b][i][1]
+$$&lt;&#x2F;p&gt;
+&lt;p&gt;以上の遷移をコードに落とし込むと以下のようになります。ここでは、 \(j\) の値による場合分けは行わず、直接全パターンを書き下しています。&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;python&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-python &quot;&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span&gt;m &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;31 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# bit数
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;b &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(m, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;):
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(N):
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span&gt;(K &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;gt;&amp;gt; &lt;&#x2F;span&gt;&lt;span&gt;b) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;amp; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;            dp[b&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;][vertex[b][i]][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= max&lt;&#x2F;span&gt;&lt;span&gt;(dp[b&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;][vertex[b][i]][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;], dp[b][i][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;score[b][i])
+&lt;&#x2F;span&gt;&lt;span&gt;            dp[b&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;][vertex[b][i]][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= max&lt;&#x2F;span&gt;&lt;span&gt;(dp[b&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;][vertex[b][i]][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;], dp[b][i][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;score[b][i])
+&lt;&#x2F;span&gt;&lt;span&gt;            dp[b&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;][i][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= max&lt;&#x2F;span&gt;&lt;span&gt;(dp[b&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;][i][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;], dp[b][i][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;], dp[b][i][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;])
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;else&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;            dp[b&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;][vertex[b][i]][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= max&lt;&#x2F;span&gt;&lt;span&gt;(dp[b&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;][vertex[b][i]][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;], dp[b][i][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;score[b][i])
+&lt;&#x2F;span&gt;&lt;span&gt;            dp[b&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;][i][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= max&lt;&#x2F;span&gt;&lt;span&gt;(dp[b&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;][i][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;], dp[b][i][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;])
+&lt;&#x2F;span&gt;&lt;span&gt;            dp[b&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;][i][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= max&lt;&#x2F;span&gt;&lt;span&gt;(dp[b&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;][i][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;], dp[b][i][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;])
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;ただし、以上のコードをそのまま走らせると終端で \(\mathrm{dp}[-1]\) にアクセスしてしまいます。&lt;&#x2F;p&gt;
+&lt;p&gt;対策としては、添え字 \(b\) を一つ分ずらして考えるのもよいですが、更新に一行前のデータしか必要がないことを利用して、二本の配列 \(\mathrm{prv},\, \mathrm{nxt}\) を用意して順繰りに更新していくように書き換えました。これで空間計算量が削減されるだけではなく、速度も向上することが見込まれます。&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;python&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-python &quot;&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span&gt;m &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;31 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# bit数
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;b &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(m, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;):
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(N):
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span&gt;(K &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;gt;&amp;gt; &lt;&#x2F;span&gt;&lt;span&gt;b) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;amp; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;            nxt[vertex[b][i]][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= max&lt;&#x2F;span&gt;&lt;span&gt;(nxt[vertex[b][i]][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;], prv[i][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;score[b][i])
+&lt;&#x2F;span&gt;&lt;span&gt;            nxt[vertex[b][i]][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= max&lt;&#x2F;span&gt;&lt;span&gt;(nxt[vertex[b][i]][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;], prv[i][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;score[b][i])
+&lt;&#x2F;span&gt;&lt;span&gt;            nxt[i][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= max&lt;&#x2F;span&gt;&lt;span&gt;(nxt[i][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;], prv[i][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;], prv[i][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;])
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;else&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;            nxt[vertex[b][i]][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= max&lt;&#x2F;span&gt;&lt;span&gt;(nxt[vertex[b][i]][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;], prv[i][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;score[b][i])
+&lt;&#x2F;span&gt;&lt;span&gt;            nxt[i][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= max&lt;&#x2F;span&gt;&lt;span&gt;(nxt[i][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;], prv[i][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;])
+&lt;&#x2F;span&gt;&lt;span&gt;            nxt[i][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= max&lt;&#x2F;span&gt;&lt;span&gt;(nxt[i][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;], prv[i][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;])
+&lt;&#x2F;span&gt;&lt;span&gt;    prv, nxt &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;nxt, prv
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;通常このようにDP更新を行う際は毎回 \(\mathrm{nxt}\) をからっぽ（初期状態）に戻す、などの操作が必要になりますが、今回 \(\mathrm{nxt}[b][i][j]\) に残っている値は「ひとつ前の bit を考えているときに移動しなかった場合」の値です（厳密にはやや異なりますが）。更新操作が \(\mathrm{chmax}\) のみなので、毎回の初期化は必要ないと判断し省きました。&lt;&#x2F;p&gt;
+&lt;p&gt;計算量は \(O(Nm) = O(N \log K )\) です。&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;出力&quot;&gt;出力&lt;&#x2F;h3&gt;
+&lt;p&gt;最終的な答えは \(\mathrm{prv}\) の中の最大値ですが、これが \(0\) だった場合、問題の &lt;strong&gt;「1回以上移動する」&lt;&#x2F;strong&gt; という制約に違反している可能性が考えられます。全マスの得点が負であれば、一度も移動をしないことが一番得となるからです。&lt;&#x2F;p&gt;
+&lt;p&gt;ここで、 \(P\) が順列であることから、もし得点が正のマスが一つでもあれば、そのマスの一つ手前から始めて1回移動しゲームをやめることで、少なくとも正の得点を取ることができます。よって、DPの答えが 0 となるのはすべてのマスの得点が 0 以下である場合に限られることがわかります。この時、最もスコアの大きなマスに1回移動してゲームを終了するのが一番マシです。つまり、答えは \(\min(C)\) です。&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;実装&quot;&gt;実装&lt;&#x2F;h2&gt;
+&lt;p&gt;以上をまとめるとこのようなコードになります。&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;atcoder.jp&#x2F;contests&#x2F;abc175&#x2F;submissions&#x2F;15989429&quot;&gt;提出コード（Python）&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;python&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-python &quot;&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span&gt;N, K &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= map&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;input&lt;&#x2F;span&gt;&lt;span&gt;().&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;split&lt;&#x2F;span&gt;&lt;span&gt;())
+&lt;&#x2F;span&gt;&lt;span&gt;P &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= list&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;map&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;input&lt;&#x2F;span&gt;&lt;span&gt;().&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;split&lt;&#x2F;span&gt;&lt;span&gt;()))
+&lt;&#x2F;span&gt;&lt;span&gt;_c &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= list&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;map&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;input&lt;&#x2F;span&gt;&lt;span&gt;().&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;split&lt;&#x2F;span&gt;&lt;span&gt;()))
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# Cを書き換える
+&lt;&#x2F;span&gt;&lt;span&gt;C &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span&gt;N
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(N):
+&lt;&#x2F;span&gt;&lt;span&gt;    P[i] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1
+&lt;&#x2F;span&gt;&lt;span&gt;    C[i] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;_c[P[i]]
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;m &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;31 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# bit数
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# ダブリング
+&lt;&#x2F;span&gt;&lt;span&gt;vertex &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= list&lt;&#x2F;span&gt;&lt;span&gt;()
+&lt;&#x2F;span&gt;&lt;span&gt;score &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= list&lt;&#x2F;span&gt;&lt;span&gt;()
+&lt;&#x2F;span&gt;&lt;span&gt;vertex.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;append&lt;&#x2F;span&gt;&lt;span&gt;(P)
+&lt;&#x2F;span&gt;&lt;span&gt;score.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;append&lt;&#x2F;span&gt;&lt;span&gt;(C)
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;b &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;, m&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;):
+&lt;&#x2F;span&gt;&lt;span&gt;    p_bth &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span&gt;N
+&lt;&#x2F;span&gt;&lt;span&gt;    c_bth &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span&gt;N
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(N):
+&lt;&#x2F;span&gt;&lt;span&gt;        p_bth[i] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;vertex[b&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;][vertex[b&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;][i]]
+&lt;&#x2F;span&gt;&lt;span&gt;        c_bth[i] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;score[b&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;][i] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;score[b&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;][vertex[b&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;][i]]
+&lt;&#x2F;span&gt;&lt;span&gt;    vertex.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;append&lt;&#x2F;span&gt;&lt;span&gt;(p_bth)
+&lt;&#x2F;span&gt;&lt;span&gt;    score.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;append&lt;&#x2F;span&gt;&lt;span&gt;(c_bth)
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# 桁DP
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e5c07b;&quot;&gt;MIN &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= -&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;lt;&amp;lt; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;63&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;prv &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;[[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e5c07b;&quot;&gt;MIN&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e5c07b;&quot;&gt;_ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(N)]
+&lt;&#x2F;span&gt;&lt;span&gt;nxt &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;[[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e5c07b;&quot;&gt;MIN&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e5c07b;&quot;&gt;MIN&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e5c07b;&quot;&gt;_ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(N)]
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;b &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(m, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;):
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(N):
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span&gt;(K &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;gt;&amp;gt; &lt;&#x2F;span&gt;&lt;span&gt;b) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;amp; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;            nxt[vertex[b][i]][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= max&lt;&#x2F;span&gt;&lt;span&gt;(nxt[vertex[b][i]][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;], prv[i][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;score[b][i])
+&lt;&#x2F;span&gt;&lt;span&gt;            nxt[vertex[b][i]][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= max&lt;&#x2F;span&gt;&lt;span&gt;(nxt[vertex[b][i]][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;], prv[i][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;score[b][i])
+&lt;&#x2F;span&gt;&lt;span&gt;            nxt[i][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= max&lt;&#x2F;span&gt;&lt;span&gt;(nxt[i][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;], prv[i][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;], prv[i][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;])
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;else&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;            nxt[vertex[b][i]][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= max&lt;&#x2F;span&gt;&lt;span&gt;(nxt[vertex[b][i]][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;], prv[i][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;score[b][i])
+&lt;&#x2F;span&gt;&lt;span&gt;            nxt[i][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= max&lt;&#x2F;span&gt;&lt;span&gt;(nxt[i][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;], prv[i][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;])
+&lt;&#x2F;span&gt;&lt;span&gt;            nxt[i][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= max&lt;&#x2F;span&gt;&lt;span&gt;(nxt[i][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;], prv[i][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;])
+&lt;&#x2F;span&gt;&lt;span&gt;    prv, nxt &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;nxt, prv
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;ans &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= max&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;max&lt;&#x2F;span&gt;&lt;span&gt;(x) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;x &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span&gt;prv)
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span&gt;ans &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;== &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;    ans &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= max&lt;&#x2F;span&gt;&lt;span&gt;(C)
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;print&lt;&#x2F;span&gt;&lt;span&gt;(ans)
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="ja">
+        <title>ABC172-D Sum of Divisors 解説</title>
+        <published>2020-06-28T00:00:00+00:00</published>
+        <updated>2020-06-28T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              nebocco
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://nebocco.github.io/post/abc172d/"/>
+        <id>https://nebocco.github.io/post/abc172d/</id>
+        
+        <content type="html" xml:base="https://nebocco.github.io/post/abc172d/">&lt;p&gt;$O(\sqrt N)$ で解きます。&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;問題&quot;&gt;問題&lt;&#x2F;h2&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;atcoder.jp&#x2F;contests&#x2F;abc172&#x2F;tasks&#x2F;abc172_d&quot;&gt;AtCoder Beginner Contest 172 | D - Sum of Divisors&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;概要&quot;&gt;概要&lt;&#x2F;h3&gt;
+&lt;p&gt;$$
+\sum _ {i=1} ^ {N} i \cdot \mathit{d}(i)
+$$&lt;&#x2F;p&gt;
+&lt;p&gt;を求めなさい。&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;解法&quot;&gt;解法&lt;&#x2F;h2&gt;
+&lt;p&gt;公式editorialの $O(N)$ 解法を高速化することを考えたいです。結局、 $S[k] := \sum _ {i=1} ^ {k} i$ として&lt;&#x2F;p&gt;
+&lt;p&gt;$$
+\sum _ {i=1} ^ {N} i \cdot S \lbrack \frac{N}{i} \rbrack
+$$&lt;&#x2F;p&gt;
+&lt;p&gt;を求めればよいですが、 $i$ が後半になるにつれ、 $\frac{N}{i}$ の値は同じものが連続するようになってきます。&lt;&#x2F;p&gt;
+&lt;p&gt;そこで、 $S[\frac{N}{i}]$ の値が等しくなるような $i$ についてまとめて計算することを考えます。その準備として、 $M := \sqrt N$ とおき、&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;前半 ( $i &amp;lt; M$ )&lt;&#x2F;li&gt;
+&lt;li&gt;後半 ( $i \geq M$ )&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;の範囲に分けて考えます。&lt;&#x2F;p&gt;
+&lt;h4 id=&quot;前半_(_$i_&amp;lt;_M$_)&quot;&gt;前半 ( $i &amp;lt; M$ )&lt;&#x2F;h4&gt;
+&lt;p&gt;公式解説通り一つずつ足し合わせます。計算量は $O(M)$ です。&lt;&#x2F;p&gt;
+&lt;h4 id=&quot;後半_(_$i_\geq_M$_)&quot;&gt;後半 ( $i \geq M$ )&lt;&#x2F;h4&gt;
+&lt;p&gt;$M$の定義から、この範囲では $\frac{N}{i} \leq M$ が成り立ちます。そこで、 $\frac{N}{i}$ の側を全探索してみましょう。&lt;&#x2F;p&gt;
+&lt;p&gt;$\frac{N}{i} = k$ となるようなiの範囲を計算すると $\frac{N}{k+1} + 1 \leq i \leq \frac{N}{k}$ であるので、&lt;&#x2F;p&gt;
+&lt;p&gt;$$
+\sum _ {i = \frac{N}{k+1} + 1} ^ {\frac{N}{k}} i \cdot S[k]
+$$&lt;&#x2F;p&gt;
+&lt;p&gt;が高速で求められると嬉しいです。変形すると、&lt;&#x2F;p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+\sum _ {i = \frac{N}{k+1} + 1} ^ {\frac{N}{k}} i \cdot S[k]
+&amp;amp;= S[k] \cdot\sum _ {i = \frac{N}{k+1} + 1} ^ {\frac{N}{k}} i \\
+&amp;amp;= S[k] \cdot (S[\frac{N}{k}] - S[\frac{N}{k+1}])
+\end{aligned}
+$$&lt;&#x2F;p&gt;
+&lt;p&gt;であり、これは $O(1)$ で求められます。&lt;&#x2F;p&gt;
+&lt;p&gt;あとは、これを $k = 1, 2, ..., M$ について足し上げればよいです。計算量は $O(M)$ です。&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;$S$_の前計算について&quot;&gt;$S$ の前計算について&lt;&#x2F;h3&gt;
+&lt;p&gt;累積和の要領で $S$ を前計算しようとすると $O(N)$ かかってしまい本末転倒です。これは簡単な等差数列の和なので、配列で持つのをやめて毎回&lt;&#x2F;p&gt;
+&lt;p&gt;$$
+S(k) = \frac{k(k+1)}{2}
+$$&lt;&#x2F;p&gt;
+&lt;p&gt;と計算してしまえば前計算が必要ありません。&lt;&#x2F;p&gt;
+&lt;p&gt;以上より、全体の答えを $O(M) = O(\sqrt N)$ で求めることができました。&lt;&#x2F;p&gt;
+&lt;p&gt;実装は前半後半の境界（$M$）付近がごちゃごちゃになりがちなので、前半部分を求める時は $M$ まで求めてしまうのではなく、後半部分がどこまでカバーできるのかを計算して、それに合わせて計算範囲を決めると楽です。また、 $M$ の計算方法によっては $N$ が極端に大きい・小さいケースや $N$ が平方数のケースなどでおかしくなることもあるので、注意が必要です。&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;実装&quot;&gt;実装&lt;&#x2F;h2&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;atcoder.jp&#x2F;contests&#x2F;abc172&#x2F;submissions&#x2F;14798227&quot;&gt;提出コード（Python）&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;python&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-python &quot;&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;def &lt;&#x2F;span&gt;&lt;span style=&quot;color:#61afef;&quot;&gt;S&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;k&lt;&#x2F;span&gt;&lt;span&gt;):
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;return &lt;&#x2F;span&gt;&lt;span&gt;k &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span&gt;(k &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&#x2F;&#x2F; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;2
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;N &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= int&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;input&lt;&#x2F;span&gt;&lt;span&gt;())
+&lt;&#x2F;span&gt;&lt;span&gt;M &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= int&lt;&#x2F;span&gt;&lt;span&gt;((N&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;)&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;**&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;.5&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;ans &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# 前半
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;, N &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&#x2F;&#x2F; &lt;&#x2F;span&gt;&lt;span&gt;(M&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;):
+&lt;&#x2F;span&gt;&lt;span&gt;    ans &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+= &lt;&#x2F;span&gt;&lt;span&gt;i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;S&lt;&#x2F;span&gt;&lt;span&gt;(N &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&#x2F;&#x2F; &lt;&#x2F;span&gt;&lt;span&gt;i)
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# 後半
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;k &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;, M&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;):
+&lt;&#x2F;span&gt;&lt;span&gt;    ans &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;S&lt;&#x2F;span&gt;&lt;span&gt;(k) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;S&lt;&#x2F;span&gt;&lt;span&gt;(N&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&#x2F;&#x2F;&lt;&#x2F;span&gt;&lt;span&gt;k) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;- &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;S&lt;&#x2F;span&gt;&lt;span&gt;(N&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&#x2F;&#x2F;&lt;&#x2F;span&gt;&lt;span&gt;(k&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;)))
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;print&lt;&#x2F;span&gt;&lt;span&gt;(ans)
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;時間も余裕ですね。 $O(N \log N)$ ってなんですか？&lt;&#x2F;p&gt;
+</content>
+        
+    </entry>
+</feed>

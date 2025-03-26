@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <title>ねぼこの日記</title>
+  <link rel="stylesheet" href="https://nebocco.github.io/main.css">
+  <meta charset="utf-8">
+  <meta name="description" content="nebocco のブログ">
+  <meta property="og:site_name" content="ねぼこの日記" />
+  
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css"
+  integrity="sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib" crossorigin="anonymous">
+
+<!-- The loading of KaTeX is deferred to speed up page rendering -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js"
+  integrity="sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh" crossorigin="anonymous"></script>
+
+<!-- To automatically render math in text elements, include the auto-render extension: -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js"
+  integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh" crossorigin="anonymous"
+  onload="renderMathInElement(document.body);"></script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    renderMathInElement(document.body, {
+      // customised options
+      // • auto-render specific keys, e.g.:
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$', right: '$', display: false },
+        { left: '\\(', right: '\\)', display: false },
+        { left: '\\[', right: '\\]', display: true }
+      ],
+      // • rendering keys, e.g.:
+      throwOnError: false
+    });
+  });
+</script>
+
+
+</head>
+
+<body>
+  <div class="page-container">
+    <header>
+      <div id="title">
+        <a href="/">ねぼこの日記</a>
+      </div>
+      <nav>
+        <a href="/post">Posts</a>
+        <a href="/tags">Tags</a>
+        <a href="https://github.com/nebocco" target="_blank" rel="noreferrer noopener">Github</a>
+        <a href="https://twitter.com/nebocco27" target="_blank" rel="noreferrer noopener">Twitter</a>
+        
+        <a href="https://nebocco.github.io/atom.xml" target="_blank" rel="noreferrer noopener">Feed</a>
+        
+      </nav>
+    </header>
+
+    <main id="main">
+      <article id="post">
+        
+<div class="headline">
+  <h1 class="page-title">
+    ABC122-D We Like AGC 解説
+  </h1>
+  
+<div class="subtitle">
+  <span class="page-date">
+    2020-08-22
+  </span>
+  
+  <span class="page-tags">
+    
+    
+    <a class="page-tag" href="https://nebocco.github.io/tags/atcoder/">AtCoder</a>
+    
+    
+    <a class="page-tag" href="https://nebocco.github.io/tags/python/">Python</a>
+    
+  </span>
+  
+</div>
+
+</div>
+
+<p>\(O( \log N )\) で解きます。</p>
+<h2 id="問題">問題</h2>
+<p><a href="https://atcoder.jp/contests/abc122/tasks/abc122_d">AtCoder Beginner Contest 122 | D - We Like AGC</a></p>
+<h2 id="解法">解法</h2>
+<p>editorial のDP解法をベースに考えます。 \(i\) 文字目を決める際の遷移は \(i\) の値によらず常に固定なので、漸化式を行列の累乗に落とし込むことができます。64次元線形空間の行列を手書きで入力するのは面倒なので、いい感じにプログラムを組みます。気合いで頑張ってください💪</p>
+<p>始状態は <code>"TTT"</code> にあたる状態だけ1にしておくと特に調節が不要になります。また、しれっとオーバーフローを起こすのでPythonの多倍長整数演算に頼っています。</p>
+<p>定数倍がとても大きいので、この問題の制約の範囲内では素直にDPやメモ化再帰を書くほうが断然早いです。</p>
+<h2 id="実装">実装</h2>
+<p><a href="https://atcoder.jp/contests/abc122/submissions/16072743">提出コード（Python）</a></p>
+<pre data-lang="python" style="background-color:#282c34;color:#abb2bf;" class="language-python "><code class="language-python" data-lang="python"><span style="font-style:italic;color:#c678dd;">import </span><span>numpy </span><span style="color:#c678dd;">as </span><span>np
+</span><span style="font-style:italic;color:#c678dd;">import </span><span>re
+</span><span>
+</span><span>mod </span><span style="color:#56b6c2;">= </span><span style="color:#d19a66;">10</span><span style="color:#56b6c2;">**</span><span style="color:#d19a66;">9 </span><span style="color:#56b6c2;">+ </span><span style="color:#d19a66;">7
+</span><span>letters </span><span style="color:#56b6c2;">= </span><span style="color:#98c379;">&quot;ACGT&quot;
+</span><span>
+</span><span style="color:#7f848e;"># 文字を添え字に
+</span><span style="color:#c678dd;">def </span><span style="color:#61afef;">to_int</span><span>(</span><span style="font-style:italic;color:#e06c75;">s</span><span>):
+</span><span>    res </span><span style="color:#56b6c2;">= </span><span style="color:#d19a66;">0
+</span><span>    </span><span style="color:#c678dd;">for </span><span>x </span><span style="color:#c678dd;">in </span><span>s:
+</span><span>        res </span><span style="color:#56b6c2;">&lt;&lt;= </span><span style="color:#d19a66;">2
+</span><span>        res </span><span style="color:#56b6c2;">+= </span><span>letters.</span><span style="color:#e06c75;">index</span><span>(x)
+</span><span>    </span><span style="color:#c678dd;">return </span><span>res
+</span><span>
+</span><span style="color:#7f848e;"># 添え字を文字に
+</span><span style="color:#c678dd;">def </span><span style="color:#61afef;">to_str</span><span>(</span><span style="font-style:italic;color:#e06c75;">x</span><span>, </span><span style="font-style:italic;color:#e06c75;">digit</span><span>):
+</span><span>    res </span><span style="color:#56b6c2;">= </span><span style="color:#98c379;">&quot;&quot;
+</span><span>    </span><span style="color:#c678dd;">for </span><span style="color:#e5c07b;">_ </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(digit):
+</span><span>        res </span><span style="color:#56b6c2;">+= </span><span>letters[x</span><span style="color:#56b6c2;">&amp;</span><span style="color:#d19a66;">3</span><span>]
+</span><span>        x </span><span style="color:#56b6c2;">&gt;&gt;= </span><span style="color:#d19a66;">2
+</span><span>    </span><span style="color:#c678dd;">return </span><span>res[::</span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>]
+</span><span>
+</span><span style="color:#7f848e;"># 部分文字列として含んではいけないものを正規表現で判定
+</span><span style="color:#c678dd;">def </span><span style="color:#61afef;">is_ok</span><span>(</span><span style="font-style:italic;color:#e06c75;">s</span><span>):
+</span><span>    ng </span><span style="color:#56b6c2;">= </span><span>[</span><span style="color:#c678dd;">r</span><span style="color:#98c379;">&quot;AGC&quot;</span><span>, </span><span style="color:#c678dd;">r</span><span style="color:#98c379;">&quot;ACG&quot;</span><span>, </span><span style="color:#c678dd;">r</span><span style="color:#98c379;">&quot;GAC&quot;</span><span>, </span><span style="color:#c678dd;">r</span><span style="color:#98c379;">&quot;A</span><span style="color:#d19a66;">.</span><span style="color:#98c379;">GC&quot;</span><span>, </span><span style="color:#c678dd;">r</span><span style="color:#98c379;">&quot;AG</span><span style="color:#d19a66;">.</span><span style="color:#98c379;">C&quot;</span><span>]
+</span><span>    </span><span style="color:#c678dd;">for </span><span>x </span><span style="color:#c678dd;">in </span><span>ng:
+</span><span>        </span><span style="color:#c678dd;">if </span><span>re.</span><span style="color:#e06c75;">search</span><span>(x, s):
+</span><span>            </span><span style="color:#c678dd;">return </span><span style="color:#d19a66;">False
+</span><span>    </span><span style="color:#c678dd;">return </span><span style="color:#d19a66;">True
+</span><span>
+</span><span style="color:#7f848e;"># 行列の二分累乗
+</span><span style="color:#c678dd;">def </span><span style="color:#61afef;">mat_power</span><span>(</span><span style="font-style:italic;color:#e06c75;">A</span><span>, </span><span style="font-style:italic;color:#e06c75;">p</span><span>, </span><span style="font-style:italic;color:#e06c75;">mod</span><span>):
+</span><span>    res </span><span style="color:#56b6c2;">= </span><span>np.</span><span style="color:#e06c75;">eye</span><span>(A.shape[</span><span style="color:#d19a66;">0</span><span>], </span><span style="font-style:italic;color:#e06c75;">dtype </span><span style="color:#56b6c2;">= </span><span style="color:#98c379;">&quot;object&quot;</span><span>)
+</span><span>    </span><span style="color:#c678dd;">while </span><span>p:
+</span><span>        </span><span style="color:#c678dd;">if </span><span>p </span><span style="color:#56b6c2;">&amp; </span><span style="color:#d19a66;">1</span><span>:
+</span><span>            res </span><span style="color:#56b6c2;">= </span><span>np.</span><span style="color:#e06c75;">dot</span><span>(res, A) </span><span style="color:#56b6c2;">% </span><span>mod
+</span><span>        A </span><span style="color:#56b6c2;">= </span><span>np.</span><span style="color:#e06c75;">dot</span><span>(A, A) </span><span style="color:#56b6c2;">% </span><span>mod
+</span><span>        p </span><span style="color:#56b6c2;">&gt;&gt;= </span><span style="color:#d19a66;">1
+</span><span>    </span><span style="color:#c678dd;">return </span><span>res
+</span><span>
+</span><span style="color:#7f848e;"># 行列作成各状態からの各遷移が有効か確かめる
+</span><span>A </span><span style="color:#56b6c2;">= </span><span>[[</span><span style="color:#d19a66;">0</span><span>]</span><span style="color:#56b6c2;">*</span><span style="color:#d19a66;">64 </span><span style="color:#c678dd;">for </span><span style="color:#e5c07b;">_ </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(</span><span style="color:#d19a66;">64</span><span>)]
+</span><span style="color:#c678dd;">for </span><span>i </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(</span><span style="color:#d19a66;">64</span><span>):
+</span><span>    s </span><span style="color:#56b6c2;">= </span><span style="color:#e06c75;">to_str</span><span>(i, </span><span style="color:#d19a66;">3</span><span>)
+</span><span>    </span><span style="color:#c678dd;">for </span><span>j </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(</span><span style="color:#d19a66;">4</span><span>):
+</span><span>        t </span><span style="color:#56b6c2;">= </span><span>s </span><span style="color:#56b6c2;">+ </span><span style="color:#e06c75;">to_str</span><span>(j, </span><span style="color:#d19a66;">1</span><span>)
+</span><span>        </span><span style="color:#c678dd;">if </span><span style="color:#e06c75;">is_ok</span><span>(t):
+</span><span>            A[i][</span><span style="color:#e06c75;">to_int</span><span>(t[</span><span style="color:#d19a66;">1</span><span>:])] </span><span style="color:#56b6c2;">= </span><span style="color:#d19a66;">1
+</span><span>A </span><span style="color:#56b6c2;">= </span><span>np.</span><span style="color:#e06c75;">array</span><span>(A, </span><span style="font-style:italic;color:#e06c75;">dtype </span><span style="color:#56b6c2;">= </span><span style="color:#98c379;">&quot;object&quot;</span><span>)
+</span><span>
+</span><span style="color:#7f848e;"># ベクトル作成TTTのみ立てておく
+</span><span>x </span><span style="color:#56b6c2;">= </span><span>[</span><span style="color:#d19a66;">0</span><span>]</span><span style="color:#56b6c2;">*</span><span style="color:#d19a66;">64
+</span><span>x[</span><span style="color:#d19a66;">63</span><span>] </span><span style="color:#56b6c2;">= </span><span style="color:#d19a66;">1
+</span><span>x </span><span style="color:#56b6c2;">= </span><span>np.</span><span style="color:#e06c75;">array</span><span>(x)
+</span><span>
+</span><span>N </span><span style="color:#56b6c2;">= int</span><span>(</span><span style="color:#56b6c2;">input</span><span>())
+</span><span style="color:#56b6c2;">print</span><span>((np.</span><span style="color:#e06c75;">dot</span><span>(</span><span style="color:#e06c75;">mat_power</span><span>(A, N, mod), x) </span><span style="color:#56b6c2;">% </span><span>mod).</span><span style="color:#e06c75;">sum</span><span>() </span><span style="color:#56b6c2;">% </span><span>mod)
+</span></code></pre>
+
+
+
+<div class="pagination">
+  
+  <a class="next" href="https:&#x2F;&#x2F;nebocco.github.io&#x2F;post&#x2F;agc005b&#x2F;">AGC005-B Minimum Sum 解説</a>
+  
+  
+  <a class="previous" href="https:&#x2F;&#x2F;nebocco.github.io&#x2F;post&#x2F;abc156c&#x2F;">ABC156-C Rally 解説</a>
+  
+</div>
+
+
+      </article>
+    </main>
+
+    <footer>
+      <span>© 2025 nebocco</span>
+      <br />
+      <span>Generated with <a href="https://www.getzola.org/">Zola</a></span>
+    </footer>
+  </div>
+</body>
+
+</html>

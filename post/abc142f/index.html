@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <title>ねぼこの日記</title>
+  <link rel="stylesheet" href="https://nebocco.github.io/main.css">
+  <meta charset="utf-8">
+  <meta name="description" content="nebocco のブログ">
+  <meta property="og:site_name" content="ねぼこの日記" />
+  
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css"
+  integrity="sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib" crossorigin="anonymous">
+
+<!-- The loading of KaTeX is deferred to speed up page rendering -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js"
+  integrity="sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh" crossorigin="anonymous"></script>
+
+<!-- To automatically render math in text elements, include the auto-render extension: -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js"
+  integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh" crossorigin="anonymous"
+  onload="renderMathInElement(document.body);"></script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    renderMathInElement(document.body, {
+      // customised options
+      // • auto-render specific keys, e.g.:
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$', right: '$', display: false },
+        { left: '\\(', right: '\\)', display: false },
+        { left: '\\[', right: '\\]', display: true }
+      ],
+      // • rendering keys, e.g.:
+      throwOnError: false
+    });
+  });
+</script>
+
+
+</head>
+
+<body>
+  <div class="page-container">
+    <header>
+      <div id="title">
+        <a href="/">ねぼこの日記</a>
+      </div>
+      <nav>
+        <a href="/post">Posts</a>
+        <a href="/tags">Tags</a>
+        <a href="https://github.com/nebocco" target="_blank" rel="noreferrer noopener">Github</a>
+        <a href="https://twitter.com/nebocco27" target="_blank" rel="noreferrer noopener">Twitter</a>
+        
+        <a href="https://nebocco.github.io/atom.xml" target="_blank" rel="noreferrer noopener">Feed</a>
+        
+      </nav>
+    </header>
+
+    <main id="main">
+      <article id="post">
+        
+<div class="headline">
+  <h1 class="page-title">
+    ABC142-F Pure 解説
+  </h1>
+  
+<div class="subtitle">
+  <span class="page-date">
+    2021-01-13
+  </span>
+  
+  <span class="page-tags">
+    
+    
+    <a class="page-tag" href="https://nebocco.github.io/tags/atcoder/">AtCoder</a>
+    
+    
+    <a class="page-tag" href="https://nebocco.github.io/tags/python/">Python</a>
+    
+  </span>
+  
+</div>
+
+</div>
+
+<p>$O(N+M)$ で解きます。</p>
+<h2 id="問題">問題</h2>
+<p><a href="https://atcoder.jp/contests/abc142/tasks/abc142_f">AtCoder Beginner Contest 142 | F - Pure</a></p>
+<h3 id="概要">概要</h3>
+<p>$N$ 頂点 $M $ 辺の有向グラフが与えられる。極小のサイクルを一つ見つけよ。</p>
+<h2 id="解法">解法</h2>
+<p>問題文に書かれている条件は「概要」のように言い換えることができます。
+editorial では</p>
+<ol>
+<li>最小のサイクルを見つける</li>
+<li>サイクルを一つ見つけ、どんどん小さくしていく</li>
+</ol>
+<p>の二通りの方法で解いており、どちらも計算量は $O(N(N + M))$ です。</p>
+<p>このうち後者の方法は</p>
+<ul>
+<li>サイクルを一つ見つける</li>
+<li>ショートカットができる限り、より小さなサイクルに更新していく</li>
+</ul>
+<p>の二つのステップからなっています。この解法をベースに進めていきます。</p>
+<h3 id="サイクルを一つ見つける">サイクルを一つ見つける</h3>
+<p>このパートは特に工夫は要りません。
+「有向グラフ サイクル 検出」などで検索するとたくさん出てくるので調べてみてください。
+深さ優先探索を行うだけではありますが、非再帰で実装するのはちょっとだけ大変です。
+計算量は $O(N + M)$ です。</p>
+<h3 id="小さなサイクルに更新していく">小さなサイクルに更新していく</h3>
+<p>準備として、</p>
+<p>$$
+\begin{aligned}
+\mathit{used}[v] &amp;= \begin{cases}
+\mathrm{true} &amp; \text{(頂点 $v$ がサイクルに使われている)} \\
+\mathrm{false} &amp; \text{(使われていない)}
+\end{cases} \\
+\mathit{next}[v] &amp;= \text{サイクル上で $v$ の次の頂点}
+\end{aligned}
+$$</p>
+<p>であるような配列 $\mathit{used}, \mathit{next}$ を作っておきます。サイクルに使われていない頂点は $\mathit{next}$ に何が入っていてもいいこととします。サイクルの長さは高々 $N$ なので、これらの配列は $O(N)$ で計算可能です。</p>
+<p>準備ができたら、辺を順番に見ていきます。辺 $uv$ について $\mathit{used}[u] = \mathrm{true}, \mathit{used}[v] = \mathrm{true}, \mathit{next}[u] \neq v$ であるような時は、下図のような状況です。</p>
+<p><img src="/assets/2021-01-13_abc142f/20210113193158.png" alt="赤い辺を使えばショートカットできる" /></p>
+<p>このように、 $u$ から $v$ への経路を辺 $uv$ に置き換えることで、より小さなサイクルを作ることができます。ここでの更新処理が重要で、
+<strong>サイクル上で $u$ から $v$ の間にある頂点の $\mathit{used}$ を $\mathrm{false}$ にする</strong>
+という処理を行います。もちろん $\mathit{next}[u]$ の更新も忘れずに行ってください。</p>
+<p>サイクルを縮める操作は何度か行う可能性がありますが、この方法では一度 $\mathrm{false}$ になった頂点はその後処理の対象となりません。そのため、全ての辺に対する処理は合計しても $O(N+M)$ で済みます。
+一方、$v$ から $u$ へと辿ってサイクルを再構成しようとすると、サイクルの大きさが $N \to N-1 \to N-2 \to \cdots$ と変化するような場合に $O(N ^ 2)$ かかってしまいます。</p>
+<p>また、この処理の過程でサイクルに新たな頂点が追加されることはないので、それまでショートカットに使えなかった辺が新しく使えるようになることはありません。
+なので、順番を気にすることなく全ての辺を一回ずつ見るだけで、それ以上のショートカットが不可能な極小のサイクルを得ることができます。</p>
+<p>計算量は全体で $O(N+M)$ です。</p>
+<h2 id="実装">実装</h2>
+<p><a href="https://atcoder.jp/contests/abc142/submissions/19417394">提出コード</a> (Python)</p>
+<pre data-lang="python" style="background-color:#282c34;color:#abb2bf;" class="language-python "><code class="language-python" data-lang="python"><span>N, M </span><span style="color:#56b6c2;">= map</span><span>(</span><span style="color:#56b6c2;">int</span><span>, </span><span style="color:#56b6c2;">input</span><span>().</span><span style="color:#e06c75;">split</span><span>())
+</span><span>edges </span><span style="color:#56b6c2;">= </span><span>[</span><span style="color:#56b6c2;">tuple</span><span>(</span><span style="color:#56b6c2;">map</span><span>(</span><span style="color:#56b6c2;">int</span><span>, </span><span style="color:#56b6c2;">input</span><span>().</span><span style="color:#e06c75;">split</span><span>())) </span><span style="color:#c678dd;">for </span><span style="color:#e5c07b;">_ </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(M)]
+</span><span>
+</span><span>G </span><span style="color:#56b6c2;">= </span><span>[</span><span style="color:#56b6c2;">list</span><span>() </span><span style="color:#c678dd;">for </span><span style="color:#e5c07b;">_ </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(N</span><span style="color:#56b6c2;">+</span><span style="color:#d19a66;">1</span><span>)]
+</span><span style="color:#c678dd;">for </span><span>(u, v) </span><span style="color:#c678dd;">in </span><span>edges:
+</span><span>  G[u].</span><span style="color:#e06c75;">append</span><span>(v)
+</span><span>
+</span><span style="color:#7f848e;"># サイクル検出
+</span><span>seen </span><span style="color:#56b6c2;">= </span><span>[</span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>]</span><span style="color:#56b6c2;">*</span><span>(N</span><span style="color:#56b6c2;">+</span><span style="color:#d19a66;">1</span><span>)
+</span><span style="color:#7f848e;"># -1: 未到達
+</span><span style="color:#7f848e;"># 0: stack追加済み
+</span><span style="color:#7f848e;"># 1: 行きがけで通過済み(cycle候補)
+</span><span style="color:#7f848e;"># 2: 帰りがけで通過済み
+</span><span>curr_path </span><span style="color:#56b6c2;">= </span><span>[]
+</span><span>stack </span><span style="color:#56b6c2;">= </span><span>[]
+</span><span>
+</span><span style="color:#c678dd;">def </span><span style="color:#61afef;">dfs</span><span>():
+</span><span>  </span><span style="color:#c678dd;">for </span><span>i </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(</span><span style="color:#d19a66;">1</span><span>, N</span><span style="color:#56b6c2;">+</span><span style="color:#d19a66;">1</span><span>):
+</span><span>    </span><span style="color:#c678dd;">if </span><span>seen[i] </span><span style="color:#56b6c2;">== </span><span style="color:#d19a66;">2</span><span>:
+</span><span>      </span><span style="color:#c678dd;">continue
+</span><span>    stack.</span><span style="color:#e06c75;">append</span><span>(i)
+</span><span>    </span><span style="color:#c678dd;">while </span><span>stack:
+</span><span>      u </span><span style="color:#56b6c2;">= </span><span>stack.</span><span style="color:#e06c75;">pop</span><span>()
+</span><span>      </span><span style="color:#c678dd;">if </span><span>u </span><span style="color:#56b6c2;">&gt; </span><span style="color:#d19a66;">0</span><span>: </span><span style="color:#7f848e;"># 行きがけ
+</span><span>        stack.</span><span style="color:#e06c75;">append</span><span>(</span><span style="color:#56b6c2;">-</span><span>u)
+</span><span>        curr_path.</span><span style="color:#e06c75;">append</span><span>(u)
+</span><span>        seen[u] </span><span style="color:#56b6c2;">= </span><span style="color:#d19a66;">1
+</span><span>        </span><span style="color:#c678dd;">for </span><span>v </span><span style="color:#c678dd;">in </span><span>G[u]:
+</span><span>          </span><span style="color:#c678dd;">if </span><span>seen[v] </span><span style="color:#56b6c2;">== -</span><span style="color:#d19a66;">1</span><span>:
+</span><span>            seen[v] </span><span style="color:#56b6c2;">= </span><span style="color:#d19a66;">0
+</span><span>            stack.</span><span style="color:#e06c75;">append</span><span>(v)
+</span><span>          </span><span style="color:#c678dd;">elif </span><span>seen[v] </span><span style="color:#56b6c2;">== </span><span style="color:#d19a66;">1</span><span>:
+</span><span>            cycle </span><span style="color:#56b6c2;">= </span><span>curr_path[curr_path.</span><span style="color:#e06c75;">index</span><span>(v):]
+</span><span>            </span><span style="color:#c678dd;">return </span><span>cycle
+</span><span>      </span><span style="color:#c678dd;">else</span><span>: </span><span style="color:#7f848e;"># 帰りがけ
+</span><span>        seen[</span><span style="color:#56b6c2;">-</span><span>u] </span><span style="color:#56b6c2;">= </span><span style="color:#d19a66;">2
+</span><span>        curr_path.</span><span style="color:#e06c75;">pop</span><span>()
+</span><span>  </span><span style="color:#c678dd;">return </span><span style="color:#56b6c2;">list</span><span>()
+</span><span>
+</span><span>cycle </span><span style="color:#56b6c2;">= </span><span style="color:#e06c75;">dfs</span><span>()
+</span><span style="color:#c678dd;">if not </span><span>cycle:
+</span><span>  </span><span style="color:#56b6c2;">print</span><span>(</span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>)
+</span><span>  </span><span style="color:#e06c75;">exit</span><span>()
+</span><span>
+</span><span style="color:#7f848e;"># サイクルを小さくする
+</span><span style="color:#7f848e;"># 準備
+</span><span>used </span><span style="color:#56b6c2;">= </span><span>[</span><span style="color:#d19a66;">False</span><span>] </span><span style="color:#56b6c2;">* </span><span>(N</span><span style="color:#56b6c2;">+</span><span style="color:#d19a66;">1</span><span>)
+</span><span style="color:#56b6c2;">next = </span><span>[</span><span style="color:#d19a66;">0</span><span>] </span><span style="color:#56b6c2;">* </span><span>(N</span><span style="color:#56b6c2;">+</span><span style="color:#d19a66;">1</span><span>)
+</span><span style="color:#c678dd;">for </span><span>i </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(</span><span style="color:#56b6c2;">len</span><span>(cycle)):
+</span><span>  used[cycle[i]] </span><span style="color:#56b6c2;">= </span><span style="color:#d19a66;">True
+</span><span>  </span><span style="color:#56b6c2;">next</span><span>[cycle[i</span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>]] </span><span style="color:#56b6c2;">= </span><span>cycle[i]
+</span><span>
+</span><span style="color:#7f848e;"># ショートカットできるか確かめる
+</span><span style="color:#c678dd;">for </span><span>(u, v) </span><span style="color:#c678dd;">in </span><span>edges:
+</span><span>  </span><span style="color:#c678dd;">if </span><span>used[u] </span><span style="color:#c678dd;">and </span><span>used[v] </span><span style="color:#c678dd;">and </span><span style="color:#56b6c2;">next</span><span>[u] </span><span style="color:#56b6c2;">!= </span><span>v:
+</span><span>    w </span><span style="color:#56b6c2;">= next</span><span>[u]
+</span><span>    </span><span style="color:#c678dd;">while </span><span>w </span><span style="color:#56b6c2;">!= </span><span>v:
+</span><span>      used[w] </span><span style="color:#56b6c2;">= </span><span style="color:#d19a66;">False
+</span><span>      w </span><span style="color:#56b6c2;">= next</span><span>[w]
+</span><span>    </span><span style="color:#56b6c2;">next</span><span>[u] </span><span style="color:#56b6c2;">= </span><span>v
+</span><span>
+</span><span style="color:#7f848e;"># サイクル復元
+</span><span>u </span><span style="color:#56b6c2;">= </span><span>used.</span><span style="color:#e06c75;">index</span><span>(</span><span style="color:#d19a66;">True</span><span>)
+</span><span>ans </span><span style="color:#56b6c2;">= </span><span>[u]
+</span><span>v </span><span style="color:#56b6c2;">= next</span><span>[u]
+</span><span style="color:#c678dd;">while </span><span>v </span><span style="color:#56b6c2;">!= </span><span>u:
+</span><span>  ans.</span><span style="color:#e06c75;">append</span><span>(v)
+</span><span>  v </span><span style="color:#56b6c2;">= next</span><span>[v]
+</span><span>
+</span><span style="color:#56b6c2;">print</span><span>(</span><span style="color:#56b6c2;">len</span><span>(ans))
+</span><span style="color:#c678dd;">for </span><span>x </span><span style="color:#c678dd;">in </span><span>ans:
+</span><span>  </span><span style="color:#56b6c2;">print</span><span>(x)
+</span></code></pre>
+<h4 id="余談">余談</h4>
+<p><a href="https://atcoder.jp/contests/abc142/submissions/19417479">提出コード</a></p>
+<p>ウケますね</p>
+
+
+
+<div class="pagination">
+  
+  <a class="next" href="https:&#x2F;&#x2F;nebocco.github.io&#x2F;post&#x2F;abc128c&#x2F;">ABC128-C Switches 解説</a>
+  
+  
+  <a class="previous" href="https:&#x2F;&#x2F;nebocco.github.io&#x2F;post&#x2F;abc187b&#x2F;">ABC187-B Gentle Pairs 解説</a>
+  
+</div>
+
+
+      </article>
+    </main>
+
+    <footer>
+      <span>© 2025 nebocco</span>
+      <br />
+      <span>Generated with <a href="https://www.getzola.org/">Zola</a></span>
+    </footer>
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <title>ねぼこの日記</title>
+  <link rel="stylesheet" href="https://nebocco.github.io/main.css">
+  <meta charset="utf-8">
+  <meta name="description" content="nebocco のブログ">
+  <meta property="og:site_name" content="ねぼこの日記" />
+  
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css"
+  integrity="sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib" crossorigin="anonymous">
+
+<!-- The loading of KaTeX is deferred to speed up page rendering -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js"
+  integrity="sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh" crossorigin="anonymous"></script>
+
+<!-- To automatically render math in text elements, include the auto-render extension: -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js"
+  integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh" crossorigin="anonymous"
+  onload="renderMathInElement(document.body);"></script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    renderMathInElement(document.body, {
+      // customised options
+      // • auto-render specific keys, e.g.:
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$', right: '$', display: false },
+        { left: '\\(', right: '\\)', display: false },
+        { left: '\\[', right: '\\]', display: true }
+      ],
+      // • rendering keys, e.g.:
+      throwOnError: false
+    });
+  });
+</script>
+
+
+</head>
+
+<body>
+  <div class="page-container">
+    <header>
+      <div id="title">
+        <a href="/">ねぼこの日記</a>
+      </div>
+      <nav>
+        <a href="/post">Posts</a>
+        <a href="/tags">Tags</a>
+        <a href="https://github.com/nebocco" target="_blank" rel="noreferrer noopener">Github</a>
+        <a href="https://twitter.com/nebocco27" target="_blank" rel="noreferrer noopener">Twitter</a>
+        
+        <a href="https://nebocco.github.io/atom.xml" target="_blank" rel="noreferrer noopener">Feed</a>
+        
+      </nav>
+    </header>
+
+    <main id="main">
+      <article id="post">
+        
+<div class="headline">
+  <h1 class="page-title">
+    ABC156-C Rally 解説
+  </h1>
+  
+<div class="subtitle">
+  <span class="page-date">
+    2020-08-21
+  </span>
+  
+  <span class="page-tags">
+    
+    
+    <a class="page-tag" href="https://nebocco.github.io/tags/atcoder/">AtCoder</a>
+    
+    
+    <a class="page-tag" href="https://nebocco.github.io/tags/python/">Python</a>
+    
+  </span>
+  
+</div>
+
+</div>
+
+<p>\(O(N)\) で解きます。</p>
+<h2 id="問題">問題</h2>
+<p><a href="https://atcoder.jp/contests/abc156/tasks/abc156_c">AtCoder Beginner Contest 156 | C - Rally</a></p>
+<h3 id="概要">概要</h3>
+<p>$$
+\underset{P}{\min} \sum _ {i=1} ^ {N} (X _ i - P) ^ 2
+$$</p>
+<p>を求めなさい。</p>
+<h2 id="解法">解法</h2>
+<p>制約が \( N \leq 100,\ X _ i \leq 100\) と小さいので、 \(X\) の取りうる範囲すべてを調べても\(O(NA) , (A = \max ( X ) - \min ( X ))\) で解くことができます。しかし、少し数学的な考察を挟むと、最小値を取る \(P\) の候補を高々2つに絞ることができます。</p>
+<p>$$
+f(P) = \sum _ {i=1} ^ {N} (X _ i - P) ^ 2
+= \sum _ {i=1} ^ {N} (X ^ 2 _ i  - 2 X _ i  P + P ^ 2)
+$$</p>
+<p>とおくと、</p>
+<p>$$
+\begin{aligned}
+f ' (P) &amp;= \sum _ {i=1} ^ {N} (X ^ 2 _ i - 2 X _ i  P + P ^ 2) ' \\
+&amp;= \sum _ {i=1} ^ {N} ( 0 - 2 X _ i + 2 P ) \\
+&amp;= 2 ( NP -  \sum _ {i=1} ^ {N} X _ i )
+\end{aligned}
+$$</p>
+<p>となります。</p>
+<p>よって、 \( S = \sum X _ i\) とすると \(f(P)\) の増減表（懐かしい響き！）は以下のようになります。</p>
+<p>$$
+\begin{array}{|c| ccc|}\hline
+x     &amp; \cdots &amp;   \frac{S}{N}  &amp;  \cdots  \\ \hline
+f'(P)&amp;      -     &amp;         0          &amp;      +       \\ \hline
+f(P) &amp;    \searrow   &amp;  f(\frac{S}{N}) &amp;   \nearrow      \\ \hline
+\end{array}
+$$</p>
+<p>つまり、 \(f(P)\) は \(X\) の平均値 \(\overline{X} = \frac{S}{N} \) で最小値をとることがわかります。ただし、この問題の \(P\) は整数の値しか取りえないので、 \( f ( \lfloor \overline{X} \rfloor ) , f ( \lceil \overline{X} \rceil ) \) のうち小さいほうを出力します。</p>
+<h2 id="実装">実装</h2>
+<p><a href="https://atcoder.jp/contests/abc156/submissions/16070519">提出コード（Python）</a></p>
+<pre data-lang="python" style="background-color:#282c34;color:#abb2bf;" class="language-python "><code class="language-python" data-lang="python"><span>N </span><span style="color:#56b6c2;">= int</span><span>(</span><span style="color:#56b6c2;">input</span><span>())
+</span><span>X </span><span style="color:#56b6c2;">= list</span><span>(</span><span style="color:#56b6c2;">map</span><span>(</span><span style="color:#56b6c2;">int</span><span>, </span><span style="color:#56b6c2;">input</span><span>().</span><span style="color:#e06c75;">split</span><span>()))
+</span><span>
+</span><span style="color:#c678dd;">def </span><span style="color:#61afef;">cost</span><span>(</span><span style="font-style:italic;color:#e06c75;">p</span><span>):
+</span><span>    res </span><span style="color:#56b6c2;">= </span><span style="color:#d19a66;">0
+</span><span>    </span><span style="color:#c678dd;">for </span><span>x </span><span style="color:#c678dd;">in </span><span>X:
+</span><span>        res </span><span style="color:#56b6c2;">+= </span><span>(x </span><span style="color:#56b6c2;">- </span><span>p)</span><span style="color:#56b6c2;">**</span><span style="color:#d19a66;">2
+</span><span>    </span><span style="color:#c678dd;">return </span><span>res
+</span><span>
+</span><span>m </span><span style="color:#56b6c2;">= sum</span><span>(X) </span><span style="color:#56b6c2;">// </span><span>N
+</span><span style="color:#56b6c2;">print</span><span>(</span><span style="color:#56b6c2;">min</span><span>(</span><span style="color:#e06c75;">cost</span><span>(m), </span><span style="color:#e06c75;">cost</span><span>(m</span><span style="color:#56b6c2;">+</span><span style="color:#d19a66;">1</span><span>)))
+</span></code></pre>
+<p>余談ですが、 \(P\) に \(\overline{X}\) が入ることを念頭において冒頭の式を見ると、この問題は \(X\) のデータに対して最小二乗法を用いて最確値を求めることに相当している、と気づけます。統計学の素養のある人なら問題を見た瞬間に「あ、残差二乗和の最小値だから \(P = \overline{X}\) だ」と察知できたりするのでしょうか。</p>
+
+
+
+<div class="pagination">
+  
+  <a class="next" href="https:&#x2F;&#x2F;nebocco.github.io&#x2F;post&#x2F;abc122&#x2F;">ABC122-D We Like AGC 解説</a>
+  
+  
+  <a class="previous" href="https:&#x2F;&#x2F;nebocco.github.io&#x2F;post&#x2F;abc175d&#x2F;">ABC175-D Moving Piece 解説</a>
+  
+</div>
+
+
+      </article>
+    </main>
+
+    <footer>
+      <span>© 2025 nebocco</span>
+      <br />
+      <span>Generated with <a href="https://www.getzola.org/">Zola</a></span>
+    </footer>
+  </div>
+</body>
+
+</html>

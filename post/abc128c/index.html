@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <title>ねぼこの日記</title>
+  <link rel="stylesheet" href="https://nebocco.github.io/main.css">
+  <meta charset="utf-8">
+  <meta name="description" content="nebocco のブログ">
+  <meta property="og:site_name" content="ねぼこの日記" />
+  
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css"
+  integrity="sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib" crossorigin="anonymous">
+
+<!-- The loading of KaTeX is deferred to speed up page rendering -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js"
+  integrity="sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh" crossorigin="anonymous"></script>
+
+<!-- To automatically render math in text elements, include the auto-render extension: -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js"
+  integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh" crossorigin="anonymous"
+  onload="renderMathInElement(document.body);"></script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    renderMathInElement(document.body, {
+      // customised options
+      // • auto-render specific keys, e.g.:
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$', right: '$', display: false },
+        { left: '\\(', right: '\\)', display: false },
+        { left: '\\[', right: '\\]', display: true }
+      ],
+      // • rendering keys, e.g.:
+      throwOnError: false
+    });
+  });
+</script>
+
+
+</head>
+
+<body>
+  <div class="page-container">
+    <header>
+      <div id="title">
+        <a href="/">ねぼこの日記</a>
+      </div>
+      <nav>
+        <a href="/post">Posts</a>
+        <a href="/tags">Tags</a>
+        <a href="https://github.com/nebocco" target="_blank" rel="noreferrer noopener">Github</a>
+        <a href="https://twitter.com/nebocco27" target="_blank" rel="noreferrer noopener">Twitter</a>
+        
+        <a href="https://nebocco.github.io/atom.xml" target="_blank" rel="noreferrer noopener">Feed</a>
+        
+      </nav>
+    </header>
+
+    <main id="main">
+      <article id="post">
+        
+<div class="headline">
+  <h1 class="page-title">
+    ABC128-C Switches 解説
+  </h1>
+  
+<div class="subtitle">
+  <span class="page-date">
+    2021-01-13
+  </span>
+  
+  <span class="page-tags">
+    
+    
+    <a class="page-tag" href="https://nebocco.github.io/tags/atcoder/">AtCoder</a>
+    
+    
+    <a class="page-tag" href="https://nebocco.github.io/tags/python/">Python</a>
+    
+  </span>
+  
+</div>
+
+</div>
+
+<p>$O(M ^ 2)$ （一般の $N, M$ については $O(NM ^ 2)$ ）で解きます。</p>
+<h2 id="問題">問題</h2>
+<p><a href="https://atcoder.jp/contests/abc128/tasks/abc128_c">AtCoder Beginner Contest 128 | C - Switches</a></p>
+<h3 id="概要">概要</h3>
+<p>$N$ 個のスイッチと $M$ 個の電球がある。$i$ 番目のスイッチ $ (1\leq i\leq N) $ は $k_i$ 個の電球 $s_{i1}, s_{i2}, \ldots, s_{ik_i} (1 \leq s_{ij} \leq M)$ の状態を切り替える。
+全ての電球を ON にするスイッチの ON / OFF の決め方は何通りか？</p>
+<h2 id="解法">解法</h2>
+<p>editorial 解は素朴な全探索ですが、線形代数を用いて計算量を改善します。
+(大学一年生レベルの線形代数の知識が必要になります。)</p>
+<p>$N$ 次元ベクトル $\bm{x}$、$N \times M $ 行列 $A$ をそれぞれ</p>
+<p>$$
+\begin{aligned}
+\bm{x} _ i &amp;=
+\begin{cases}
+1 &amp; \text{(スイッチ $i$ が ON)} \newline
+0 &amp; \text{(OFF)}
+\end{cases} \newline
+A _ {ij} &amp;=
+\begin{cases}
+1 &amp; \text{(電球 $i$ がスイッチ $j$ の影響を受ける)} \newline
+0 &amp; \text{(受けない)}
+\end{cases}
+\end{aligned}
+$$</p>
+<p>と定義します。求める答えは入力で与えられる $\bm{p}$ を用いて、$\bm{x}$ についての</p>
+<p>$$
+A\bm{x} \equiv \bm{p} \quad (\mathrm{mod}\:2)
+$$</p>
+<p>の解の個数に等しいです。</p>
+<p>この解は拡大係数行列 $(A\mid\bm{p})$ に掃き出し法を行うことで求めることができます。また、解の自由度を $r$ とすると $r = N - \mathrm{rank}(A\mid\bm{p})$ です。
+つまり $r$ 個のスイッチについては ON / OFF を自由に決定することができるので、解の個数は $2 ^ r$ です。
+ただし、係数行列部分が全て $0$ なのに定数項が $0$ でないような行が存在した場合は <strong>解なし</strong> となるため注意してください。計算量は $O(NM ^ 2)$ です。</p>
+<p>さらに、演算が $\mathrm{mod}\:2$ 上で行われること、 $N$ がワードサイズに収まる $(\leq 32)$ ことから、
+以下の実装では $A$ をビットで表現し、掃き出し法をビット演算によって行っています。</p>
+<p>$$
+\begin{array}{ccc}
+A =
+\begin{pmatrix}
+0 &amp; 1 &amp; 1 &amp; 0 &amp; 1 \newline
+0 &amp; 0 &amp; 0 &amp; 1 &amp; 1 \newline
+1 &amp; 0 &amp; 0 &amp; 1 &amp; 0 \newline
+0 &amp; 1 &amp; 1 &amp; 0 &amp; 0 \newline
+0 &amp; 1 &amp; 0 &amp; 0 &amp; 1 \newline
+1 &amp; 1 &amp; 1 &amp; 0 &amp; 0
+\end{pmatrix} &amp;
+\longrightarrow &amp;
+A =
+\begin{pmatrix}
+\mathrm{01101} _ {(2)} \newline
+\mathrm{00011} _ {(2)} \newline
+\mathrm{10010} _ {(2)} \newline
+\mathrm{01100} _ {(2)} \newline
+\mathrm{01001} _ {(2)} \newline
+\mathrm{11100} _ {(2)}
+\end{pmatrix} =
+\begin{pmatrix}
+13 \newline 3 \newline 18 \newline 12 \newline 9 \newline 28
+\end{pmatrix}
+\end{array}
+$$</p>
+<p>これにより計算量は $O(M ^ 2)$ になっています。 $N$ が大きい場合にも、Python の多倍長整数や C++ の <code>bitset</code> を用いて同様の工夫を行なうことで、定数倍を大きく改善することができます。</p>
+<h2 id="実装">実装</h2>
+<p><a href="https://atcoder.jp/contests/abc128/submissions/19415164">提出コード</a> (Python)</p>
+<pre data-lang="python" style="background-color:#282c34;color:#abb2bf;" class="language-python "><code class="language-python" data-lang="python"><span>N, M </span><span style="color:#56b6c2;">= map</span><span>(</span><span style="color:#56b6c2;">int</span><span>, </span><span style="color:#56b6c2;">input</span><span>().</span><span style="color:#e06c75;">split</span><span>())
+</span><span>s </span><span style="color:#56b6c2;">= </span><span>[</span><span style="color:#56b6c2;">list</span><span>(</span><span style="color:#56b6c2;">map</span><span>(</span><span style="color:#56b6c2;">int</span><span>, </span><span style="color:#56b6c2;">input</span><span>().</span><span style="color:#e06c75;">split</span><span>()))[</span><span style="color:#d19a66;">1</span><span>:] </span><span style="color:#c678dd;">for </span><span style="color:#e5c07b;">_ </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(M)]
+</span><span>p </span><span style="color:#56b6c2;">= list</span><span>(</span><span style="color:#56b6c2;">map</span><span>(</span><span style="color:#56b6c2;">int</span><span>, </span><span style="color:#56b6c2;">input</span><span>().</span><span style="color:#e06c75;">split</span><span>()))
+</span><span>
+</span><span> </span><span style="color:#7f848e;"># 行列 A の構築
+</span><span>A </span><span style="color:#56b6c2;">= </span><span>[</span><span style="color:#d19a66;">0</span><span>] </span><span style="color:#56b6c2;">* </span><span>M
+</span><span style="color:#c678dd;">for </span><span>i </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(M):
+</span><span>  </span><span style="color:#c678dd;">for </span><span>x </span><span style="color:#c678dd;">in </span><span>s[i]:
+</span><span>    A[i] </span><span style="color:#56b6c2;">|= </span><span style="color:#d19a66;">1 </span><span style="color:#56b6c2;">&lt;&lt; </span><span>(N </span><span style="color:#56b6c2;">- </span><span>x)
+</span><span>
+</span><span style="color:#7f848e;"># 拡大
+</span><span style="color:#c678dd;">for </span><span>i </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(M):
+</span><span>  A[i] </span><span style="color:#56b6c2;">= </span><span>A[i] </span><span style="color:#56b6c2;">&lt;&lt; </span><span style="color:#d19a66;">1 </span><span style="color:#56b6c2;">| </span><span>p[i]
+</span><span>
+</span><span style="color:#7f848e;"># 掃き出し法
+</span><span style="color:#7f848e;"># mod2 なので XOR でよい
+</span><span style="color:#c678dd;">for </span><span>i </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(M):
+</span><span>  </span><span style="color:#7f848e;"># 最も高い bit が立っている行を探す
+</span><span>  </span><span style="color:#c678dd;">for </span><span>j </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(i</span><span style="color:#56b6c2;">+</span><span style="color:#d19a66;">1</span><span>, M):
+</span><span>    </span><span style="color:#c678dd;">if </span><span>A[i] </span><span style="color:#56b6c2;">&lt; </span><span>A[j]:
+</span><span>      A[i], A[j] </span><span style="color:#56b6c2;">= </span><span>A[j], A[i]
+</span><span>  </span><span style="color:#c678dd;">if </span><span>A[i] </span><span style="color:#56b6c2;">== </span><span style="color:#d19a66;">0</span><span>:
+</span><span>    </span><span style="color:#c678dd;">break
+</span><span>  </span><span style="color:#7f848e;"># 掃き出す
+</span><span>  msb </span><span style="color:#56b6c2;">= </span><span style="color:#d19a66;">1 </span><span style="color:#56b6c2;">&lt;&lt; </span><span>(A[i].</span><span style="color:#e06c75;">bit_length</span><span>() </span><span style="color:#56b6c2;">- </span><span style="color:#d19a66;">1</span><span>)
+</span><span>  </span><span style="color:#c678dd;">for </span><span>j </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(M):
+</span><span>    </span><span style="color:#c678dd;">if </span><span>j </span><span style="color:#56b6c2;">== </span><span>i:
+</span><span>      </span><span style="color:#c678dd;">continue
+</span><span>    </span><span style="color:#c678dd;">if </span><span>A[j] </span><span style="color:#56b6c2;">&amp; </span><span>msb:
+</span><span>      A[j] </span><span style="color:#56b6c2;">^= </span><span>A[i]
+</span><span>
+</span><span style="color:#7f848e;"># 係数が全て0 かつ 定数項が1 の行がある &lt;=&gt; 解なし
+</span><span style="color:#c678dd;">if </span><span style="color:#d19a66;">1 </span><span style="color:#c678dd;">in </span><span>A:
+</span><span>  ans </span><span style="color:#56b6c2;">= </span><span style="color:#d19a66;">0
+</span><span style="color:#c678dd;">else</span><span>:
+</span><span>  rank </span><span style="color:#56b6c2;">= sum</span><span>(x </span><span style="color:#56b6c2;">&gt; </span><span style="color:#d19a66;">0 </span><span style="color:#c678dd;">for </span><span>x </span><span style="color:#c678dd;">in </span><span>A)
+</span><span>  ans </span><span style="color:#56b6c2;">= pow</span><span>(</span><span style="color:#d19a66;">2</span><span>, N </span><span style="color:#56b6c2;">- </span><span>rank)
+</span><span>
+</span><span style="color:#56b6c2;">print</span><span>(ans)
+</span></code></pre>
+
+
+
+<div class="pagination">
+  
+  
+  <a class="previous" href="https:&#x2F;&#x2F;nebocco.github.io&#x2F;post&#x2F;abc142f&#x2F;">ABC142-F Pure 解説</a>
+  
+</div>
+
+
+      </article>
+    </main>
+
+    <footer>
+      <span>© 2025 nebocco</span>
+      <br />
+      <span>Generated with <a href="https://www.getzola.org/">Zola</a></span>
+    </footer>
+  </div>
+</body>
+
+</html>
