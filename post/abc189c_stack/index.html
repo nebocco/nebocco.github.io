@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <title>ねぼこの日記</title>
+  <link rel="stylesheet" href="https://nebocco.github.io/main.css">
+  <meta charset="utf-8">
+  <meta name="description" content="nebocco のブログ">
+  <meta property="og:site_name" content="ねぼこの日記" />
+  
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css"
+  integrity="sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib" crossorigin="anonymous">
+
+<!-- The loading of KaTeX is deferred to speed up page rendering -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js"
+  integrity="sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh" crossorigin="anonymous"></script>
+
+<!-- To automatically render math in text elements, include the auto-render extension: -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js"
+  integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh" crossorigin="anonymous"
+  onload="renderMathInElement(document.body);"></script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    renderMathInElement(document.body, {
+      // customised options
+      // • auto-render specific keys, e.g.:
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$', right: '$', display: false },
+        { left: '\\(', right: '\\)', display: false },
+        { left: '\\[', right: '\\]', display: true }
+      ],
+      // • rendering keys, e.g.:
+      throwOnError: false
+    });
+  });
+</script>
+
+
+</head>
+
+<body>
+  <div class="page-container">
+    <header>
+      <div id="title">
+        <a href="/">ねぼこの日記</a>
+      </div>
+      <nav>
+        <a href="/post">Posts</a>
+        <a href="/tags">Tags</a>
+        <a href="https://github.com/nebocco" target="_blank" rel="noreferrer noopener">Github</a>
+        <a href="https://twitter.com/nebocco27" target="_blank" rel="noreferrer noopener">Twitter</a>
+        
+        <a href="https://nebocco.github.io/atom.xml" target="_blank" rel="noreferrer noopener">Feed</a>
+        
+      </nav>
+    </header>
+
+    <main id="main">
+      <article id="post">
+        
+<div class="headline">
+  <h1 class="page-title">
+    ABC189-C Mandarin Orange 解説（stack 活用編）
+  </h1>
+  
+<div class="subtitle">
+  <span class="page-date">
+    2021-01-31
+  </span>
+  
+  <span class="page-tags">
+    
+    
+    <a class="page-tag" href="https://nebocco.github.io/tags/atcoder/">AtCoder</a>
+    
+    
+    <a class="page-tag" href="https://nebocco.github.io/tags/python/">Python</a>
+    
+    
+    <a class="page-tag" href="https://nebocco.github.io/tags/yoriyoiji-suan-liang-sirizu/">よりよい計算量シリーズ</a>
+    
+    
+    <a class="page-tag" href="https://nebocco.github.io/tags/jing-ji-puroguramingu/">競技プログラミング</a>
+    
+  </span>
+  
+</div>
+
+</div>
+
+<p>$O(N)$ で解きます。</p>
+<p>$O(N \log N)$ はこちら → <a href="https://nebocco.github.io/post/abc189c_dancing_links/">ABC189-C Mandarin Orange 解説（Dancing Links 編）</a></p>
+<h2 id="問題">問題</h2>
+<p><a href="https://atcoder.jp/contests/abc189/tasks/abc189_c">AtCoder Beginner Contest 189 | C - Mandarin Orange</a></p>
+<h3 id="概要">概要</h3>
+<p>$$
+\max _ {1 \leq l \leq r \leq n} \left\lbrace (r - l + 1) \cdot \min _ {l \leq i \leq r} a _ i \right\rbrace
+$$</p>
+<h2 id="解法">解法</h2>
+<p><a href="https://nebocco.github.io/post/abc189c_dancing_links/">前回</a>に続いて、今回はstackを使った解法を紹介します。ここでは皿の大きさ順ではなく、シンプルに左から見ていくことにします。</p>
+<p>再び「その皿のミカンを全て取るとした時、収穫範囲を左右どこまで広げられるか」を考えます。
+ここで、左に伸ばすことと右に伸ばすことはお互いに影響しないので、まず「どこまで左に伸ばせるか」を考えます。</p>
+<p>どこまで伸ばせるかというと、「自分より小さな皿のうち最も近いもの」（<strong>境界</strong>）の一個手前までです。全ての皿について、境界を順番に計算していきます。
+ある皿の左側がこのようになっていたとします。</p>
+<!-- <figure class="figure-image figure-image-fotolife" title="たくさんのミカン">[f:id:nebocco:20210130151000p:plain]<figcaption>たくさんのミカン</figcaption></figure> -->
+
+  <figure class="">
+    
+      
+      <img src="&#x2F;assets&#x2F;2021-01-30_abc189c&#x2F;20210130151000.png"  >
+      
+      
+    <figcaption>たくさんのミカン</figcaption>
+  </figure>
+  
+<p>この時、次に見る皿の大きさに関わらず、 $11$ の皿は絶対に境界にはなりません。右隣にある $2$ の皿の方が小さく、しかも必ず次に見る皿に近くなってしまうからです。同様に、 $4, 19$ の皿も境界にはなりません。</p>
+<p>このように考えると、境界の候補は以下のように単調に増加する数列として表されます。</p>
+<!-- <figure class="figure-image figure-image-fotolife" title="残ったミカンは単調増加">[f:id:nebocco:20210130151028p:plain]<figcaption>残ったミカンは単調増加</figcaption></figure>  -->
+
+  <figure class="">
+    
+      
+      <img src="&#x2F;assets&#x2F;2021-01-30_abc189c&#x2F;20210130151028.png"  >
+      
+      
+    <figcaption>残ったミカンは単調増加</figcaption>
+  </figure>
+  
+<p>単調なので、二分探索によって境界の位置を求めることができます。</p>
+<p>その後、この列に今見た皿が追加されますが、新たに $9, 80$ の皿が絶対に境界にならなくなりました。よって、この皿も削除してしまいます。</p>
+<!-- <figure class="figure-image figure-image-fotolife" title="結局単調増加のまま">[f:id:nebocco:20210130151059p:plain]<figcaption>結局単調増加のまま</figcaption></figure> -->
+
+  <figure class="">
+    
+      
+      <img src="&#x2F;assets&#x2F;2021-01-30_abc189c&#x2F;20210130151059.png"  >
+      
+      
+    <figcaption>結局単調増加のまま</figcaption>
+  </figure>
+  
+<p>この時、左側で残っている皿が単調増加であることから、削除するべき大きい皿は常に末尾に固まっているはずなので、末尾が自分より大きい限り削除を続ければよいです。
+削除が終わったとき、末尾にあるものは先程二分探索で見つけた境界のはずです。ということは、<strong>先に削除の操作を行ってしまえば</strong>二分探索をしなくても境界を求めることができるということです。</p>
+<p>よって、左側にある皿を蓄えるstackを用意して、</p>
+<ol>
+<li>自分より大きな皿を削除（末尾からの<code>pop</code>を繰り返す）</li>
+<li>境界を記録して、自分を追加</li>
+</ol>
+<p>を繰り返すことで、全ての皿について境界（収穫範囲の左端）を求めることができます。
+<code>push</code>、<code>pop</code>の計算量は $O(1)$ であり、全ての皿は高々一度づつしか追加・削除されないので、計算量は合計で $O(N)$ です。</p>
+<p>同様にこれを右側から行えば、それぞれの収穫範囲の右端も求めることができます。よって全ての皿に対して最大の収穫範囲が求まるので、あとはそれらのうち答えが最大になるものを計算すれば良いです。
+計算量は全体で $O(N)$ です。</p>
+<h2 id="実装">実装</h2>
+<p>境界を探すのを簡単にするため、stackには皿の大きさではなくindexを入れています。
+また、stackが空になった時の処理を単純化するため予め番兵を入れています。</p>
+<p><a href="https://atcoder.jp/contests/abc189/submissions/19762458">提出コード</a> (Python3)</p>
+<pre data-lang="python" style="background-color:#282c34;color:#abb2bf;" class="language-python "><code class="language-python" data-lang="python"><span>n </span><span style="color:#56b6c2;">= int</span><span>(</span><span style="color:#56b6c2;">input</span><span>())
+</span><span>a </span><span style="color:#56b6c2;">= list</span><span>(</span><span style="color:#56b6c2;">map</span><span>(</span><span style="color:#56b6c2;">int</span><span>, </span><span style="color:#56b6c2;">input</span><span>().</span><span style="color:#e06c75;">split</span><span>()))
+</span><span>a </span><span style="color:#56b6c2;">+= </span><span>[</span><span style="color:#d19a66;">0</span><span>] </span><span style="color:#7f848e;"># 番兵
+</span><span>
+</span><span>left </span><span style="color:#56b6c2;">= </span><span>[</span><span style="color:#d19a66;">0</span><span>] </span><span style="color:#56b6c2;">* </span><span>n </span><span style="color:#7f848e;"># left[i]: 皿iの左の境界
+</span><span>right </span><span style="color:#56b6c2;">= </span><span>[</span><span style="color:#d19a66;">0</span><span>] </span><span style="color:#56b6c2;">* </span><span>n
+</span><span>
+</span><span style="color:#7f848e;"># 左から見る
+</span><span>st </span><span style="color:#56b6c2;">= </span><span>[</span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>] </span><span style="color:#7f848e;"># 番兵
+</span><span style="color:#c678dd;">for </span><span>i </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(n):
+</span><span>    </span><span style="color:#c678dd;">while </span><span>a[st[</span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>]] </span><span style="color:#56b6c2;">&gt;= </span><span>a[i]:
+</span><span>        st.</span><span style="color:#e06c75;">pop</span><span>()
+</span><span>    left[i] </span><span style="color:#56b6c2;">= </span><span>st[</span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>]
+</span><span>    st.</span><span style="color:#e06c75;">append</span><span>(i)
+</span><span>
+</span><span style="color:#7f848e;"># 右から
+</span><span>st </span><span style="color:#56b6c2;">= </span><span>[n] </span><span style="color:#7f848e;"># 番兵
+</span><span style="color:#c678dd;">for </span><span>i </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(n</span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>, </span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>, </span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>):
+</span><span>    </span><span style="color:#c678dd;">while </span><span>a[st[</span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>]] </span><span style="color:#56b6c2;">&gt;= </span><span>a[i]:
+</span><span>        st.</span><span style="color:#e06c75;">pop</span><span>()
+</span><span>    right[i] </span><span style="color:#56b6c2;">= </span><span>st[</span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>]
+</span><span>    st.</span><span style="color:#e06c75;">append</span><span>(i)
+</span><span>
+</span><span>ans </span><span style="color:#56b6c2;">= max</span><span>(a[i] </span><span style="color:#56b6c2;">* </span><span>(right[i] </span><span style="color:#56b6c2;">- </span><span>left[i] </span><span style="color:#56b6c2;">- </span><span style="color:#d19a66;">1</span><span>) </span><span style="color:#c678dd;">for </span><span>i </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(n))
+</span><span style="color:#56b6c2;">print</span><span>(ans)
+</span></code></pre>
+
+
+
+<div class="pagination">
+  
+  <a class="next" href="https:&#x2F;&#x2F;nebocco.github.io&#x2F;post&#x2F;yuki119&#x2F;">yukicoder No.119 旅行のツアーの問題 解説</a>
+  
+  
+  <a class="previous" href="https:&#x2F;&#x2F;nebocco.github.io&#x2F;post&#x2F;abc189c_dancing_links&#x2F;">ABC189-C Mandarin Orange 解説（Dancing Links 編）</a>
+  
+</div>
+
+
+      </article>
+    </main>
+
+    <footer>
+      <span>© 2025 nebocco</span>
+      <br />
+      <span>Generated with <a href="https://www.getzola.org/">Zola</a></span>
+    </footer>
+  </div>
+</body>
+
+</html>

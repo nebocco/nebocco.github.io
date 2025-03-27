@@ -4,8 +4,1530 @@
     <link rel="self" type="application/atom+xml" href="https://nebocco.github.io/atom.xml"/>
     <link rel="alternate" type="text/html" href="https://nebocco.github.io"/>
     <generator uri="https://www.getzola.org/">Zola</generator>
-    <updated>2021-01-13T00:00:00+00:00</updated>
+    <updated>2021-11-13T00:00:00+00:00</updated>
     <id>https://nebocco.github.io/atom.xml</id>
+    <entry xml:lang="ja">
+        <title>整数のまま行う偏角ソート</title>
+        <published>2021-11-13T00:00:00+00:00</published>
+        <updated>2021-11-13T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              nebocco
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://nebocco.github.io/post/arg_sort_in_int/"/>
+        <id>https://nebocco.github.io/post/arg_sort_in_int/</id>
+        
+        <content type="html" xml:base="https://nebocco.github.io/post/arg_sort_in_int/">&lt;p&gt;浮動小数点数に直して $\arg$ 求めるの嫌いなので整数のままソートしましょう。
+偏角の取りうる範囲は $[0, 2 \pi )$ とします。&lt;&#x2F;p&gt;
+&lt;h4 id=&quot;追記&quot;&gt;追記&lt;&#x2F;h4&gt;
+&lt;p&gt;投稿直後にもっと賢い方法が投稿され、膝から崩れ落ちました&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;ngtkana.hatenablog.com&#x2F;entry&#x2F;2021&#x2F;11&#x2F;13&#x2F;202103&quot;&gt;整数のまま行う偏角ソート（行列式のあれです。）の実装バリエーションの検討とご紹介です。 - ブログ名&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;追記おわり&lt;&#x2F;p&gt;
+&lt;p&gt;ソートする時には、二点 $p = (p _ x, p _ y), q = (q _ x, q _ y)$ が与えられたときにどちらの偏角が大きいのか判定できればOKです。
+なので二点の比較を行う方法だけ考えます。&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;ざっくりと比較&quot;&gt;ざっくりと比較&lt;&#x2F;h3&gt;
+&lt;p&gt;まずは座標平面を三つに切り分けて大まかな位置を特定します。&lt;&#x2F;p&gt;
+&lt;ol&gt;
+&lt;li&gt;偏角 $[0, \pi &#x2F; 2]$&lt;&#x2F;li&gt;
+&lt;li&gt;偏角 $(\pi &#x2F; 2, \pi]$&lt;&#x2F;li&gt;
+&lt;li&gt;偏角 $(\pi, 2 \pi)$&lt;&#x2F;li&gt;
+&lt;&#x2F;ol&gt;
+&lt;p&gt;これ以外の切り分け方でも大丈夫ですが、座標の正負だけ見ればいいのでこれが一番楽だと思います。
+この段階で２点の属する領域が異なれば、それだけで大小関係を決定できます。&lt;&#x2F;p&gt;
+&lt;h5 id=&quot;Python&quot;&gt;Python&lt;&#x2F;h5&gt;
+&lt;pre data-lang=&quot;python&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-python &quot;&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;def &lt;&#x2F;span&gt;&lt;span style=&quot;color:#61afef;&quot;&gt;area&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;p&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;tuple&lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span&gt;]):
+&lt;&#x2F;span&gt;&lt;span&gt;    x, y &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;p
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span&gt;y &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;lt; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;return &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;3
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;elif &lt;&#x2F;span&gt;&lt;span&gt;x &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;lt; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;return &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;2
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;else&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;return &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;def &lt;&#x2F;span&gt;&lt;span style=&quot;color:#61afef;&quot;&gt;arg_cmp&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;p&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;tuple&lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span&gt;], &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;q&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;tuple&lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span&gt;]):
+&lt;&#x2F;span&gt;&lt;span&gt;    ap &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;area&lt;&#x2F;span&gt;&lt;span&gt;(p)
+&lt;&#x2F;span&gt;&lt;span&gt;    aq &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;area&lt;&#x2F;span&gt;&lt;span&gt;(q)
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span&gt;ap &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;lt; &lt;&#x2F;span&gt;&lt;span&gt;aq:
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;return &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;elif &lt;&#x2F;span&gt;&lt;span&gt;ap &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;gt; &lt;&#x2F;span&gt;&lt;span&gt;aq:
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;return &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;else&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;return &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# もっと詳しく比較する必要がある
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;h5 id=&quot;Rust&quot;&gt;Rust&lt;&#x2F;h5&gt;
+&lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;use &lt;&#x2F;span&gt;&lt;span&gt;std::cmp::Ordering;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#61afef;&quot;&gt;area&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;p&lt;&#x2F;span&gt;&lt;span&gt;: (&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;i64&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;i64&lt;&#x2F;span&gt;&lt;span&gt;)) -&amp;gt; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;u8 &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let &lt;&#x2F;span&gt;&lt;span&gt;(x, y) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;=&lt;&#x2F;span&gt;&lt;span&gt; p;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;if&lt;&#x2F;span&gt;&lt;span&gt; y &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;lt; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0 &lt;&#x2F;span&gt;&lt;span&gt;{ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;3 &lt;&#x2F;span&gt;&lt;span&gt;} &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;else if&lt;&#x2F;span&gt;&lt;span&gt; x &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;lt; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0 &lt;&#x2F;span&gt;&lt;span&gt;{ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;2 &lt;&#x2F;span&gt;&lt;span&gt;} &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;else &lt;&#x2F;span&gt;&lt;span&gt;{ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1 &lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#61afef;&quot;&gt;arg_cmp&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;p&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;amp;&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;i64&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;i64&lt;&#x2F;span&gt;&lt;span&gt;), &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;q&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;amp;&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;i64&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;i64&lt;&#x2F;span&gt;&lt;span&gt;)) -&amp;gt; Ordering {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; ap &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= area&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span&gt;p);
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; aq &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= area&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span&gt;q);
+&lt;&#x2F;span&gt;&lt;span&gt;    ap.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;cmp&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;amp;&lt;&#x2F;span&gt;&lt;span&gt;aq) &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#7f848e;&quot;&gt;&#x2F;&#x2F; もっと詳しく比較する必要がある
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;h3 id=&quot;細かな比較&quot;&gt;細かな比較&lt;&#x2F;h3&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;mathwords.net&#x2F;x1y2hikux2y1&quot;&gt;座標平面上での三角形の面積の求め方&lt;&#x2F;a&gt; の考え方を利用すれば、面積の符号によって２点の位置関係を特定できます。
+２点の偏角の差が $\pi$ 以上だと符号が反転したり変な感じになってしまうので、そうならないようにあらかじめ三つの領域に分割しました。（かしこい）&lt;&#x2F;p&gt;
+&lt;h5 id=&quot;Python-1&quot;&gt;Python&lt;&#x2F;h5&gt;
+&lt;pre data-lang=&quot;python&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-python &quot;&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;def &lt;&#x2F;span&gt;&lt;span style=&quot;color:#61afef;&quot;&gt;arg_cmp&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;p&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;tuple&lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span&gt;], &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;q&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;tuple&lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span&gt;]):
+&lt;&#x2F;span&gt;&lt;span&gt;    ap &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;area&lt;&#x2F;span&gt;&lt;span&gt;(p)
+&lt;&#x2F;span&gt;&lt;span&gt;    aq &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;area&lt;&#x2F;span&gt;&lt;span&gt;(q)
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span&gt;ap &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;lt; &lt;&#x2F;span&gt;&lt;span&gt;aq:
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;return &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;elif &lt;&#x2F;span&gt;&lt;span&gt;ap &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;gt; &lt;&#x2F;span&gt;&lt;span&gt;aq:
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;return &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;else&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;        px, py &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;p
+&lt;&#x2F;span&gt;&lt;span&gt;        qx, qy &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;q
+&lt;&#x2F;span&gt;&lt;span&gt;        z &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;px &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span&gt;qy &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;- &lt;&#x2F;span&gt;&lt;span&gt;py &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span&gt;qx
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span&gt;z &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;gt; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;            &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;return &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;elif &lt;&#x2F;span&gt;&lt;span&gt;z &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;lt; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;            &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;return &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;else&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;            &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;return &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;h5 id=&quot;Rust-1&quot;&gt;Rust&lt;&#x2F;h5&gt;
+&lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;use &lt;&#x2F;span&gt;&lt;span&gt;std::cmp::Ordering;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#61afef;&quot;&gt;area&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;p&lt;&#x2F;span&gt;&lt;span&gt;: (&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;i64&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;i64&lt;&#x2F;span&gt;&lt;span&gt;)) -&amp;gt; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;u8 &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let &lt;&#x2F;span&gt;&lt;span&gt;(x, y) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;=&lt;&#x2F;span&gt;&lt;span&gt; p;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;if&lt;&#x2F;span&gt;&lt;span&gt; y &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;lt; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0 &lt;&#x2F;span&gt;&lt;span&gt;{ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;3 &lt;&#x2F;span&gt;&lt;span&gt;} &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;else if&lt;&#x2F;span&gt;&lt;span&gt; x &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;lt; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0 &lt;&#x2F;span&gt;&lt;span&gt;{ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;2 &lt;&#x2F;span&gt;&lt;span&gt;} &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;else &lt;&#x2F;span&gt;&lt;span&gt;{ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1 &lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#61afef;&quot;&gt;arg_cmp&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;p&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;amp;&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;i64&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;i64&lt;&#x2F;span&gt;&lt;span&gt;), &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;q&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;amp;&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;i64&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;i64&lt;&#x2F;span&gt;&lt;span&gt;)) -&amp;gt; Ordering {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; ap &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= area&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span&gt;p);
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; aq &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= area&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span&gt;q);
+&lt;&#x2F;span&gt;&lt;span&gt;    ap.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;cmp&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;amp;&lt;&#x2F;span&gt;&lt;span&gt;aq).&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;then&lt;&#x2F;span&gt;&lt;span&gt;((q.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span&gt; p.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;).&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;cmp&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;amp;&lt;&#x2F;span&gt;&lt;span&gt;(p.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span&gt; q.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;)))
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;あとはこれを &lt;code&gt;sort&lt;&#x2F;code&gt; に渡せば OK です。Python では比較関数を直接渡すことはできないので、 &lt;code&gt;functools&lt;&#x2F;code&gt; の &lt;code&gt;cmp_to_key&lt;&#x2F;code&gt; を使いましょう。&lt;&#x2F;p&gt;
+&lt;h5 id=&quot;Python-2&quot;&gt;Python&lt;&#x2F;h5&gt;
+&lt;pre data-lang=&quot;python&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-python &quot;&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;from &lt;&#x2F;span&gt;&lt;span&gt;functools &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#c678dd;&quot;&gt;import &lt;&#x2F;span&gt;&lt;span&gt;cmp_to_key
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;points &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;[(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;), (&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;2&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;3&lt;&#x2F;span&gt;&lt;span&gt;), (&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;4&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;5&lt;&#x2F;span&gt;&lt;span&gt;), (&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;6&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;7&lt;&#x2F;span&gt;&lt;span&gt;)]
+&lt;&#x2F;span&gt;&lt;span&gt;points.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;sort&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;key&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;cmp_to_key&lt;&#x2F;span&gt;&lt;span&gt;(arg_cmp))
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;h5 id=&quot;Rust-2&quot;&gt;Rust&lt;&#x2F;h5&gt;
+&lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#61afef;&quot;&gt;main&lt;&#x2F;span&gt;&lt;span&gt;() {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let mut&lt;&#x2F;span&gt;&lt;span&gt; points: Vec&amp;lt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;i64&lt;&#x2F;span&gt;&lt;span&gt;,&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;i64&lt;&#x2F;span&gt;&lt;span&gt;)&amp;gt; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;vec![(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;), (&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;2&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;3&lt;&#x2F;span&gt;&lt;span&gt;), (&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;4&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;5&lt;&#x2F;span&gt;&lt;span&gt;), (&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;6&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;7&lt;&#x2F;span&gt;&lt;span&gt;)];
+&lt;&#x2F;span&gt;&lt;span&gt;    points.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;sort_by&lt;&#x2F;span&gt;&lt;span&gt;(arg_cmp);
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;h4 id=&quot;補足&quot;&gt;補足&lt;&#x2F;h4&gt;
+&lt;p&gt;&lt;code&gt;area()&lt;&#x2F;code&gt; を書き換えるだけで偏角の範囲を $[- \pi &#x2F; 2, \pi &#x2F; 2)$ に変更したり、点 $(0, 0)$ を必ず先頭に持ってきたりできるのが嬉しいです。&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;使用例&quot;&gt;使用例&lt;&#x2F;h3&gt;
+&lt;h4 id=&quot;ABC225E_-_フ&quot;&gt;ABC225E - フ&lt;&#x2F;h4&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;atcoder.jp&#x2F;contests&#x2F;abc225&#x2F;tasks&#x2F;abc225_e&quot;&gt;問題ページ&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;atcoder.jp&#x2F;contests&#x2F;abc225&#x2F;submissions&#x2F;27207087&quot;&gt;提出コード (Pypy3)&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;atcoder.jp&#x2F;contests&#x2F;abc225&#x2F;submissions&#x2F;27207609&quot;&gt;提出コード (Rust)&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;Python3 だと全然間に合いませんでした。&lt;code&gt;cmp_to_key&lt;&#x2F;code&gt; の呼び出しが重いっぽい？&lt;&#x2F;p&gt;
+&lt;h4 id=&quot;Sort_Points_by_Argument_(Library_Checker)&quot;&gt;Sort Points by Argument (Library Checker)&lt;&#x2F;h4&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;judge.yosupo.jp&#x2F;problem&#x2F;sort_points_by_argument&quot;&gt;問題ページ&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;judge.yosupo.jp&#x2F;submission&#x2F;66372&quot;&gt;提出コード (Python)&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;$\arctan$ って書くとはてなキーワードリンクのせいで $\KaTeX$ 効かないのやめてくれ～～～～&lt;&#x2F;p&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="ja">
+        <title>ABC224-G Roll or Increment 雑解法</title>
+        <published>2021-11-07T00:00:00+00:00</published>
+        <updated>2021-11-07T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              nebocco
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://nebocco.github.io/post/abc224g/"/>
+        <id>https://nebocco.github.io/post/abc224g/</id>
+        
+        <content type="html" xml:base="https://nebocco.github.io/post/abc224g/">&lt;p&gt;みんなはちゃんと証明しましょう&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;問題&quot;&gt;問題&lt;&#x2F;h2&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;atcoder.jp&#x2F;contests&#x2F;abc224&#x2F;tasks&#x2F;abc224_g&quot;&gt;AtCoder Beginner Contest 224 | G - Roll or Increment&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;解法&quot;&gt;解法&lt;&#x2F;h2&gt;
+&lt;p&gt;現在の出目が $i$ の時、出目を $T$ に変える最適な戦略でかかる合計コストを $C(i)$ と書くことにします。
+戦略はゴールまで増やし続けるか一旦振り直すかです。&lt;&#x2F;p&gt;
+&lt;p&gt;振り直した後にかかるコストの期待値を $r$ と置きます。すると、&lt;&#x2F;p&gt;
+&lt;p&gt;$$
+C(i) =
+\begin{cases}
+\min(A(T - i), B + r) &amp;amp; (i \le T) \\
+B + r &amp;amp; (i &amp;gt; T)
+\end{cases}
+$$&lt;&#x2F;p&gt;
+&lt;p&gt;です。さらに、$r = \sum C(i) &#x2F; N$ です。&lt;&#x2F;p&gt;
+&lt;p&gt;ここで、 $r$ をある値 $r_{a}$ だと仮定します。すると $C(i)$ が定まり、上の式を用いて $r$ が計算できます。これを $r_b$ とします。
+$r_a$ が $r_b$ より大きいとき、真の $r$ は $r_a$ より小さく、 小さいときは $r_a$ より大きいはずです。
+このように $r$ を二分探索することで真の $r$ および $C(i)$ が計算できます。求める答えは $C(S)$ です。&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;実装&quot;&gt;実装&lt;&#x2F;h2&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;atcoder.jp&#x2F;contests&#x2F;abc224&#x2F;submissions&#x2F;27074184&quot;&gt;提出コード&lt;&#x2F;a&gt; (Python)&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;python&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-python &quot;&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;from &lt;&#x2F;span&gt;&lt;span&gt;math &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#c678dd;&quot;&gt;import &lt;&#x2F;span&gt;&lt;span&gt;ceil
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;N, S, T, A, B &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= map&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;float&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;input&lt;&#x2F;span&gt;&lt;span&gt;().&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;split&lt;&#x2F;span&gt;&lt;span&gt;())
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;hi &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;N &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* max&lt;&#x2F;span&gt;&lt;span&gt;(A, B)
+&lt;&#x2F;span&gt;&lt;span&gt;lo &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e5c07b;&quot;&gt;_ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;64&lt;&#x2F;span&gt;&lt;span&gt;):
+&lt;&#x2F;span&gt;&lt;span&gt;    ra &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;(hi &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;lo) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&#x2F; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;2.
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# A * (T - i) &amp;lt;= B + r である i の個数
+&lt;&#x2F;span&gt;&lt;span&gt;    count &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= min&lt;&#x2F;span&gt;&lt;span&gt;(T, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;ceil&lt;&#x2F;span&gt;&lt;span&gt;((ra &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;B) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&#x2F; &lt;&#x2F;span&gt;&lt;span&gt;A))
+&lt;&#x2F;span&gt;&lt;span&gt;    border &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;T &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;- &lt;&#x2F;span&gt;&lt;span&gt;count
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# C(i) の総和
+&lt;&#x2F;span&gt;&lt;span&gt;    total &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;(ra &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;B) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span&gt;(border &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;(N &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;- &lt;&#x2F;span&gt;&lt;span&gt;T)) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;A &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span&gt;(count &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;- &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span&gt;count &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&#x2F; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;2
+&lt;&#x2F;span&gt;&lt;span&gt;    rb &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;total &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&#x2F; &lt;&#x2F;span&gt;&lt;span&gt;N
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span&gt;ra &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;gt; &lt;&#x2F;span&gt;&lt;span&gt;rb:
+&lt;&#x2F;span&gt;&lt;span&gt;        hi &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;ra
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;else&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;        lo &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;rb
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;r &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;(hi &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;lo) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&#x2F; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;2
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span&gt;S &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;gt; &lt;&#x2F;span&gt;&lt;span&gt;T:
+&lt;&#x2F;span&gt;&lt;span&gt;    ans &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;r &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;B
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;else&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;    ans &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= min&lt;&#x2F;span&gt;&lt;span&gt;(A &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span&gt;(T &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;- &lt;&#x2F;span&gt;&lt;span&gt;S), r &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;B)
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;print&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;f&lt;&#x2F;span&gt;&lt;span style=&quot;color:#98c379;&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;{ans&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;:.16f&lt;&#x2F;span&gt;&lt;span&gt;}&lt;&#x2F;span&gt;&lt;span style=&quot;color:#98c379;&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;雑すぎる&lt;&#x2F;p&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="ja">
+        <title>ABC215-E Chain Contestant 解説</title>
+        <published>2021-08-25T00:00:00+00:00</published>
+        <updated>2021-08-25T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              nebocco
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://nebocco.github.io/post/abc215e/"/>
+        <id>https://nebocco.github.io/post/abc215e/</id>
+        
+        <content type="html" xml:base="https://nebocco.github.io/post/abc215e/">&lt;p&gt;文字列に含まれる文字の種類数を $\sigma$ とおきます。 $O(N2^{\sigma})$ で解きます。&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;問題&quot;&gt;問題&lt;&#x2F;h2&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;atcoder.jp&#x2F;contests&#x2F;abc215&#x2F;tasks&#x2F;abc215_e&quot;&gt;AtCoder Beginner Contest 215 | E - Chain Contestant&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;解法&quot;&gt;解法&lt;&#x2F;h2&gt;
+&lt;h3 id=&quot;$\sigma_=_1$&quot;&gt;$\sigma = 1$&lt;&#x2F;h3&gt;
+&lt;p&gt;まずは $\sigma = 1$ の場合を考えてみましょう。このとき答えは明らかに $2^{N} - 1$ です。これを DP で解いてみることにします。配列 $g[i] \coloneqq \text{$s[0, i)$ の範囲についての選び方}$ を考えます。例えば $s = \text{\textquotedblleft AAAAAA\textquotedblright}$ の時、 $g = [0, 1, 3, 7, 15, 31, 63]$ です。&lt;&#x2F;p&gt;
+&lt;p&gt;ここで、$g[i]$ の値を求める計算を、以下のように場合分けして考えてみましょう。&lt;&#x2F;p&gt;
+&lt;h4 id=&quot;最初に選ぶのが_$s[0]$_のとき&quot;&gt;最初に選ぶのが $s[0]$ のとき&lt;&#x2F;h4&gt;
+&lt;p&gt;$s[1], s[2], \ldots, s[i-1]$ の $i-1$ 個については、選んでも選ばなくてもよい。
+$\Rightarrow 2^{i-1}$ 通り&lt;&#x2F;p&gt;
+&lt;h4 id=&quot;最初に選ぶのが_$s[1]$_のとき&quot;&gt;最初に選ぶのが $s[1]$ のとき&lt;&#x2F;h4&gt;
+&lt;p&gt;$s[2], s[3], \ldots, s[i-1]$ の $i-2$ 個については、選んでも選ばなくてもよい。
+$\Rightarrow 2^{i-2}$ 通り&lt;&#x2F;p&gt;
+&lt;p&gt;$\vdots$&lt;&#x2F;p&gt;
+&lt;h4 id=&quot;最初に選ぶのが_$s[i-1]$_のとき&quot;&gt;最初に選ぶのが $s[i-1]$ のとき&lt;&#x2F;h4&gt;
+&lt;p&gt;$1$ 通り&lt;&#x2F;p&gt;
+&lt;p&gt;これらを足し合わせることで、確かに $\displaystyle\sum _ {j=0}^{i-1}2^{j} = 2^{i} - 1$ となり、 $g[i]$ の値と一致します。&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;$\sigma_=_2$&quot;&gt;$\sigma = 2$&lt;&#x2F;h3&gt;
+&lt;p&gt;続いて、 $\sigma = 2$ の場合を考えます。問題の文字列 $s$ が $\text{\textquotedblleft ABAABAB\textquotedblright}$ であるとします。
+同じ種類のコンテストは必ず一かたまりで選ばなければなりませんが、この順番が $\text{A} \rightarrow \text{B}$ の場合を考えます。&lt;&#x2F;p&gt;
+&lt;p&gt;まず、先ほど考えた $\sigma = 1$ のパターン同様、 $\text{A}$ だけを選ぶ場合を表す配列 $g _ {A}$ が存在すると考えます。これは以下のようになります。&lt;&#x2F;p&gt;
+&lt;!-- &lt;figure class=&quot;figure-image figure-image-fotolife&quot; title=&quot;A のみを選ぶ場合 B は無視される&quot;&gt;[f:id:nebocco:20210825165356p:plain]&lt;figcaption&gt;A のみを選ぶ場合 B は無視される&lt;&#x2F;figcaption&gt;&lt;&#x2F;figure&gt; --&gt;
+
+  &lt;figure class=&quot;&quot;&gt;
+    
+      
+      &lt;img src=&quot;&amp;#x2F;assets&amp;#x2F;2021-08-25_abc215e&amp;#x2F;20210825165356.png&quot;  &gt;
+      
+      
+    &lt;figcaption&gt;A のみを選ぶ場合 B は無視される&lt;&#x2F;figcaption&gt;
+  &lt;&#x2F;figure&gt;
+  
+&lt;p&gt;では、改めて $g _ {\text{AB}}[i] \coloneqq \text{$s[0, i)$ から A, B の順で選ぶ方法の個数}$ を埋めていきます。
+$g _ {\text{AB}}[7]$ を計算するときの様子を考えてみます。&lt;&#x2F;p&gt;
+&lt;h4 id=&quot;最初に選ぶ_$\text{B}$_が_$s[1]$_のとき&quot;&gt;最初に選ぶ $\text{B}$ が $s[1]$ のとき&lt;&#x2F;h4&gt;
+&lt;p&gt;$s[0, 1)$ からいくつか $\text{A}$ を選び、$s[1]$ を選ぶ。$s[4], s[6]$ は選んでも選ばなくてもよい。
+$\Rightarrow g _ {\text{A}}[2] \times 2^{2}$ 通り&lt;&#x2F;p&gt;
+&lt;h4 id=&quot;最初に選ぶ_$\text{B}$_が_$s[4]$_のとき&quot;&gt;最初に選ぶ $\text{B}$ が $s[4]$ のとき&lt;&#x2F;h4&gt;
+&lt;p&gt;$s[0, 4)$ からいくつか $\text{A}$ を選び、$s[4]$ を選ぶ。$s[6]$ は選んでも選ばなくてもよい。
+$\Rightarrow g _ {\text{A}}[4] \times 2^{1}$ 通り&lt;&#x2F;p&gt;
+&lt;h4 id=&quot;最初に選ぶ_$\text{B}$_が_$s[6]$_のとき&quot;&gt;最初に選ぶ $\text{B}$ が $s[6]$ のとき&lt;&#x2F;h4&gt;
+&lt;p&gt;$s[0, 6)$ からいくつか $\text{A}$ を選び、$s[6]$ を選ぶ。
+$\Rightarrow g _ {\text{A}}[6] \times 2^{0}$ 通り&lt;&#x2F;p&gt;
+&lt;p&gt;これらの合計が $g _ {\text{AB}}[7]$ になります。足し合わせるべき $g _ {\text{A}}[i]$ を以下のように累積的に計算すれば、前から見ていくことで $g _ {\text{AB}}$ を計算することができます。&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;python&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-python &quot;&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span&gt;acc &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(N):
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span&gt;s[i] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;== &lt;&#x2F;span&gt;&lt;span style=&quot;color:#98c379;&quot;&gt;&amp;#39;B&amp;#39;&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;        acc &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;acc &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;2 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;gA[i]
+&lt;&#x2F;span&gt;&lt;span&gt;        gAB[i&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;acc
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;else&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;        gAB[i&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;gAB[i]
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;同様に $g _ {\text{B}}$ から $g _ {\text{BA}}$ も計算できます。&lt;&#x2F;p&gt;
+&lt;p&gt;ここで、 $g _ {\text{\{A,B\}}}[i] \coloneqq \text{$s[0, i)$ から A, B を選ぶ方法の個数}$ という配列を考えると、 $g _ {\text{\{A,B\}}}[i] = g _ {\text{AB}}[i] + g _ {\text{BA}}[i]$ が成り立ちます。また、文字列中に出現する文字全体の集合を $U$ とおくと、本問題で求めるべき答えは&lt;&#x2F;p&gt;
+&lt;p&gt;$$
+\sum _ {\substack{S \subset U \\ S \neq \varnothing}} g _ {S}[n]
+$$&lt;&#x2F;p&gt;
+&lt;p&gt;と表せます。&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;$\sigma_\ge_3$_のとき&quot;&gt;$\sigma \ge 3$ のとき&lt;&#x2F;h3&gt;
+&lt;p&gt;これまでとおおむね同様にして $g _ {*}$ を求めていくことができます。
+例えば $g _ {\text{ABCD}}$ であれば以下のようなコードになります。&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;python&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-python &quot;&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span&gt;acc &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(N):
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span&gt;s[i] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;== &lt;&#x2F;span&gt;&lt;span style=&quot;color:#98c379;&quot;&gt;&amp;#39;D&amp;#39;&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;        acc &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;acc &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;2 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;gABC[i]
+&lt;&#x2F;span&gt;&lt;span&gt;        gABCD[i&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;acc
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;else&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;        gABCD[i&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;gABCD[i]
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;特に $\sigma$ が大きくなると、ありうるすべての順列について $g _ {*}$ を足し合わせるのが困難となるので、直接 $g _ {S}$ を求める必要があります。この方法について、 $\sigma = 2$ の場合に戻って考えます。&lt;&#x2F;p&gt;
+&lt;h4 id=&quot;$g___{S}$_を直接求める&quot;&gt;$g _ {S}$ を直接求める&lt;&#x2F;h4&gt;
+&lt;p&gt;$s = \text{\textquotedblleft ABAABAB\textquotedblright}$ とします。ここで、以下の二種類の配列を考えます。&lt;&#x2F;p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+f _ {\text{AB}}[i] &amp;amp;\coloneqq \text{$s[i-1]$ を必ず選ぶとき、 $s[0, i)$ から A, B の順で選ぶ方法の個数} \\
+f _ {\text{\{A,B\}}}[i] &amp;amp;\coloneqq \text{$s[i-1]$ を必ず選ぶとき、 $s[0, i)$ から A, B を選ぶ方法の個数}
+\end{aligned}
+$$&lt;&#x2F;p&gt;
+&lt;p&gt;この時、 $f _ {\text{\{A,B\}}}[i] = f _ {\text{AB}}[i] + f _ {\text{BA}}[i]$ です。また、条件を満たす選び方それぞれについて、最後の文字の位置がどこであるかを考えると、$g$ が $f$ の累積和となっていることがわかります。&lt;&#x2F;p&gt;
+&lt;!-- &lt;figure class=&quot;figure-image figure-image-fotolife&quot; title=&quot;g は f の累積和&quot;&gt;[f:id:nebocco:20210825170916p:plain]&lt;figcaption&gt;g は f の累積和&lt;&#x2F;figcaption&gt;&lt;&#x2F;figure&gt; --&gt;
+&lt;p&gt;
+  &lt;figure class=&quot;&quot;&gt;
+    
+      
+      &lt;img src=&quot;&amp;#x2F;assets&amp;#x2F;2021-08-25_abc215e&amp;#x2F;20210825170916.png&quot;  &gt;
+      
+      
+    &lt;figcaption&gt;$g$ は $f$ の累積和&lt;&#x2F;figcaption&gt;
+  &lt;&#x2F;figure&gt;
+  
+さらに、 $f _ {\text{AB}}$ と $f _ {\text{BA}}$ を見比べると、一方が $0$ でないときもう一方は必ず $0$ となっています。これは、 $s[i-1]$ を必ず選ぶという条件により、$s[i-1] = \text{A}$ のときは $f _ {\text{AB}}[i] = 0$ となるためです。&lt;&#x2F;p&gt;
+&lt;!-- &lt;figure class=&quot;figure-image figure-image-fotolife&quot; title=&quot;片方だけ&quot;&gt;[f:id:nebocco:20210825171627p:plain]&lt;figcaption&gt;片方だけ&lt;&#x2F;figcaption&gt;&lt;&#x2F;figure&gt; --&gt;
+
+  &lt;figure class=&quot;&quot;&gt;
+    
+      
+      &lt;img src=&quot;&amp;#x2F;assets&amp;#x2F;2021-08-25_abc215e&amp;#x2F;20210825171627.png&quot;  &gt;
+      
+      
+    &lt;figcaption&gt;片方だけ&lt;&#x2F;figcaption&gt;
+  &lt;&#x2F;figure&gt;
+  
+&lt;p&gt;$f _ {\text{AB}}$ は以下のように計算可能ですが、&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;python&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-python &quot;&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span&gt;fAB &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span&gt;(N&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;acc &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(N):
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span&gt;s[i] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;== &lt;&#x2F;span&gt;&lt;span style=&quot;color:#98c379;&quot;&gt;&amp;#39;B&amp;#39;&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# s[i-1] を必ず使うという条件により、2の指数が1減る
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# それに伴い更新式が若干変化した
+&lt;&#x2F;span&gt;&lt;span&gt;        fAB[i&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;acc &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;g_A_[i]
+&lt;&#x2F;span&gt;&lt;span&gt;        acc &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;acc &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;2 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;g_A_[i]
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;$f _ {\text{AB}}$ と $f _ {\text{BA}}$ の更新のタイミングはかぶらないため、&lt;code&gt;if&lt;&#x2F;code&gt;, &lt;code&gt;else&lt;&#x2F;code&gt; によって以下のようにまとめることができます。&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;python&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-python &quot;&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span&gt;fAB &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span&gt;(N&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;fBA &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span&gt;(N&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;accA &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0
+&lt;&#x2F;span&gt;&lt;span&gt;accB &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(N):
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span&gt;s[i] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;== &lt;&#x2F;span&gt;&lt;span style=&quot;color:#98c379;&quot;&gt;&amp;#39;A&amp;#39;&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;        fBA[i&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;accA &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;g_B_[i]
+&lt;&#x2F;span&gt;&lt;span&gt;        accA &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;accA &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;2 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;g_B_[i]
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;else&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;        fAB[i&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;accB &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;g_A_[i]
+&lt;&#x2F;span&gt;&lt;span&gt;        accB &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;accB &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;2 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;g_A_[i]
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;さらに配列もひとつにまとめてしまうことで、直接 $f _ {\text{\{A,B\}}}$ を計算することができます。&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;python&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-python &quot;&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span&gt;f_AB_&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span&gt;(N&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;accA &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0
+&lt;&#x2F;span&gt;&lt;span&gt;accB &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(N):
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span&gt;s[i] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;== &lt;&#x2F;span&gt;&lt;span style=&quot;color:#98c379;&quot;&gt;&amp;#39;A&amp;#39;&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;        f_AB_[i&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;accA &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;g_B_[i]
+&lt;&#x2F;span&gt;&lt;span&gt;        accA &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;accA &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;2 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;g_B_[i]
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;else&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;        f_AB_[i&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;accB &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;g_A_[i]
+&lt;&#x2F;span&gt;&lt;span&gt;        accB &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;accB &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;2 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;g_A_[i]
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;以上の内容と、 $f$ の累積和を取ると $g$ になることから、$g _ {\text{\{A,B\}}}$ は結局以下のように直接計算することができます。&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;python&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-python &quot;&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span&gt;g_AB_&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span&gt;(N&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;accA &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0
+&lt;&#x2F;span&gt;&lt;span&gt;accB &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(N):
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span&gt;s[i] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;== &lt;&#x2F;span&gt;&lt;span style=&quot;color:#98c379;&quot;&gt;&amp;#39;A&amp;#39;&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;        g_AB_[i&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;accA &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;g_B_[i]
+&lt;&#x2F;span&gt;&lt;span&gt;        accA &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;accA &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;2 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;g_B_[i]
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;else&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;        g_AB_[i&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;accB &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;g_A_[i]
+&lt;&#x2F;span&gt;&lt;span&gt;        accB &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;accB &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;2 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;g_A_[i]
+&lt;&#x2F;span&gt;&lt;span&gt;    g_AB_[i&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+= &lt;&#x2F;span&gt;&lt;span&gt;g_AB_[i]
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;h3 id=&quot;一般の_$\sigma$_について&quot;&gt;一般の $\sigma$ について&lt;&#x2F;h3&gt;
+&lt;p&gt;より多くの文字が含まれる場合についても、最後に選ぶ文字がどれであるかによって分類すると、同様の計算が可能です。
+$\mathrm{dp}[S][i] \coloneqq \text{$s[0, i)$ から $S$ 中の文字を選ぶ方法の個数}$ を埋めていきます。
+更新式は以下のように表されます。&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;python&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-python &quot;&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# 更新のイメージ
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(N):
+&lt;&#x2F;span&gt;&lt;span&gt;    c &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;s[i]
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span&gt;c &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span&gt;S:
+&lt;&#x2F;span&gt;&lt;span&gt;        dp[S][i&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;acc[c] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;dp[S\&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ffffff;&quot;&gt;{c}][i]
+&lt;&#x2F;span&gt;&lt;span&gt;        acc[c] = acc[c] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;2 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;dp[S\&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ffffff;&quot;&gt;{c}][i]
+&lt;&#x2F;span&gt;&lt;span&gt;    dp[S][i&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span&gt;= dp[S][i]
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;ここで、 $\mathrm{dp}[S]$ を計算する際には $\mathrm{dp}[S \setminus \{c\}]$ が既に計算されている必要があることに注意してください。&lt;&#x2F;p&gt;
+&lt;p&gt;実際に実装する際には $S$ はビット表現として持つことになるので、以下のようなコードになります。&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;python&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-python &quot;&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# 各文字は適当な整数に変換
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(N):
+&lt;&#x2F;span&gt;&lt;span&gt;    c &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;s[i]
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span&gt;bit&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;gt;&amp;gt;&lt;&#x2F;span&gt;&lt;span&gt;c &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;amp; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;        dp[bit][i&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;acc[c] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;dp[bit &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;^ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;lt;&amp;lt;&lt;&#x2F;span&gt;&lt;span&gt;c][i]
+&lt;&#x2F;span&gt;&lt;span&gt;        acc[c] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;acc[c] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;2 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;dp[bit &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;^ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;lt;&amp;lt;&lt;&#x2F;span&gt;&lt;span&gt;c][i]
+&lt;&#x2F;span&gt;&lt;span&gt;    dp[bit][i&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+= &lt;&#x2F;span&gt;&lt;span&gt;dp[bit][i]
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;&lt;code&gt;bit&lt;&#x2F;code&gt; について昇順に更新していけば、$\mathrm{dp}[S]$ の更新に必要な $\mathrm{dp}[T] ~ (T \subset S)$ は全て計算済みとなります。&lt;&#x2F;p&gt;
+&lt;h4 id=&quot;余談&quot;&gt;余談&lt;&#x2F;h4&gt;
+&lt;p&gt;逆に言えば自分の上位集合はまだ計算されていないことになるので、&lt;code&gt;if&lt;&#x2F;code&gt; を省略することができます。&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;python&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-python &quot;&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(N):
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# bit &amp;amp; 1&amp;lt;&amp;lt;s[i] == 0 なら dp[bit | 1&amp;lt;&amp;lt;s[i]][i] == 0
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# acc[s[i]] もずっと 0 のまま
+&lt;&#x2F;span&gt;&lt;span&gt;    dp[bit][i&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;acc[s[i]] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;dp[bit &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;^ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;lt;&amp;lt;&lt;&#x2F;span&gt;&lt;span&gt;s[i]][i] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;dp[bit][i]
+&lt;&#x2F;span&gt;&lt;span&gt;    acc[s[i]] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;acc[s[i]] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;2 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;dp[bit &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;^ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;lt;&amp;lt;&lt;&#x2F;span&gt;&lt;span&gt;s[i]][i]
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;h2 id=&quot;実装&quot;&gt;実装&lt;&#x2F;h2&gt;
+&lt;p&gt;全体の実装は以下の通りです。計算量は $O(N2^\sigma)$ です。&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;atcoder.jp&#x2F;contests&#x2F;abc215&#x2F;submissions&#x2F;25328761&quot;&gt;提出コード&lt;&#x2F;a&gt; (Python)&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;python&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-python &quot;&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span&gt;K &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;10
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e5c07b;&quot;&gt;MOD &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;998_244_353
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;N &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= int&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;input&lt;&#x2F;span&gt;&lt;span&gt;())
+&lt;&#x2F;span&gt;&lt;span&gt;s &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;ord&lt;&#x2F;span&gt;&lt;span&gt;(x) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;- ord&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#98c379;&quot;&gt;&amp;#39;A&amp;#39;&lt;&#x2F;span&gt;&lt;span&gt;) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;x &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;input&lt;&#x2F;span&gt;&lt;span&gt;()]
+&lt;&#x2F;span&gt;&lt;span&gt;dp &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;[[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span&gt;(N&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e5c07b;&quot;&gt;_ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;lt;&amp;lt;&lt;&#x2F;span&gt;&lt;span&gt;K)]
+&lt;&#x2F;span&gt;&lt;span&gt;dp[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;][&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;bit &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;lt;&amp;lt;&lt;&#x2F;span&gt;&lt;span&gt;K):
+&lt;&#x2F;span&gt;&lt;span&gt;    acc &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span&gt;K
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(N):
+&lt;&#x2F;span&gt;&lt;span&gt;        dp[bit][i&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;(acc[s[i]] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;dp[bit &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;^ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;lt;&amp;lt;&lt;&#x2F;span&gt;&lt;span&gt;s[i]][i] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;dp[bit][i]) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;% &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e5c07b;&quot;&gt;MOD
+&lt;&#x2F;span&gt;&lt;span&gt;        acc[s[i]] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;(acc[s[i]] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;2 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;dp[bit &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;^ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;lt;&amp;lt;&lt;&#x2F;span&gt;&lt;span&gt;s[i]][i]) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;% &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e5c07b;&quot;&gt;MOD
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;ans &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= sum&lt;&#x2F;span&gt;&lt;span&gt;(dp[bit][N] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;bit &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;lt;&amp;lt;&lt;&#x2F;span&gt;&lt;span&gt;K)) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;% &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e5c07b;&quot;&gt;MOD
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;print&lt;&#x2F;span&gt;&lt;span&gt;(ans)
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="ja">
+        <title>ツイステのダメージ計算 Web アプリを作りました</title>
+        <published>2021-06-21T00:00:00+00:00</published>
+        <updated>2021-06-21T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              nebocco
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://nebocco.github.io/post/twisted_calculator/"/>
+        <id>https://nebocco.github.io/post/twisted_calculator/</id>
+        
+        <content type="html" xml:base="https://nebocco.github.io/post/twisted_calculator/">&lt;p&gt;初めてのWebアプリを作りました。&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;del&gt;&lt;a href=&quot;https:&#x2F;&#x2F;twst-simulator.herokuapp.com&quot;&gt;ツイステのダメージ計算&lt;&#x2F;a&gt;&lt;&#x2F;del&gt; （&lt;strong&gt;2022&#x2F;07&#x2F;11 追記&lt;&#x2F;strong&gt;：公開を停止しました。）&lt;&#x2F;p&gt;
+&lt;p&gt;プログラミングをやっているからにはいつかWebの技術も触りたいなあ、と思いながらも特に作るアイデアもなくのうのうと過ごしていましたが、ふとこれを思いついたので作ってみました。&lt;&#x2F;p&gt;
+&lt;p&gt;これのためにHTML、CSS、JavaScript (Vue.js) を一から勉強しました。本当に大変だった&lt;&#x2F;p&gt;
+&lt;p&gt;URLがいつまでたってもGoogleに登録されないので検索に引っかからず、だれにも使ってもらえません   ウケるね   いつか登録されるといいですね&lt;&#x2F;p&gt;
+&lt;p&gt;作る過程で Vue.js に慣れていったので、次はもう少しうまく書ける気がします。&lt;br &#x2F;&gt;
+次は何つくろっかな～   何かの投稿サイトとか作りたいね&lt;&#x2F;p&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="ja">
+        <title>Rime on Windows10</title>
+        <published>2021-05-01T00:00:00+00:00</published>
+        <updated>2021-05-01T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              nebocco
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://nebocco.github.io/post/rime_on_windows10/"/>
+        <id>https://nebocco.github.io/post/rime_on_windows10/</id>
+        
+        <content type="html" xml:base="https://nebocco.github.io/post/rime_on_windows10/">&lt;p&gt;競技プログラミング作問支援ツール &lt;a href=&quot;https:&#x2F;&#x2F;rime.readthedocs.io&#x2F;ja&#x2F;latest&#x2F;&quot;&gt;Rime&lt;&#x2F;a&gt; を Windows10 で使えるように改造しましょう！&lt;&#x2F;p&gt;
+&lt;!-- &lt;figure class=&quot;figure-image figure-image-fotolife&quot; title=&quot;rime&quot;, style=&quot;display:none&quot;&gt;[f:id:nebocco:20210501205255p:plain]&lt;figcaption&gt;rime&lt;&#x2F;figcaption&gt;&lt;&#x2F;figure&gt; --&gt;
+&lt;p&gt;Mac なんかに……負けないっ……！&lt;&#x2F;p&gt;
+&lt;h4 id=&quot;おことわり&quot;&gt;おことわり&lt;&#x2F;h4&gt;
+&lt;ul&gt;
+&lt;li&gt;作業にあたって &lt;a href=&quot;https:&#x2F;&#x2F;rime-doc.readthedocs.io&#x2F;ja&#x2F;latest&#x2F;index.html&quot;&gt;Rime 非公式ドキュメント&lt;&#x2F;a&gt; を大いに参考にさせていただきました。基本的にはここのチュートリアルに従い、Windows で正しく動かなかったら適宜書き換えていく、という方針で作業を行います。&lt;&#x2F;li&gt;
+&lt;li&gt;自己責任でお願いします。そんなにパソコン全体に影響のあるような作業はしないので大丈夫だとは思いますが……&lt;&#x2F;li&gt;
+&lt;li&gt;動かない原因をコードを読みながら延々と試行錯誤した結果なので、書き換えなくていい場所や、もっと効率のいい方法があるかもしれません。&lt;&#x2F;li&gt;
+&lt;li&gt;「同じように作業をしたのにここが違う！」みたいなことを言われても何もわからないので自分でコードと公式リファレンス読んでください。&lt;&#x2F;li&gt;
+&lt;li&gt;Powershell を使用します。&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h2 id=&quot;インストール&quot;&gt;インストール&lt;&#x2F;h2&gt;
+&lt;pre style=&quot;background-color:#282c34;color:#abb2bf;&quot;&gt;&lt;code&gt;&lt;span&gt;PS C:\home&amp;gt; pip install git+https:&#x2F;&#x2F;github.com&#x2F;icpc-jag&#x2F;rime
+&lt;&#x2F;span&gt;&lt;span&gt;Collecting git+https:&#x2F;&#x2F;github.com&#x2F;icpc-jag&#x2F;rime
+&lt;&#x2F;span&gt;&lt;span&gt;...（略）...
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;インストールが完了したことを確かめましょう。&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#282c34;color:#abb2bf;&quot;&gt;&lt;code&gt;&lt;span&gt;PS C:\home&amp;gt; rime --help
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;!-- &lt;figure class=&quot;figure-image figure-image-fotolife&quot; title=&quot;？？？&quot;&gt;[f:id:nebocco:20210501171635p:plain]&lt;figcaption&gt;？？？&lt;&#x2F;figcaption&gt;&lt;&#x2F;figure&gt; --&gt;
+
+  &lt;figure class=&quot;&quot;&gt;
+    
+      
+      &lt;img src=&quot;&amp;#x2F;assets&amp;#x2F;2021-05-01_rime_on_windows10&amp;#x2F;20210501171635.png&quot;  &gt;
+      
+      
+    &lt;figcaption&gt;？？？&lt;&#x2F;figcaption&gt;
+  &lt;&#x2F;figure&gt;
+  &lt;!-- &lt;figure class=&quot;figure-image figure-image-fotolife&quot; title=&quot;？？？？？&quot;&gt;[f:id:nebocco:20210501171653p:plain]&lt;figcaption&gt;？？？？？&lt;&#x2F;figcaption&gt;&lt;&#x2F;figure&gt; --&gt;
+
+  &lt;figure class=&quot;&quot;&gt;
+    
+      
+      &lt;img src=&quot;&amp;#x2F;assets&amp;#x2F;2021-05-01_rime_on_windows10&amp;#x2F;20210501171653.png&quot;  &gt;
+      
+      
+    &lt;figcaption&gt;？？？？？&lt;&#x2F;figcaption&gt;
+  &lt;&#x2F;figure&gt;
+  
+&lt;p&gt;コマンドが走らず、スクリプトファイル自体を開こうとしてしまいます。どうやら Mac ではファイル名を入力するだけで Python を起動できるようなのですが、Windows ではご存じのように&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;sh&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-sh &quot;&gt;&lt;code class=&quot;language-sh&quot; data-lang=&quot;sh&quot;&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;python&lt;&#x2F;span&gt;&lt;span&gt; file.py
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;のように入力しなければなりません。ではそのようにしてみましょう。&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#282c34;color:#abb2bf;&quot;&gt;&lt;code&gt;&lt;span&gt;PS C:\home&amp;gt; python rime --help
+&lt;&#x2F;span&gt;&lt;span&gt;C:\Users\Personal\AppData\Local\Programs\Python\Python39\python.exe: can&amp;#39;t open file &amp;#39;C:\home\rime&amp;#39;: [Errno 2] No such file or directory
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;どうやら二番目以降の引数はパスが通っていても認識してくれないようです。まったくもう&lt;&#x2F;p&gt;
+&lt;p&gt;これをフルパスで入力するとちゃんと動きます。&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#282c34;color:#abb2bf;&quot;&gt;&lt;code&gt;&lt;span&gt;PS C:\home&amp;gt; python &amp;#39;C:\Users\Personal\AppData\Local\Programs\Python\Python39\Scripts\rime&amp;#39; --help
+&lt;&#x2F;span&gt;&lt;span&gt;rime.py &amp;lt;command&amp;gt; [&amp;lt;options&amp;gt;...] [&amp;lt;args&amp;gt;...]
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    Rime is a tool for programming contest organizers to automate usual, boring
+&lt;&#x2F;span&gt;&lt;span&gt;    and error-prone process of problem set preparation. It supports various
+&lt;&#x2F;span&gt;&lt;span&gt;    programming contest styles like ACM-ICPC, TopCoder, etc. by plugins.
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    To see a brief description and available options of a command, try:
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    rime.py help &amp;lt;command&amp;gt;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;Commands:
+&lt;&#x2F;span&gt;&lt;span&gt;...（略）...
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;ただ毎回こんなことはやっていられないので、起動しやすい場所に持ってくることにします。&lt;&#x2F;p&gt;
+&lt;p&gt;Rime で作問をする専用のディレクトリを作成し、その中にさっきの場所にある rime と rime_init をコピーしてきましょう。エクスプローラを使ってマウスでやっても大丈夫です。（そのほうが速いかも）&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#282c34;color:#abb2bf;&quot;&gt;&lt;code&gt;&lt;span&gt;PS C:\home&amp;gt; mkdir Rime
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    ディレクトリ: C:\home
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;Mode                 LastWriteTime         Length Name
+&lt;&#x2F;span&gt;&lt;span&gt;----                 -------------         ------ ----
+&lt;&#x2F;span&gt;&lt;span&gt;d-----        2021&#x2F;05&#x2F;01     17:25                Rime
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;PS C:\home&amp;gt; cd Rime
+&lt;&#x2F;span&gt;&lt;span&gt;PS C:\home\Rime&amp;gt; cp &amp;#39;C:\Users\Personal\AppData\Local\Programs\Python\Python39\Scripts\rime&amp;#39; .
+&lt;&#x2F;span&gt;&lt;span&gt;PS C:\home\Rime&amp;gt; cp &amp;#39;C:\Users\Personal\AppData\Local\Programs\Python\Python39\Scripts\rime_init&amp;#39; .
+&lt;&#x2F;span&gt;&lt;span&gt;PS C:\home\Rime&amp;gt; ls
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    ディレクトリ: C:\home\Rime
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;Mode                 LastWriteTime         Length Name
+&lt;&#x2F;span&gt;&lt;span&gt;----                 -------------         ------ ----
+&lt;&#x2F;span&gt;&lt;span&gt;-a----        2021&#x2F;05&#x2F;01     17:11            172 rime
+&lt;&#x2F;span&gt;&lt;span&gt;-a----        2021&#x2F;05&#x2F;01     17:11           2421 rime_init
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;こうするとほぼ本家と同じように書くことができます。&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#282c34;color:#abb2bf;&quot;&gt;&lt;code&gt;&lt;span&gt;PS C:\home\Rime&amp;gt; py rime --help
+&lt;&#x2F;span&gt;&lt;span&gt;rime.py &amp;lt;command&amp;gt; [&amp;lt;options&amp;gt;...] [&amp;lt;args&amp;gt;...]
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    Rime is a tool for programming contest organizers to automate usual, boring
+&lt;&#x2F;span&gt;&lt;span&gt;    and error-prone process of problem set preparation. It supports various
+&lt;&#x2F;span&gt;&lt;span&gt;    programming contest styles like ACM-ICPC, TopCoder, etc. by plugins.
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    To see a brief description and available options of a command, try:
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    rime.py help &amp;lt;command&amp;gt;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;Commands:
+&lt;&#x2F;span&gt;&lt;span&gt;...（略）...
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;以上のように、コマンドすべての頭に &lt;code&gt;py&lt;&#x2F;code&gt; を付ければOKです。 &lt;code&gt;py&lt;&#x2F;code&gt; を登録していない人は &lt;code&gt;python&lt;&#x2F;code&gt; に置き換えてください。&lt;&#x2F;p&gt;
+&lt;p&gt;これでインストールは完了です。&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;チュートリアル&quot;&gt;チュートリアル&lt;&#x2F;h2&gt;
+&lt;h3 id=&quot;ディレクトリの初期化&quot;&gt;ディレクトリの初期化&lt;&#x2F;h3&gt;
+&lt;pre style=&quot;background-color:#282c34;color:#abb2bf;&quot;&gt;&lt;code&gt;&lt;span&gt;PS C:\home\Rime&amp;gt; py rime_init --git
+&lt;&#x2F;span&gt;&lt;span&gt;Initialized empty Git repository in C:&#x2F;home&#x2F;Rime&#x2F;.git&#x2F;
+&lt;&#x2F;span&gt;&lt;span&gt;[master (root-commit) fe093c2] Initial commit
+&lt;&#x2F;span&gt;&lt;span&gt; 3 files changed, 5049 insertions(+)
+&lt;&#x2F;span&gt;&lt;span&gt; create mode 100644 .gitignore
+&lt;&#x2F;span&gt;&lt;span&gt; create mode 100644 PROJECT
+&lt;&#x2F;span&gt;&lt;span&gt; create mode 100644 common&#x2F;testlib.h
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;h3 id=&quot;新規問題の作成&quot;&gt;新規問題の作成&lt;&#x2F;h3&gt;
+&lt;h4 id=&quot;subprocess&quot;&gt;subprocess&lt;&#x2F;h4&gt;
+&lt;pre style=&quot;background-color:#282c34;color:#abb2bf;&quot;&gt;&lt;code&gt;&lt;span&gt;PS C:\home\Rime&amp;gt; py rime add . problem aplusb
+&lt;&#x2F;span&gt;&lt;span&gt;Note: Running Rime under Windows will be unstable.
+&lt;&#x2F;span&gt;&lt;span&gt;Traceback (most recent call last):
+&lt;&#x2F;span&gt;&lt;span&gt;  File &amp;quot;c:\users\personal\appdata\local\programs\python\python39\lib\site-packages\rime\core\main.py&amp;quot;, line 144, in Main
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;...（中略）...
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;FileNotFoundError: [WinError 2] 指定されたファイルが見つかりません。
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;出力ログを見ると、途中で &lt;code&gt;call&lt;&#x2F;code&gt; という関数を呼んでいることが分かります。これは &lt;code&gt;subprocess&lt;&#x2F;code&gt; というモジュールの関数なのですが、このモジュールでシェルコマンドを呼び出すためには &lt;code&gt;shell=True&lt;&#x2F;code&gt; という引数を与える必要があります。Rime では &lt;code&gt;subprocess&lt;&#x2F;code&gt; から &lt;code&gt;call()&lt;&#x2F;code&gt; のほかに &lt;code&gt;check_output()&lt;&#x2F;code&gt; と &lt;code&gt;Popen()&lt;&#x2F;code&gt; を使っています。これらについても &lt;code&gt;shell=True&lt;&#x2F;code&gt; を与える必要があります。&lt;&#x2F;p&gt;
+&lt;p&gt;一度、Rime の中身のコードが置かれているディレクトリに移動します。&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#282c34;color:#abb2bf;&quot;&gt;&lt;code&gt;&lt;span&gt;PS C:\home\Rime&amp;gt; cd &amp;#39;C:\users\personal\appdata\local\programs\python\python39\lib\site-packages\rime&amp;#39;
+&lt;&#x2F;span&gt;&lt;span&gt;PS C:\..\..\rime&amp;gt;
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;以降、Rime 本体のコードに言及する時は基本的にこの中にあるものを指していると思ってください。スクリプト内で &lt;code&gt;call()&lt;&#x2F;code&gt; を使っている箇所をすべて見つけるため、以下のコマンドで検索します。&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#282c34;color:#abb2bf;&quot;&gt;&lt;code&gt;&lt;span&gt;PS C:\..\..\rime&amp;gt; findstr &#x2F;s &#x2F;n &amp;#39;call\(&amp;#39; *.py
+&lt;&#x2F;span&gt;&lt;span&gt;plugins\plus\commands.py:63:    call([EDITOR, filename])
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;これで &#x27;call(&#x27; が書かれている箇所をすべて探すことができました。&lt;code&gt;call()&lt;&#x2F;code&gt; は一度しか使われていないようです。 &lt;code&gt;plugins\plus\commands.py&lt;&#x2F;code&gt; を見に行って、以下のように書き換えます。&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;python&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-python &quot;&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;def &lt;&#x2F;span&gt;&lt;span style=&quot;color:#61afef;&quot;&gt;EditFile&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;filename&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;initial&lt;&#x2F;span&gt;&lt;span&gt;):
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e5c07b;&quot;&gt;EDITOR &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;os.environ.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;get&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#98c379;&quot;&gt;&amp;#39;EDITOR&amp;#39;&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#98c379;&quot;&gt;&amp;#39;vi&amp;#39;&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;    files.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;WriteFile&lt;&#x2F;span&gt;&lt;span&gt;(initial, filename)
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;call&lt;&#x2F;span&gt;&lt;span&gt;([&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e5c07b;&quot;&gt;EDITOR&lt;&#x2F;span&gt;&lt;span&gt;, filename], &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;shell&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;True&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;&lt;code&gt;check_output()&lt;&#x2F;code&gt;, &lt;code&gt;Popen()&lt;&#x2F;code&gt; についても同じように探して書き換えます。&lt;&#x2F;p&gt;
+&lt;h4 id=&quot;comple(None,_...)&quot;&gt;comple(None, ...)&lt;&#x2F;h4&gt;
+&lt;p&gt;あたらめて実行しましょう。最初の実行時に作成できてしまったディレクトリは削除しておきます。&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#282c34;color:#abb2bf;&quot;&gt;&lt;code&gt;&lt;span&gt;PS C:\home\Rime&amp;gt; py rime add . problem aplusb
+&lt;&#x2F;span&gt;&lt;span&gt;Note: Running Rime under Windows will be unstable.
+&lt;&#x2F;span&gt;&lt;span&gt;ERROR: aplusb: compile() arg 1 must be a string, bytes or AST object
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;これは &lt;code&gt;core&#x2F;targets.py&lt;&#x2F;code&gt; 内の &lt;code&gt;TargetBase.Load()&lt;&#x2F;code&gt; 内部で、&lt;code&gt;compile()&lt;&#x2F;code&gt; に &lt;code&gt;None&lt;&#x2F;code&gt; を渡してしまっていることが原因です。そのため、以下のように条件分岐を付け加えておきます。&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;python&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-python &quot;&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# Evaluate config.
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;try&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;    script &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;files.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;ReadFile&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e5c07b;&quot;&gt;self&lt;&#x2F;span&gt;&lt;span&gt;.config_file)
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;except &lt;&#x2F;span&gt;&lt;span&gt;IOError:
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;raise &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;ConfigurationError&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#98c379;&quot;&gt;&amp;#39;cannot read file: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;%s&lt;&#x2F;span&gt;&lt;span style=&quot;color:#98c379;&quot;&gt;&amp;#39; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;% &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e5c07b;&quot;&gt;self&lt;&#x2F;span&gt;&lt;span&gt;.config_file)
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span&gt;script &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;is &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;None&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;return
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;try&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;    code &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= compile&lt;&#x2F;span&gt;&lt;span&gt;(script, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e5c07b;&quot;&gt;self&lt;&#x2F;span&gt;&lt;span&gt;.config_file, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#98c379;&quot;&gt;&amp;#39;exec&amp;#39;&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e5c07b;&quot;&gt;self&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;PreLoad&lt;&#x2F;span&gt;&lt;span&gt;(ui)
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;exec&lt;&#x2F;span&gt;&lt;span&gt;(code, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e5c07b;&quot;&gt;self&lt;&#x2F;span&gt;&lt;span&gt;.exports, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e5c07b;&quot;&gt;self&lt;&#x2F;span&gt;&lt;span&gt;.configs)
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e5c07b;&quot;&gt;self&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;PostLoad&lt;&#x2F;span&gt;&lt;span&gt;(ui)
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;except &lt;&#x2F;span&gt;&lt;span&gt;ReloadConfiguration:
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;raise  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# Passthru
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;except &lt;&#x2F;span&gt;&lt;span&gt;Exception &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;as &lt;&#x2F;span&gt;&lt;span&gt;e:
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# TODO(nya): print pretty file&#x2F;lineno for debug
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;raise &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;ConfigurationError&lt;&#x2F;span&gt;&lt;span&gt;(e)
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;h4 id=&quot;vim&quot;&gt;vim&lt;&#x2F;h4&gt;
+&lt;pre style=&quot;background-color:#282c34;color:#abb2bf;&quot;&gt;&lt;code&gt;&lt;span&gt;PS C:\home\Rime&amp;gt; py rime add . problem aplusb
+&lt;&#x2F;span&gt;&lt;span&gt;Note: Running Rime under Windows will be unstable.
+&lt;&#x2F;span&gt;&lt;span&gt;&amp;#39;vi&amp;#39; は、内部コマンドまたは外部コマンド、
+&lt;&#x2F;span&gt;&lt;span&gt;操作可能なプログラムまたはバッチ ファイルとして認識されていません。
+&lt;&#x2F;span&gt;&lt;span&gt;[   ADD    ] C:\home\Rime\aplusb&#x2F;PROBLEM
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;Error Summary:
+&lt;&#x2F;span&gt;&lt;span&gt;Total 0 errors, 0 warnings
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;問題ディレクトリの作成に成功すると自動で vim が起動するのですが、私は vim を入れていないので起動に失敗します。代わりに Visual Studio Code を指定します。&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;code&gt;plugins&#x2F;plus&#x2F;commands.py&lt;&#x2F;code&gt; の &lt;code&gt;EditFile()&lt;&#x2F;code&gt; を以下のように書き換えます。&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;python&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-python &quot;&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;def &lt;&#x2F;span&gt;&lt;span style=&quot;color:#61afef;&quot;&gt;EditFile&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;filename&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;initial&lt;&#x2F;span&gt;&lt;span&gt;):
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e5c07b;&quot;&gt;EDITOR &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;os.environ.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;get&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#98c379;&quot;&gt;&amp;#39;EDITOR&amp;#39;&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#98c379;&quot;&gt;&amp;#39;code&amp;#39;&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;    files.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;WriteFile&lt;&#x2F;span&gt;&lt;span&gt;(initial, filename)
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;call&lt;&#x2F;span&gt;&lt;span&gt;([&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e5c07b;&quot;&gt;EDITOR&lt;&#x2F;span&gt;&lt;span&gt;, filename], &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;shell&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;True&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;お好きなエディタを指定してください。&lt;&#x2F;p&gt;
+&lt;p&gt;ここまで済ませると無事に &lt;code&gt;Rime&#x2F;aplusb&lt;&#x2F;code&gt; が作成され、&lt;code&gt;Rime&#x2F;aplusb&#x2F;PROBLEM&lt;&#x2F;code&gt; が自動で開きます！お疲れさまでした。まだまだ続きます。&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#282c34;color:#abb2bf;&quot;&gt;&lt;code&gt;&lt;span&gt;PS C:\home\Rime&amp;gt; ls
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    ディレクトリ: C:\home\Rime
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;Mode                 LastWriteTime         Length Name
+&lt;&#x2F;span&gt;&lt;span&gt;----                 -------------         ------ ----
+&lt;&#x2F;span&gt;&lt;span&gt;d-----        2021&#x2F;05&#x2F;01     18:21                aplusb
+&lt;&#x2F;span&gt;&lt;span&gt;d-----        2021&#x2F;05&#x2F;01     17:36                common
+&lt;&#x2F;span&gt;&lt;span&gt;-a----        2021&#x2F;05&#x2F;01     17:36             72 .gitignore
+&lt;&#x2F;span&gt;&lt;span&gt;-a----        2021&#x2F;05&#x2F;01     17:36            671 PROJECT
+&lt;&#x2F;span&gt;&lt;span&gt;-a----        2021&#x2F;05&#x2F;01     17:11            172 rime
+&lt;&#x2F;span&gt;&lt;span&gt;-a----        2021&#x2F;05&#x2F;01     17:11           2421 rime_init
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;PS C:\home\Rime&amp;gt; ls aplusb
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    ディレクトリ: C:\home\Rime\aplusb
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;Mode                 LastWriteTime         Length Name
+&lt;&#x2F;span&gt;&lt;span&gt;----                 -------------         ------ ----
+&lt;&#x2F;span&gt;&lt;span&gt;-a----        2021&#x2F;05&#x2F;01     18:21            408 PROBLEM
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;h3 id=&quot;解答プログラムの作成&quot;&gt;解答プログラムの作成&lt;&#x2F;h3&gt;
+&lt;blockquote&gt;
+&lt;p&gt;先ほど作成した &lt;code&gt;aplusb&#x2F;&lt;&#x2F;code&gt; ディレクトリ内で、以下のコマンドを実行してみましょう。&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;と書かれていますが、&lt;code&gt;Rime&#x2F;&lt;&#x2F;code&gt; でもパスを指定する引数を書き換えれば同じことができるのでそうします。私は Rust が好きなので Rust で書きます。&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#282c34;color:#abb2bf;&quot;&gt;&lt;code&gt;&lt;span&gt;PS C:\home\Rime&amp;gt; py rime add aplusb solution rust_correct
+&lt;&#x2F;span&gt;&lt;span&gt;Note: Running Rime under Windows will be unstable.
+&lt;&#x2F;span&gt;&lt;span&gt;[   ADD    ] C:\home\Rime\aplusb\rust_correct&#x2F;SOLUTION
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;Error Summary:
+&lt;&#x2F;span&gt;&lt;span&gt;Total 0 errors, 0 warnings
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;&lt;code&gt;Rime&#x2F;aplusb&#x2F;rust_correct&#x2F;SOLUTION&lt;&#x2F;code&gt; が自動で開きます。Rust 用の行をコメントアウトして、&lt;code&gt;ans.rs&lt;&#x2F;code&gt; を書きましょう。&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#61afef;&quot;&gt;main&lt;&#x2F;span&gt;&lt;span&gt;() {
+&lt;&#x2F;span&gt;&lt;span&gt;    input!{
+&lt;&#x2F;span&gt;&lt;span&gt;        a: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;i32&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;        b: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;i32
+&lt;&#x2F;span&gt;&lt;span&gt;    }
+&lt;&#x2F;span&gt;&lt;span&gt;    println!(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#98c379;&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;{}&lt;&#x2F;span&gt;&lt;span style=&quot;color:#98c379;&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;, a &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span&gt; b);
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;&lt;code&gt;SOLUTION&lt;&#x2F;code&gt; を見れば分かるように、コンパイルは rustc を通して行われるので、cargo を使ってほかのクレートを持ってくることができません。入出力関数なども自分で用意しましょう。&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;テスト用プログラムの作成&quot;&gt;テスト用プログラムの作成&lt;&#x2F;h3&gt;
+&lt;p&gt;全部自分で書かなければならないので、generator と validator を Rust で作るのはかなり絶望的です。あきらめて C++ で書くことにします。&lt;&#x2F;p&gt;
+&lt;p&gt;ここまで来たら&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#282c34;color:#abb2bf;&quot;&gt;&lt;code&gt;&lt;span&gt;PS C:\home\Rime&amp;gt; py rime add aplusb testset tests
+&lt;&#x2F;span&gt;&lt;span&gt;Note: Running Rime under Windows will be unstable.
+&lt;&#x2F;span&gt;&lt;span&gt;[   ADD    ] aplusb: C:\home\Rime\aplusb\tests&#x2F;TESTSET
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;Error Summary:
+&lt;&#x2F;span&gt;&lt;span&gt;Total 0 errors, 0 warnings
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;も問題なく実行できるはずなので、その後は本家に則って作業してください。私はコピペしました。&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;テストの実行&quot;&gt;テストの実行&lt;&#x2F;h3&gt;
+&lt;h4 id=&quot;SIGXCPU&quot;&gt;SIGXCPU&lt;&#x2F;h4&gt;
+&lt;pre style=&quot;background-color:#282c34;color:#abb2bf;&quot;&gt;&lt;code&gt;&lt;span&gt;PS C:\home\Rime&amp;gt; py rime test aplusb
+&lt;&#x2F;span&gt;&lt;span&gt;Note: Running Rime under Windows will be unstable.
+&lt;&#x2F;span&gt;&lt;span&gt;[ COMPILE  ] aplusb&#x2F;tests: generator.cc
+&lt;&#x2F;span&gt;&lt;span&gt;ERROR: aplusb&#x2F;tests: generator.cc: Compile Error (On compiling: module &amp;#39;signal&amp;#39; has no attribute &amp;#39;SIGXCPU&amp;#39;)
+&lt;&#x2F;span&gt;&lt;span&gt;[ COMPILE  ] aplusb&#x2F;tests: validator.cc
+&lt;&#x2F;span&gt;&lt;span&gt;ERROR: aplusb&#x2F;tests: validator.cc: Compile Error (On compiling: module &amp;#39;signal&amp;#39; has no attribute &amp;#39;SIGXCPU&amp;#39;)
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;Build Summary:
+&lt;&#x2F;span&gt;&lt;span&gt;aplusb ... in: 0B, diff: 0B, md5: d41d8cd98f00b204e9800998ecf8427e
+&lt;&#x2F;span&gt;&lt;span&gt;  rust_correct RUST 236 lines, 5.1kB
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;Test Summary:
+&lt;&#x2F;span&gt;&lt;span&gt;aplusb ... 1 solutions, 0 tests
+&lt;&#x2F;span&gt;&lt;span&gt;  rust_correct FAIL Failed to build tests
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;Error Summary:
+&lt;&#x2F;span&gt;&lt;span&gt;ERROR: aplusb&#x2F;tests: generator.cc: Compile Error (On compiling: module &amp;#39;signal&amp;#39; has no attribute &amp;#39;SIGXCPU&amp;#39;)
+&lt;&#x2F;span&gt;&lt;span&gt;ERROR: aplusb&#x2F;tests: validator.cc: Compile Error (On compiling: module &amp;#39;signal&amp;#39; has no attribute &amp;#39;SIGXCPU&amp;#39;)
+&lt;&#x2F;span&gt;&lt;span&gt;Total 2 errors, 0 warnings
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;python の &lt;a href=&quot;https:&#x2F;&#x2F;docs.python.org&#x2F;ja&#x2F;3&#x2F;library&#x2F;signal.html&quot;&gt;signal&lt;&#x2F;a&gt; というモジュールを使っているらしいのですが、&lt;code&gt;SIGXCPU&lt;&#x2F;code&gt; という変数は存在しません。どうやら Python3.5 で &lt;code&gt;SIG_DFL&lt;&#x2F;code&gt; という変数に統合されてしまったようです。&lt;a href=&quot;https:&#x2F;&#x2F;nebocco.github.io&#x2F;post&#x2F;rime_on_windows10&#x2F;#subprocess&quot;&gt;先ほど&lt;&#x2F;a&gt;と同様、 &lt;code&gt;findstr&lt;&#x2F;code&gt; を使って検索してすべて書き換えましょう。&lt;&#x2F;p&gt;
+&lt;p&gt;ここでは実行に時間が掛かりすぎている場合に処理を切り替えるような作業を行っていますが、コンパイルを行う際は必ず引っかかっているようです。これが正しい挙動なのかはわかりません。動けばよかろうなのです。だれか助けて～～～&lt;&#x2F;p&gt;
+&lt;h4 id=&quot;seek&quot;&gt;seek&lt;&#x2F;h4&gt;
+&lt;pre style=&quot;background-color:#282c34;color:#abb2bf;&quot;&gt;&lt;code&gt;&lt;span&gt;PS C:\home\Rime&amp;gt; py rime test aplusb
+&lt;&#x2F;span&gt;&lt;span&gt;Note: Running Rime under Windows will be unstable.
+&lt;&#x2F;span&gt;&lt;span&gt;[ COMPILE  ] aplusb&#x2F;tests: generator.cc
+&lt;&#x2F;span&gt;&lt;span&gt;ERROR: aplusb&#x2F;tests: generator.cc: Compile Error (On compiling: &amp;#39;int&amp;#39; object has no attribute &amp;#39;seek&amp;#39;)
+&lt;&#x2F;span&gt;&lt;span&gt;[ COMPILE  ] aplusb&#x2F;tests: validator.cc
+&lt;&#x2F;span&gt;&lt;span&gt;ERROR: aplusb&#x2F;tests: validator.cc: Compile Error (On compiling: &amp;#39;int&amp;#39; object has no attribute &amp;#39;seek&amp;#39;)
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;Build Summary:
+&lt;&#x2F;span&gt;&lt;span&gt;aplusb ... in: 0B, diff: 0B, md5: d41d8cd98f00b204e9800998ecf8427e
+&lt;&#x2F;span&gt;&lt;span&gt;  rust_correct RUST 236 lines, 5.1kB
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;Test Summary:
+&lt;&#x2F;span&gt;&lt;span&gt;aplusb ... 1 solutions, 0 tests
+&lt;&#x2F;span&gt;&lt;span&gt;  rust_correct FAIL Failed to build tests
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;Error Summary:
+&lt;&#x2F;span&gt;&lt;span&gt;ERROR: aplusb&#x2F;tests: generator.cc: Compile Error (On compiling: &amp;#39;int&amp;#39; object has no attribute &amp;#39;seek&amp;#39;)
+&lt;&#x2F;span&gt;&lt;span&gt;ERROR: aplusb&#x2F;tests: validator.cc: Compile Error (On compiling: &amp;#39;int&amp;#39; object has no attribute &amp;#39;seek&amp;#39;)
+&lt;&#x2F;span&gt;&lt;span&gt;Total 2 errors, 0 warnings
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;&lt;code&gt;rime&#x2F;basic&#x2F;codes.py&lt;&#x2F;code&gt; の &lt;code&gt;CodeBase._ResetIO()&lt;&#x2F;code&gt; 内で &lt;code&gt;args&lt;&#x2F;code&gt; (&lt;code&gt;stdin&lt;&#x2F;code&gt;, &lt;code&gt;stdout&lt;&#x2F;code&gt;, &lt;code&gt;stderr&lt;&#x2F;code&gt;) に対して &lt;code&gt;seek()&lt;&#x2F;code&gt; を呼びますが、&lt;code&gt;stderr&lt;&#x2F;code&gt; として渡される &lt;code&gt;subprocess.STDOUT&lt;&#x2F;code&gt; はオブジェクトではなく、特殊な名前を持つただの整数です。そこで、以下のように書き換えます。&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;python&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-python &quot;&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;def &lt;&#x2F;span&gt;&lt;span style=&quot;color:#61afef;&quot;&gt;_ResetIO&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;self&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;args&lt;&#x2F;span&gt;&lt;span&gt;):
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;f &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span&gt;args:
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span&gt;f &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;is &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;None &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;or &lt;&#x2F;span&gt;&lt;span&gt;f &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;is &lt;&#x2F;span&gt;&lt;span&gt;subprocess.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e5c07b;&quot;&gt;STDOUT&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;            &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;continue
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;try&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;            f.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;seek&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;            f.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;truncate&lt;&#x2F;span&gt;&lt;span&gt;()
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;except &lt;&#x2F;span&gt;&lt;span&gt;IOError:
+&lt;&#x2F;span&gt;&lt;span&gt;            &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;pass
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;h4 id=&quot;UTF-8&quot;&gt;UTF-8&lt;&#x2F;h4&gt;
+&lt;pre style=&quot;background-color:#282c34;color:#abb2bf;&quot;&gt;&lt;code&gt;&lt;span&gt;PS C:\home\Rime&amp;gt; py rime test aplusb
+&lt;&#x2F;span&gt;&lt;span&gt;Note: Running Rime under Windows will be unstable.
+&lt;&#x2F;span&gt;&lt;span&gt;[ COMPILE  ] aplusb&#x2F;tests: generator.cc
+&lt;&#x2F;span&gt;&lt;span&gt;[ COMPILE  ] aplusb&#x2F;tests: validator.cc
+&lt;&#x2F;span&gt;&lt;span&gt;[ GENERATE ] aplusb&#x2F;tests: generator.cc
+&lt;&#x2F;span&gt;&lt;span&gt;[ VALIDATE ] aplusb&#x2F;tests: 02_random_01.in: PASSED
+&lt;&#x2F;span&gt;&lt;span&gt;[ VALIDATE ] aplusb&#x2F;tests: 02_random_02.in: PASSED
+&lt;&#x2F;span&gt;&lt;span&gt;[ VALIDATE ] aplusb&#x2F;tests: 02_random_03.in: PASSED
+&lt;&#x2F;span&gt;&lt;span&gt;[ VALIDATE ] aplusb&#x2F;tests: 02_random_04.in: PASSED
+&lt;&#x2F;span&gt;&lt;span&gt;[ VALIDATE ] aplusb&#x2F;tests: 02_random_05.in: PASSED
+&lt;&#x2F;span&gt;&lt;span&gt;[ VALIDATE ] aplusb&#x2F;tests: 02_random_06.in: PASSED
+&lt;&#x2F;span&gt;&lt;span&gt;[ VALIDATE ] aplusb&#x2F;tests: 02_random_07.in: PASSED
+&lt;&#x2F;span&gt;&lt;span&gt;[ VALIDATE ] aplusb&#x2F;tests: 02_random_08.in: PASSED
+&lt;&#x2F;span&gt;&lt;span&gt;[ VALIDATE ] aplusb&#x2F;tests: 02_random_09.in: PASSED
+&lt;&#x2F;span&gt;&lt;span&gt;[ VALIDATE ] aplusb&#x2F;tests: 02_random_10.in: PASSED
+&lt;&#x2F;span&gt;&lt;span&gt;[ VALIDATE ] aplusb&#x2F;tests: OK
+&lt;&#x2F;span&gt;&lt;span&gt;[ COMPILE  ] aplusb&#x2F;rust_correct
+&lt;&#x2F;span&gt;&lt;span&gt;[  REFRUN  ] aplusb&#x2F;rust_correct: 02_random_01.in: DONE
+&lt;&#x2F;span&gt;&lt;span&gt;[  REFRUN  ] aplusb&#x2F;rust_correct: 02_random_02.in: DONE
+&lt;&#x2F;span&gt;&lt;span&gt;[  REFRUN  ] aplusb&#x2F;rust_correct: 02_random_03.in: DONE
+&lt;&#x2F;span&gt;&lt;span&gt;[  REFRUN  ] aplusb&#x2F;rust_correct: 02_random_04.in: DONE
+&lt;&#x2F;span&gt;&lt;span&gt;[  REFRUN  ] aplusb&#x2F;rust_correct: 02_random_05.in: DONE
+&lt;&#x2F;span&gt;&lt;span&gt;[  REFRUN  ] aplusb&#x2F;rust_correct: 02_random_06.in: DONE
+&lt;&#x2F;span&gt;&lt;span&gt;[  REFRUN  ] aplusb&#x2F;rust_correct: 02_random_07.in: DONE
+&lt;&#x2F;span&gt;&lt;span&gt;[  REFRUN  ] aplusb&#x2F;rust_correct: 02_random_08.in: DONE
+&lt;&#x2F;span&gt;&lt;span&gt;[  REFRUN  ] aplusb&#x2F;rust_correct: 02_random_09.in: DONE
+&lt;&#x2F;span&gt;&lt;span&gt;[  REFRUN  ] aplusb&#x2F;rust_correct: 02_random_10.in: DONE
+&lt;&#x2F;span&gt;&lt;span&gt;[  REFRUN  ] aplusb&#x2F;rust_correct
+&lt;&#x2F;span&gt;&lt;span&gt;[   TEST   ] aplusb&#x2F;rust_correct
+&lt;&#x2F;span&gt;&lt;span&gt;ERROR: aplusb&#x2F;rust_correct: 02_random_01.in: Wrong Answer
+&lt;&#x2F;span&gt;&lt;span&gt;  judge log: C:\home\Rime\aplusb\rime-out\rust_correct\02_random_01.judge
+&lt;&#x2F;span&gt;&lt;span&gt;[   TEST   ] aplusb&#x2F;rust_correct: 02_random_01.in: Wrong Answer
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;Build Summary:
+&lt;&#x2F;span&gt;&lt;span&gt;aplusb ... in: 40B, diff: 25B, md5: -
+&lt;&#x2F;span&gt;&lt;span&gt;  rust_correct RUST 236 lines, 5.1kB
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;Test Summary:
+&lt;&#x2F;span&gt;&lt;span&gt;aplusb ... 1 solutions, 10 tests
+&lt;&#x2F;span&gt;&lt;span&gt;  rust_correct FAIL 02_random_01.in: Wrong Answer
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;Error Summary:
+&lt;&#x2F;span&gt;&lt;span&gt;ERROR: aplusb&#x2F;rust_correct: 02_random_01.in: Wrong Answer
+&lt;&#x2F;span&gt;&lt;span&gt;  judge log: C:\home\Rime\aplusb\rime-out\rust_correct\02_random_01.judge
+&lt;&#x2F;span&gt;&lt;span&gt;Total 1 errors, 0 warnings
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;コンパイルはできましたが、どうやらジャッジが合わないようです。output を作成するコードと解答コードが同一なのに……どういうことでしょうか？ログに書かれている judge log を確認してみます。&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#282c34;color:#abb2bf;&quot;&gt;&lt;code&gt;&lt;span&gt;&amp;#39;diff&amp;#39; �́A�����R�}���h�܂��͊O���R�}���h�A
+&lt;&#x2F;span&gt;&lt;span&gt;����\�ȃv���O�����܂��̓o�b�` �t�@�C���Ƃ��ĔF������Ă��܂���B
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;ポンコツ太郎がよ……&lt;&#x2F;p&gt;
+&lt;p&gt;Python の &lt;code&gt;open()&lt;&#x2F;code&gt; はちゃんと文字コードを指定してあげないとこういうことが起こりがちなので、ちゃんと UTF-8 を指定してあげましょう。結構たくさんあるので頑張ってください。&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#282c34;color:#abb2bf;&quot;&gt;&lt;code&gt;&lt;span&gt;def _ExecForCompile(self, args):
+&lt;&#x2F;span&gt;&lt;span&gt;    with open(os.path.join(self.out_dir, self.log_name), &amp;#39;w&amp;#39;, encoding=&amp;#39;utf-8&amp;#39;) as outfile:
+&lt;&#x2F;span&gt;&lt;span&gt;        yield (yield self._ExecInternal(
+&lt;&#x2F;span&gt;&lt;span&gt;            args=args, cwd=self.src_dir,
+&lt;&#x2F;span&gt;&lt;span&gt;            stdin=files.OpenNull(), stdout=outfile,
+&lt;&#x2F;span&gt;&lt;span&gt;            stderr=subprocess.STDOUT))
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;こんな感じです。&lt;&#x2F;p&gt;
+&lt;h4 id=&quot;diff&quot;&gt;diff&lt;&#x2F;h4&gt;
+&lt;p&gt;これでもう一度実行して judge log を見ます。&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#282c34;color:#abb2bf;&quot;&gt;&lt;code&gt;&lt;span&gt;&amp;#39;diff&amp;#39; �́A�����R�}���h�܂��͊O���R�}���h�A
+&lt;&#x2F;span&gt;&lt;span&gt;����\�ȃv���O�����܂��̓o�b�` �t�@�C���Ƃ��ĔF������Ă��܂���B
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;どうして……&lt;&#x2F;p&gt;
+&lt;p&gt;私の力では judge log を出力しているのがどこなのか分からず、文字化けを治すことができませんでした。仕方がないのでここを直すのはあきらめて別エンコードで開くことにします。VSCode であれば下部の「UTF-8」と書かれた箇所をクリックすることで自分でエンコードを指定して開くことができます。&lt;&#x2F;p&gt;
+&lt;!-- &lt;figure class=&quot;figure-image figure-image-fotolife&quot; title=&quot;ここ&quot;&gt;[f:id:nebocco:20210501193656p:plain]&lt;figcaption&gt;ここ&lt;&#x2F;figcaption&gt;&lt;&#x2F;figure&gt; --&gt;
+
+  &lt;figure class=&quot;&quot;&gt;
+    
+      
+      &lt;img src=&quot;&amp;#x2F;assets&amp;#x2F;2021-05-01_rime_on_windows10&amp;#x2F;20210501193656.png&quot;  &gt;
+      
+      
+    &lt;figcaption&gt;ここ&lt;&#x2F;figcaption&gt;
+  &lt;&#x2F;figure&gt;
+  &lt;pre style=&quot;background-color:#282c34;color:#abb2bf;&quot;&gt;&lt;code&gt;&lt;span&gt;&amp;#39;diff&amp;#39; は、内部コマンドまたは外部コマンド、
+&lt;&#x2F;span&gt;&lt;span&gt;操作可能なプログラムまたはバッチ ファイルとして認識されていません。
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;&lt;code&gt;subprocess&lt;&#x2F;code&gt; でコマンドを実行する際は Powershell ではなく cmd.exe を呼び出すのですが、残念ながら cmd.exe には &lt;code&gt;diff&lt;&#x2F;code&gt; というコマンドはありません。代わりに &lt;code&gt;fc&lt;&#x2F;code&gt; というコマンドがあるので、これを使えばよいです。&lt;code&gt;rime&#x2F;basic&#x2F;codes.py&lt;&#x2F;code&gt; の &lt;code&gt;InternalDiffCode.Run()&lt;&#x2F;code&gt; を書き換えます。&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;python&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-python &quot;&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;def &lt;&#x2F;span&gt;&lt;span style=&quot;color:#61afef;&quot;&gt;Run&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;self&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;args&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;cwd&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;input&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;output&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;timeout&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;precise&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;redirect_error&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;False&lt;&#x2F;span&gt;&lt;span&gt;):
+&lt;&#x2F;span&gt;&lt;span&gt;    parser &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;optparse.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;OptionParser&lt;&#x2F;span&gt;&lt;span&gt;()
+&lt;&#x2F;span&gt;&lt;span&gt;    parser.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;add_option&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#98c379;&quot;&gt;&amp;#39;-i&amp;#39;&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#98c379;&quot;&gt;&amp;#39;--infile&amp;#39;&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;dest&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#98c379;&quot;&gt;&amp;#39;infile&amp;#39;&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;    parser.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;add_option&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#98c379;&quot;&gt;&amp;#39;-d&amp;#39;&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#98c379;&quot;&gt;&amp;#39;--difffile&amp;#39;&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;dest&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#98c379;&quot;&gt;&amp;#39;difffile&amp;#39;&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;    parser.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;add_option&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#98c379;&quot;&gt;&amp;#39;-o&amp;#39;&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#98c379;&quot;&gt;&amp;#39;--outfile&amp;#39;&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;dest&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#98c379;&quot;&gt;&amp;#39;outfile&amp;#39;&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;    (options, pos_args) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;parser.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;parse_args&lt;&#x2F;span&gt;&lt;span&gt;([&lt;&#x2F;span&gt;&lt;span style=&quot;color:#98c379;&quot;&gt;&amp;#39;&amp;#39;&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ list&lt;&#x2F;span&gt;&lt;span&gt;(args))
+&lt;&#x2F;span&gt;&lt;span&gt;    run_args &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#98c379;&quot;&gt;&amp;#39;fc&amp;#39;&lt;&#x2F;span&gt;&lt;span&gt;, options.difffile, options.outfile) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# ここ
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;with &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;open&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;input&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#98c379;&quot;&gt;&amp;#39;r&amp;#39;&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;encoding&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#98c379;&quot;&gt;&amp;#39;utf-8&amp;#39;&lt;&#x2F;span&gt;&lt;span&gt;) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;as &lt;&#x2F;span&gt;&lt;span&gt;infile:
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;UTF-8 として比較するようなオプションがあり、それがないと非ASCII文字を出力する問題でバグりそうな予感がしますが、そのオプションを付けると改行が &lt;code&gt;\n&lt;&#x2F;code&gt; か &lt;code&gt;\n\r&lt;&#x2F;code&gt; かが区別され、正しい出力でも WA と判定されてしまうので付けないことにしました。&lt;&#x2F;p&gt;
+&lt;p&gt;これで実行できるはずです。&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#282c34;color:#abb2bf;&quot;&gt;&lt;code&gt;&lt;span&gt;PS C:\home\Rime&amp;gt; py rime test aplusb
+&lt;&#x2F;span&gt;&lt;span&gt;Note: Running Rime under Windows will be unstable.
+&lt;&#x2F;span&gt;&lt;span&gt;[ COMPILE  ] aplusb&#x2F;rust_correct: up-to-date
+&lt;&#x2F;span&gt;&lt;span&gt;[   TEST   ] aplusb&#x2F;rust_correct
+&lt;&#x2F;span&gt;&lt;span&gt;[   TEST   ] aplusb&#x2F;rust_correct: 02_random_01.in: PASSED
+&lt;&#x2F;span&gt;&lt;span&gt;[   TEST   ] aplusb&#x2F;rust_correct: 02_random_02.in: PASSED
+&lt;&#x2F;span&gt;&lt;span&gt;[   TEST   ] aplusb&#x2F;rust_correct: 02_random_03.in: PASSED
+&lt;&#x2F;span&gt;&lt;span&gt;[   TEST   ] aplusb&#x2F;rust_correct: 02_random_04.in: PASSED
+&lt;&#x2F;span&gt;&lt;span&gt;[   TEST   ] aplusb&#x2F;rust_correct: 02_random_05.in: PASSED
+&lt;&#x2F;span&gt;&lt;span&gt;[   TEST   ] aplusb&#x2F;rust_correct: 02_random_06.in: PASSED
+&lt;&#x2F;span&gt;&lt;span&gt;[   TEST   ] aplusb&#x2F;rust_correct: 02_random_07.in: PASSED
+&lt;&#x2F;span&gt;&lt;span&gt;[   TEST   ] aplusb&#x2F;rust_correct: 02_random_08.in: PASSED
+&lt;&#x2F;span&gt;&lt;span&gt;[   TEST   ] aplusb&#x2F;rust_correct: 02_random_09.in: PASSED
+&lt;&#x2F;span&gt;&lt;span&gt;[   TEST   ] aplusb&#x2F;rust_correct: 02_random_10.in: PASSED
+&lt;&#x2F;span&gt;&lt;span&gt;[   TEST   ] aplusb&#x2F;rust_correct: max 0.03s, acc 0.29s
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;Build Summary:
+&lt;&#x2F;span&gt;&lt;span&gt;aplusb ... in: 40B, diff: 25B, md5: -
+&lt;&#x2F;span&gt;&lt;span&gt;  rust_correct RUST 236 lines, 5.1kB
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;Test Summary:
+&lt;&#x2F;span&gt;&lt;span&gt;aplusb ... 1 solutions, 10 tests
+&lt;&#x2F;span&gt;&lt;span&gt;  rust_correct  OK  max 0.03s, acc 0.29s
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;Error Summary:
+&lt;&#x2F;span&gt;&lt;span&gt;Total 0 errors, 0 warnings
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;h3 id=&quot;誤答が落ちることをテストする&quot;&gt;誤答が落ちることをテストする&lt;&#x2F;h3&gt;
+&lt;p&gt;せっかくなのでここも試してみます。今度はpythonで書いてみることにします。&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#282c34;color:#abb2bf;&quot;&gt;&lt;code&gt;&lt;span&gt;PS C:\home\Rime&amp;gt; py rime add aplusb solution py_wa
+&lt;&#x2F;span&gt;&lt;span&gt;Note: Running Rime under Windows will be unstable.
+&lt;&#x2F;span&gt;&lt;span&gt;[   ADD    ] C:\home\Rime\aplusb\py_wa&#x2F;SOLUTION
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;&lt;code&gt;SOLUTION&lt;&#x2F;code&gt; にも書かれているとおり、 shebang を忘れないようにしてください。フルパスで書かなければならず結構面倒です。ここもうまく書き換えれば shebang を省略できる気がするんですが、あんまり試してないので良く分かりません。&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;python&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-python &quot;&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;#!C:\Users\Personal\AppData\Local\Programs\Python\Python39\python.exe
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;a, b &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= map&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;input&lt;&#x2F;span&gt;&lt;span&gt;().&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;split&lt;&#x2F;span&gt;&lt;span&gt;())
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span&gt;a &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;% &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;5 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;== &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;    a &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;print&lt;&#x2F;span&gt;&lt;span&gt;(a &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;b)
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;pre style=&quot;background-color:#282c34;color:#abb2bf;&quot;&gt;&lt;code&gt;&lt;span&gt;PS C:\home\Rime&amp;gt; py rime test aplusb
+&lt;&#x2F;span&gt;&lt;span&gt;Note: Running Rime under Windows will be unstable.
+&lt;&#x2F;span&gt;&lt;span&gt;[   TEST   ] aplusb&#x2F;py_wa
+&lt;&#x2F;span&gt;&lt;span&gt;[   TEST   ] aplusb&#x2F;py_wa: 02_random_01.in: PASSED
+&lt;&#x2F;span&gt;&lt;span&gt;[   TEST   ] aplusb&#x2F;py_wa: 02_random_02.in: PASSED
+&lt;&#x2F;span&gt;&lt;span&gt;[   TEST   ] aplusb&#x2F;py_wa: 02_random_03.in: PASSED
+&lt;&#x2F;span&gt;&lt;span&gt;[   TEST   ] aplusb&#x2F;py_wa: 02_random_04.in: PASSED
+&lt;&#x2F;span&gt;&lt;span&gt;[   TEST   ] aplusb&#x2F;py_wa: 02_random_05.in: PASSED
+&lt;&#x2F;span&gt;&lt;span&gt;[   TEST   ] aplusb&#x2F;py_wa: 02_random_06.in: Wrong Answer
+&lt;&#x2F;span&gt;&lt;span&gt;[ COMPILE  ] aplusb&#x2F;rust_correct: up-to-date
+&lt;&#x2F;span&gt;&lt;span&gt;[   TEST   ] aplusb&#x2F;rust_correct
+&lt;&#x2F;span&gt;&lt;span&gt;[   TEST   ] aplusb&#x2F;rust_correct: 02_random_01.in: PASSED
+&lt;&#x2F;span&gt;&lt;span&gt;[   TEST   ] aplusb&#x2F;rust_correct: 02_random_02.in: PASSED
+&lt;&#x2F;span&gt;&lt;span&gt;[   TEST   ] aplusb&#x2F;rust_correct: 02_random_03.in: PASSED
+&lt;&#x2F;span&gt;&lt;span&gt;[   TEST   ] aplusb&#x2F;rust_correct: 02_random_04.in: PASSED
+&lt;&#x2F;span&gt;&lt;span&gt;[   TEST   ] aplusb&#x2F;rust_correct: 02_random_05.in: PASSED
+&lt;&#x2F;span&gt;&lt;span&gt;[   TEST   ] aplusb&#x2F;rust_correct: 02_random_06.in: PASSED
+&lt;&#x2F;span&gt;&lt;span&gt;[   TEST   ] aplusb&#x2F;rust_correct: 02_random_07.in: PASSED
+&lt;&#x2F;span&gt;&lt;span&gt;[   TEST   ] aplusb&#x2F;rust_correct: 02_random_08.in: PASSED
+&lt;&#x2F;span&gt;&lt;span&gt;[   TEST   ] aplusb&#x2F;rust_correct: 02_random_09.in: PASSED
+&lt;&#x2F;span&gt;&lt;span&gt;[   TEST   ] aplusb&#x2F;rust_correct: 02_random_10.in: PASSED
+&lt;&#x2F;span&gt;&lt;span&gt;[   TEST   ] aplusb&#x2F;rust_correct: max 0.02s, acc 0.20s
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;Build Summary:
+&lt;&#x2F;span&gt;&lt;span&gt;aplusb ... in: 40B, diff: 25B, md5: -
+&lt;&#x2F;span&gt;&lt;span&gt;  rust_correct RUST   236 lines, 5.1kB
+&lt;&#x2F;span&gt;&lt;span&gt;  py_wa        SCRIPT   6 lines,  142B
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;Test Summary:
+&lt;&#x2F;span&gt;&lt;span&gt;aplusb ... 2 solutions, 10 tests
+&lt;&#x2F;span&gt;&lt;span&gt;  rust_correct  OK  max 0.02s, acc 0.20s
+&lt;&#x2F;span&gt;&lt;span&gt;  py_wa         OK  02_random_06.in: Wrong Answer
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;Error Summary:
+&lt;&#x2F;span&gt;&lt;span&gt;Total 0 errors, 0 warnings
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;しっかり WA も判定できました&lt;&#x2F;p&gt;
+&lt;p&gt;やった～～～～～～～！！！！！！！！！！！！！！！！！！！！！！&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;おわりに&quot;&gt;おわりに&lt;&#x2F;h3&gt;
+&lt;p&gt;とてもがんばりました。&lt;&#x2F;p&gt;
+&lt;p&gt;よき作問ライフを！&lt;&#x2F;p&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="ja">
+        <title>AtCoder提出ページのタブ幅を変えるスクリプト</title>
+        <published>2021-04-21T00:00:00+00:00</published>
+        <updated>2021-05-03T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              nebocco
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://nebocco.github.io/post/atcoder_tab_4matter/"/>
+        <id>https://nebocco.github.io/post/atcoder_tab_4matter/</id>
+        
+        <content type="html" xml:base="https://nebocco.github.io/post/atcoder_tab_4matter/">&lt;p&gt;AtCoderの提出詳細で見れるコードは、デフォルトでタブ幅が8に固定されています。&lt;&#x2F;p&gt;
+&lt;!-- &lt;figure class=&quot;figure-image figure-image-fotolife&quot; title=&quot;見にくいね&quot;&gt;[f:id:nebocco:20210421180701p:plain]&lt;figcaption&gt;見にくいね&lt;&#x2F;figcaption&gt;&lt;&#x2F;figure&gt; --&gt;
+
+  &lt;figure class=&quot;&quot;&gt;
+    
+      
+      &lt;img src=&quot;&amp;#x2F;assets&amp;#x2F;2021-04-21_atcoder_tab_4matter&amp;#x2F;20210421180701.png&quot;  &gt;
+      
+      
+    &lt;figcaption&gt;見にくいね&lt;&#x2F;figcaption&gt;
+  &lt;&#x2F;figure&gt;
+  
+&lt;p&gt;作りました。
+&lt;del&gt;&lt;a href=&quot;https:&#x2F;&#x2F;nebocco.github.io&#x2F;post&#x2F;atcoder_tab_4matter&#x2F;&quot;&gt;AtCoder Tab 4matter&lt;&#x2F;a&gt;&lt;&#x2F;del&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;strong&gt;2021&#x2F;05&#x2F;03 追記&lt;&#x2F;strong&gt;
+TamperMonkey から Stylus に移行しました。
+&lt;a href=&quot;https:&#x2F;&#x2F;userstyles.org&#x2F;styles&#x2F;202735&#x2F;atcoder-tab-4matter&quot;&gt;AtCoder Tab 4matter&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;!-- &lt;figure class=&quot;figure-image figure-image-fotolife&quot; title=&quot;見やすいね&quot;&gt;[f:id:nebocco:20210421181058p:plain]&lt;figcaption&gt;見やすいね&lt;&#x2F;figcaption&gt;&lt;&#x2F;figure&gt; --&gt;
+&lt;p&gt;
+  &lt;figure class=&quot;&quot;&gt;
+    
+      
+      &lt;img src=&quot;&amp;#x2F;assets&amp;#x2F;2021-04-21_atcoder_tab_4matter&amp;#x2F;20210421181058.png&quot;  &gt;
+      
+      
+    &lt;figcaption&gt;見やすいね&lt;&#x2F;figcaption&gt;
+  &lt;&#x2F;figure&gt;
+  
+嬉しい～～&lt;&#x2F;p&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="ja">
+        <title>yukicoder No.119 旅行のツアーの問題 解説</title>
+        <published>2021-03-18T00:00:00+00:00</published>
+        <updated>2021-03-18T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              nebocco
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://nebocco.github.io/post/yuki119/"/>
+        <id>https://nebocco.github.io/post/yuki119/</id>
+        
+        <content type="html" xml:base="https://nebocco.github.io/post/yuki119/">&lt;p&gt;余談が本編&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;問題&quot;&gt;問題&lt;&#x2F;h2&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;yukicoder.me&#x2F;problems&#x2F;no&#x2F;119&quot;&gt;yukicoder - No.119 旅行のツアーの問題&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;概要&quot;&gt;概要&lt;&#x2F;h3&gt;
+&lt;p&gt;$N$ 個の国があり、それぞれの国 $i \; (0 \leq i &amp;lt; N)$ に対して以下の行動のうち一つを選ぶ。&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;選択 $p$ : ツアー旅行に行く。利得 $b_i$&lt;&#x2F;li&gt;
+&lt;li&gt;選択 $q$ : 個人旅行に行く。利得 $c_i$&lt;&#x2F;li&gt;
+&lt;li&gt;選択 $r$ : 行かない。利得 $0$&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;ただし、いくつかの国のペア $i, j$ に対して「国 $i$ のツアー旅行に行くならば、国 $j$ の個人旅行に行ってはならない」という形の制約が課される。得られる最大の利得を求めよ。&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;解法&quot;&gt;解法&lt;&#x2F;h2&gt;
+&lt;p&gt;パッと見た感じだと Project Selection Plobrem（PSP、「燃やす埋める」などとも呼ばれています）を使って解けそうだけど、取りうる状態が三つあるので少し工夫が必要です。ここでは二種類の方針を紹介します。&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;strong&gt;注意&lt;&#x2F;strong&gt; :「燃やす埋める」という名前を嫌う人がいるので記事中では PSP と表現していますが、この記事でやっていることは紛れもなく「燃やす埋める」です（考え方が少し違うらしい）。本来の PSP については &lt;a href=&quot;https:&#x2F;&#x2F;tokoharuland.hateblo.jp&#x2F;entry&#x2F;2017&#x2F;12&#x2F;25&#x2F;000003&quot;&gt;Project Selection (燃やす埋める) 周りの話についてもう少し考えた - とこはるのまとめ&lt;&#x2F;a&gt; で解説されています。&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;1._辺の切断&quot;&gt;1. 辺の切断&lt;&#x2F;h3&gt;
+&lt;p&gt;まず多くの人が解説している方針を紹介します。&lt;&#x2F;p&gt;
+&lt;p&gt;一般的にはPSPは頂点の割り振りに関する問題として捉えられますが、ここでは「辺をいくつか選んで切断する」という、本来の最小カット問題に近い形式で問題を解釈してみます。&lt;&#x2F;p&gt;
+&lt;p&gt;各 $i$ について、無条件に利得 $b_i + c_i$ が得られるとした上で、始点 $\mathrm{S}$ から頂点 $i$ にコスト $b_i$ 、頂点 $i$ から終点 $\mathrm{T}$ にコスト $c_i$ の辺を張ります。すると、 $\mathrm{S}$ から $\mathrm{T}$ を到達不可能にするためには、少なくともこのどちらかの辺は切らなくてはなりません。最終的に得られる利得に注目すると、前者を切ることが $q_i$ 、後者を切ることが $p_i$ 、そしてどちらも切ることが $r_i$ に相当していることがわかります。&lt;&#x2F;p&gt;
+&lt;!-- [f:id:nebocco:20210315195145p:plain] --&gt;
+
+  &lt;figure class=&quot;&quot;&gt;
+    
+      
+      &lt;img src=&quot;&amp;#x2F;assets&amp;#x2F;2021-03-18_yuki119&amp;#x2F;20210315195145.png&quot;  &gt;
+      
+      
+    
+  &lt;&#x2F;figure&gt;
+  
+&lt;p&gt;次に禁止制約「 $p_i \to \lnot q_j$ 」を考えると、これは $p_i$ と $q_j$ が同時に選ばれたときに $\mathrm{S}$ から $\mathrm{T}$ への経路が残っているようにすればいいので、 $i$ から $j$ にコスト $\infty$ の辺を張ることで表現できます。&lt;&#x2F;p&gt;
+&lt;p&gt;しかし、これだとサンプル3のようなケースで失敗してしまいます。&lt;&#x2F;p&gt;
+&lt;!-- &lt;figure class=&quot;figure-image figure-image-fotolife&quot; title=&quot;国 2 に行かないので本当は大丈夫なはず&quot;&gt;[f:id:nebocco:20210319104245p:plain]&lt;figcaption&gt;国 2 に行かないので本当は大丈夫なはず&lt;&#x2F;figcaption&gt;&lt;&#x2F;figure&gt; --&gt;
+
+  &lt;figure class=&quot;&quot;&gt;
+    
+      
+      &lt;img src=&quot;&amp;#x2F;assets&amp;#x2F;2021-03-18_yuki119&amp;#x2F;20210319104245.png&quot;  &gt;
+      
+      
+    &lt;figcaption&gt;国 2 に行かないので本当は大丈夫なはず&lt;&#x2F;figcaption&gt;
+  &lt;&#x2F;figure&gt;
+  
+&lt;p&gt;禁止制約の辺が連鎖して、本来許されるはずの選択までブロックしてしまっています。そこで、制約の連鎖が起こらないように、各頂点を2つずつに分割して以下のように辺を張り直してみます。&lt;&#x2F;p&gt;
+&lt;!-- &lt;figure class=&quot;figure-image figure-image-fotolife&quot; title=&quot;天才&quot;&gt;[f:id:nebocco:20210315195151p:plain]&lt;figcaption&gt;天才&lt;&#x2F;figcaption&gt;&lt;&#x2F;figure&gt; --&gt;
+
+  &lt;figure class=&quot;&quot;&gt;
+    
+      
+      &lt;img src=&quot;&amp;#x2F;assets&amp;#x2F;2021-03-18_yuki119&amp;#x2F;20210315195151.png&quot;  &gt;
+      
+      
+    &lt;figcaption&gt;天才&lt;&#x2F;figcaption&gt;
+  &lt;&#x2F;figure&gt;
+  
+&lt;p&gt;$i_1$ と $i_2$ は元々同じ頂点を表しているので、これらは分断されないようにコスト $\infty$ の辺で繋いでおきましょう。こうすることで、禁止制約は上流から下流への一方通行になり、連鎖することを防げます。&lt;&#x2F;p&gt;
+&lt;p&gt;このグラフで始点から終点への最小カット（= 最大流）を求めればいいです。最小カットのコストを $K$ とすると、最終的な答えは $\sum_{i} (b_i+c_i) - K$ となります。&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let &lt;&#x2F;span&gt;&lt;span style=&quot;color:#61afef;&quot;&gt;u &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;|&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;i&lt;&#x2F;span&gt;&lt;span&gt;| { &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;2 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span&gt; i }; &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#7f848e;&quot;&gt;&#x2F;&#x2F; i_1
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let &lt;&#x2F;span&gt;&lt;span style=&quot;color:#61afef;&quot;&gt;v &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;|&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;i&lt;&#x2F;span&gt;&lt;span&gt;| { &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;2 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span&gt; i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1 &lt;&#x2F;span&gt;&lt;span&gt;}; &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#7f848e;&quot;&gt;&#x2F;&#x2F; i_2
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; source &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= u&lt;&#x2F;span&gt;&lt;span&gt;(n);
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; sink &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= v&lt;&#x2F;span&gt;&lt;span&gt;(n);
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let mut&lt;&#x2F;span&gt;&lt;span&gt; ans &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let mut&lt;&#x2F;span&gt;&lt;span&gt; din &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;Dinic::new();
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;amp;&lt;&#x2F;span&gt;&lt;span&gt;(i, j) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;in &amp;amp;&lt;&#x2F;span&gt;&lt;span&gt;cl { &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#7f848e;&quot;&gt;&#x2F;&#x2F; 禁止制約
+&lt;&#x2F;span&gt;&lt;span&gt;  din.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;add_edge&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;u&lt;&#x2F;span&gt;&lt;span&gt;(i), &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;v&lt;&#x2F;span&gt;&lt;span&gt;(j), &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;INF&lt;&#x2F;span&gt;&lt;span&gt;);
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;(i, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;amp;&lt;&#x2F;span&gt;&lt;span&gt;(b, c)) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;in&lt;&#x2F;span&gt;&lt;span&gt; plans.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;iter&lt;&#x2F;span&gt;&lt;span&gt;().&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;enumerate&lt;&#x2F;span&gt;&lt;span&gt;() { &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#7f848e;&quot;&gt;&#x2F;&#x2F; 各選択の報酬
+&lt;&#x2F;span&gt;&lt;span&gt;  ans &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+=&lt;&#x2F;span&gt;&lt;span&gt; b &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span&gt; c;
+&lt;&#x2F;span&gt;&lt;span&gt;  din.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;add_edge&lt;&#x2F;span&gt;&lt;span&gt;(source, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;u&lt;&#x2F;span&gt;&lt;span&gt;(i), b);
+&lt;&#x2F;span&gt;&lt;span&gt;  din.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;add_edge&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;u&lt;&#x2F;span&gt;&lt;span&gt;(i), &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;v&lt;&#x2F;span&gt;&lt;span&gt;(i), &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;INF&lt;&#x2F;span&gt;&lt;span&gt;);
+&lt;&#x2F;span&gt;&lt;span&gt;  din.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;add_edge&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;v&lt;&#x2F;span&gt;&lt;span&gt;(i), sink, c);
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;ans &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-=&lt;&#x2F;span&gt;&lt;span&gt; din.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;max_flow&lt;&#x2F;span&gt;&lt;span&gt;(source, sink).&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;;
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;h3 id=&quot;2._頂点の分配&quot;&gt;2. 頂点の分配&lt;&#x2F;h3&gt;
+&lt;p&gt;続いて、一般的な PSP 同様、頂点を始点側と終点側に割り振る問題として捉える方針で解いてみます。
+ソースを $\text{True}(\top)$ 、シンクを $\text{False}(⊥)$ として、頂点を割り振っていきます。&lt;&#x2F;p&gt;
+&lt;p&gt;以下の二頂点を用意します。&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;$u_i$ : 国 $i$ のツアー旅行に行くか、国 $i$ を訪れない（$p_i \lor r_i$）&lt;&#x2F;li&gt;
+&lt;li&gt;$v_i$ : 国 $i$ のツアー旅行に行く（$p_i$）&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;こうすることで、$u_i$ と $v_i$ の真偽と行動選択が以下の通りに対応します。&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;$u_i \land v_i = (p_i \lor r_i) \land p_i = p_i$&lt;&#x2F;li&gt;
+&lt;li&gt;$u_i \land \lnot v_i = (p_i \lor r_i) \land \lnot p_i = r_i$&lt;&#x2F;li&gt;
+&lt;li&gt;$\lnot u_i \land v_i = \lnot (p_i \lor r_i) \land p_i = ⊥$&lt;&#x2F;li&gt;
+&lt;li&gt;$\lnot u_i \land \lnot v_i = \lnot (p_i \lor r_i) \land \lnot p_i = \lnot p_i \land \lnot r_i = q_i$&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;よって、 $u_i, v_i$ の割り当てに応じたコストは以下の表の通りとなります。&lt;&#x2F;p&gt;
+&lt;p&gt;$$
+\begin{array}{c|cc}
+&amp;amp; u_i  &amp;amp; \lnot u_i \\ \hline
+v_i &amp;amp; -b_i &amp;amp; \infty    \\
+\lnot v_i &amp;amp; 0    &amp;amp; -c_i      \\
+\end{array}
+$$&lt;&#x2F;p&gt;
+&lt;p&gt;無条件で $b_i + c_i$ の利得が得られることにすると、以下のようにコストは全て正の値となります。&lt;&#x2F;p&gt;
+&lt;p&gt;$$
+\begin{array}{c|cc}
+&amp;amp; u_i       &amp;amp; \lnot u_i \\ \hline
+v_i &amp;amp; c_i       &amp;amp; \infty    \\
+\lnot v_i &amp;amp; b_i + c_i &amp;amp; b_i
+\end{array}
+$$&lt;&#x2F;p&gt;
+&lt;p&gt;ちゃんと劣モジュラになってるので、これは通常の2変数に関するコストとして表現可能です。例えばこんな感じ。&lt;&#x2F;p&gt;
+&lt;!-- [f:id:nebocco:20210315195139p:plain] --&gt;
+
+  &lt;figure class=&quot;&quot;&gt;
+    
+      
+      &lt;img src=&quot;&amp;#x2F;assets&amp;#x2F;2021-03-18_yuki119&amp;#x2F;20210315195139.png&quot;  &gt;
+      
+      
+    
+  &lt;&#x2F;figure&gt;
+  
+&lt;p&gt;さらに、追加制約「$p_i \to \lnot q_j$」は、$v_i \to u_i$ を用いることで&lt;&#x2F;p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+p_i \to \lnot q_j
+&amp;amp; \Leftrightarrow (u_i \land v_i) \to \lnot (\lnot u_j \land \lnot v_j) \\
+&amp;amp; \Leftrightarrow v_i \to (u_j \lor v_j) \\
+&amp;amp; \Leftrightarrow v_i \to u_j
+\end{aligned}
+$$&lt;&#x2F;p&gt;
+&lt;p&gt;と言い換えることができるので、以下のように辺を張ればいいです。&lt;&#x2F;p&gt;
+&lt;!-- [f:id:nebocco:20210315195142p:plain] --&gt;
+
+  &lt;figure class=&quot;&quot;&gt;
+    
+      
+      &lt;img src=&quot;&amp;#x2F;assets&amp;#x2F;2021-03-18_yuki119&amp;#x2F;20210315195142.png&quot;  &gt;
+      
+      
+    
+  &lt;&#x2F;figure&gt;
+  
+&lt;p&gt;これで始点から終点まで流せばOKです。最終的な答えは $\sum_{i} (b_i+c_i) - K$ です。&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let &lt;&#x2F;span&gt;&lt;span style=&quot;color:#61afef;&quot;&gt;u &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;|&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;i&lt;&#x2F;span&gt;&lt;span&gt;| { &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;2 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span&gt; i };
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let &lt;&#x2F;span&gt;&lt;span style=&quot;color:#61afef;&quot;&gt;v &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;|&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;i&lt;&#x2F;span&gt;&lt;span&gt;| { &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;2 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span&gt; i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1 &lt;&#x2F;span&gt;&lt;span&gt;};
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; source &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= u&lt;&#x2F;span&gt;&lt;span&gt;(n);
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; sink &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= v&lt;&#x2F;span&gt;&lt;span&gt;(n);
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let mut&lt;&#x2F;span&gt;&lt;span&gt; ans &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let mut&lt;&#x2F;span&gt;&lt;span&gt; din &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;Dinic::new();
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;amp;&lt;&#x2F;span&gt;&lt;span&gt;(i, j) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;in &amp;amp;&lt;&#x2F;span&gt;&lt;span&gt;cl { &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#7f848e;&quot;&gt;&#x2F;&#x2F; 禁止制約
+&lt;&#x2F;span&gt;&lt;span&gt;  din.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;add_edge&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;v&lt;&#x2F;span&gt;&lt;span&gt;(i), &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;u&lt;&#x2F;span&gt;&lt;span&gt;(j), &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;INF&lt;&#x2F;span&gt;&lt;span&gt;);
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;(i, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;amp;&lt;&#x2F;span&gt;&lt;span&gt;(b, c)) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;in&lt;&#x2F;span&gt;&lt;span&gt; plans.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;iter&lt;&#x2F;span&gt;&lt;span&gt;().&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;enumerate&lt;&#x2F;span&gt;&lt;span&gt;() { &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#7f848e;&quot;&gt;&#x2F;&#x2F; 各選択の報酬
+&lt;&#x2F;span&gt;&lt;span&gt;  ans &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+=&lt;&#x2F;span&gt;&lt;span&gt; b &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span&gt; c;
+&lt;&#x2F;span&gt;&lt;span&gt;  din.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;add_edge&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;v&lt;&#x2F;span&gt;&lt;span&gt;(i), &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;u&lt;&#x2F;span&gt;&lt;span&gt;(i), &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;INF&lt;&#x2F;span&gt;&lt;span&gt;);
+&lt;&#x2F;span&gt;&lt;span&gt;  din.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;add_edge&lt;&#x2F;span&gt;&lt;span&gt;(source, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;u&lt;&#x2F;span&gt;&lt;span&gt;(i), b);
+&lt;&#x2F;span&gt;&lt;span&gt;  din.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;add_edge&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;u&lt;&#x2F;span&gt;&lt;span&gt;(i), &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;v&lt;&#x2F;span&gt;&lt;span&gt;(i), b &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span&gt; c);
+&lt;&#x2F;span&gt;&lt;span&gt;  din.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;add_edge&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;v&lt;&#x2F;span&gt;&lt;span&gt;(i), sink, c);
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;ans &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-=&lt;&#x2F;span&gt;&lt;span&gt; din.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;max_flow&lt;&#x2F;span&gt;&lt;span&gt;(source, sink).&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;;
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;h2 id=&quot;実装&quot;&gt;実装&lt;&#x2F;h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;yukicoder.me&#x2F;submissions&#x2F;630915&quot;&gt;解法 1&lt;&#x2F;a&gt; (Rust)&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;yukicoder.me&#x2F;submissions&#x2F;630914&quot;&gt;解法 2&lt;&#x2F;a&gt; (Rust)&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h2 id=&quot;余談&quot;&gt;余談&lt;&#x2F;h2&gt;
+&lt;p&gt;初見で解いていたとき、「三種類の値を取るときは、各要素に対して二つの頂点を用意していい感じに包含関係を入れるといい」という話を何となく聞いたことがあったので、二種類の命題&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;$x_i$ : 国 $i$ を訪れる（$p_i \lor q_i$）&lt;&#x2F;li&gt;
+&lt;li&gt;$y_i$ : 国 $i$ のツアー旅行に行く（$p_i$）&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;を頂点として作ることにしたのですが、間違いでした。$p$ と $q$ には「国を訪れる」という分かりやすい共通項がある上、元問題文では禁止制約があたかも「国を訪れる」という括りがあるかのように表現されていたために纒めたくなってしまいましたが、実際には完全に別の事象として捉えるべきでした（というか実際にそう）。まんまと罠にかかりました。&lt;&#x2F;p&gt;
+&lt;p&gt;$x, y$ の真偽もうまく $p, q, r$ に対応して、コストも劣モジュラになりますが、禁止制約が「 $y_i \to \lnot x_j \lor y_j$ 」となってしまい、グラフで表現することができません。&lt;&#x2F;p&gt;
+&lt;p&gt;包含関係をどのように設定すればうまくいきそうか、を判断する材料として、二種類の方針を紹介します。&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;1._包含関係のある条件の一般的な表現&quot;&gt;1. 包含関係のある条件の一般的な表現&lt;&#x2F;h3&gt;
+&lt;p&gt;&lt;a href=&quot;http:&#x2F;&#x2F;tokoharuland.hateblo.jp&#x2F;entry&#x2F;2017&#x2F;12&#x2F;25&#x2F;000003&quot;&gt;Project Selection (燃やす埋める) 周りの話についてもう少し考えた - とこはるのまとめ&lt;&#x2F;a&gt; の後半で紹介されている考え方です。 $k$ 状態を取りうる変数を、今回作ったグラフのように&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;$a_1 = s_1$&lt;&#x2F;li&gt;
+&lt;li&gt;$a_2 = s_1 \lor s_2$&lt;&#x2F;li&gt;
+&lt;li&gt;$\vdots$&lt;&#x2F;li&gt;
+&lt;li&gt;$a_{k - 1} = s_1 \lor s_2 \lor \cdots \lor s _ { k - 1 }$&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;という $k - 1$ 個の頂点 $a_1, a_2,  ..., a _ { k - 1 } $ で表現すると、グラフの形は以下のようになります。&lt;&#x2F;p&gt;
+&lt;!-- &lt;figure class=&quot;figure-image figure-image-fotolife&quot; title=&quot;a_k-1 -&amp;gt; a_k-2 -&amp;gt; ... -&amp;gt; a_2 -&amp;gt; a_1&quot;&gt;[f:id:nebocco:20210315195131p:plain]&lt;figcaption&gt;a_k-1 -&amp;gt; a_k-2 -&amp;gt; ... -&amp;gt; a_2 -&amp;gt; a_1&lt;&#x2F;figcaption&gt;&lt;&#x2F;figure&gt; --&gt;
+
+  &lt;figure class=&quot;&quot;&gt;
+    
+      
+      &lt;img src=&quot;&amp;#x2F;assets&amp;#x2F;2021-03-18_yuki119&amp;#x2F;20210315195131.png&quot;  &gt;
+      
+      
+    &lt;figcaption&gt;$a_{k-1} \to a_{k-2} \to \cdots \to a_2 \to a_1$&lt;&#x2F;figcaption&gt;
+  &lt;&#x2F;figure&gt;
+  
+&lt;p&gt;$a_k = s_1 \lor s_2 \lor \cdots \lor s _ k$ は必ず $\top$ になるので、頂点を用意する必要はありません。また、 $a _ {i - 1} \to a _ i$ が成り立つので、 $a _ {i-1} \land \lnot a _ i$ という状態に無限のコストがかかるように逆向きの辺を張っています。&lt;&#x2F;p&gt;
+&lt;p&gt;まずは一つの変数のみに着目します。
+1変数関数は必ず劣モジュラであるので、適切に辺コストを割り振りさえすればこのグラフによって各 $s _ i$ のコストは必ず表現できます。
+例えば $s_i$ を選んだ際のコストを $\theta(s _ i)$ として、以下のように対応していたとします。&lt;&#x2F;p&gt;
+&lt;p&gt;$$
+\begin{array}{c|cccc}
+i           &amp;amp; 1 &amp;amp; 2 &amp;amp; 3 &amp;amp; 4 \\ \hline
+\theta(s _ i) &amp;amp; -5 &amp;amp; 6 &amp;amp; 2 &amp;amp; -8
+\end{array}
+$$&lt;&#x2F;p&gt;
+&lt;p&gt;このとき、任意の定数 $w$ を用いて、無条件に $w$ の報酬がもらえるとした上で、以下のように辺のコストを定めることで $\theta$ が表現できます。&lt;&#x2F;p&gt;
+&lt;!-- [f:id:nebocco:20210315195134p:plain] --&gt;
+
+  &lt;figure class=&quot;&quot;&gt;
+    
+      
+      &lt;img src=&quot;&amp;#x2F;assets&amp;#x2F;2021-03-18_yuki119&amp;#x2F;20210315195134.png&quot;  &gt;
+      
+      
+    
+  &lt;&#x2F;figure&gt;
+  
+&lt;p&gt;$a _ i \land \lnot a _ { i - 1 } \to s _ i $ が成り立つので、$ a _ i , a _ { i - 1 } $ 間の辺を切るときには
+「その選択肢のコスト $\theta(s _ i)+$ 無条件にもらえてしまった報酬 $w$」のコストがかかるようにします。
+$w$ はどの辺を選んでも打ち消される値なのでなんでもよく、適切な値をとることで負辺をなくすことができます。&lt;&#x2F;p&gt;
+&lt;p&gt;次に、全ての変数 $i$ に対してこれらの頂点 $a ^ { i } _ {d} \;( 1 \leq d &amp;lt; k ) $ を用意したあと、ある頂点から別の頂点に張った辺がどのような意味を持つのかを考えてみます。
+$a ^ { i } _ { n }$ から $a ^ { j } _ { m }$ へとコスト $c$ の辺を張ってみます。&lt;&#x2F;p&gt;
+&lt;!-- &lt;figure class=&quot;figure-image figure-image-fotolife&quot; title=&quot;辺は適当に省略しています&quot;&gt;[f:id:nebocco:20210315195137p:plain]&lt;figcaption&gt;辺は適当に省略しています&lt;&#x2F;figcaption&gt;&lt;&#x2F;figure&gt; --&gt;
+
+  &lt;figure class=&quot;&quot;&gt;
+    
+      
+      &lt;img src=&quot;&amp;#x2F;assets&amp;#x2F;2021-03-18_yuki119&amp;#x2F;20210315195137.png&quot;  &gt;
+      
+      
+    &lt;figcaption&gt;辺は適当に省略しています&lt;&#x2F;figcaption&gt;
+  &lt;&#x2F;figure&gt;
+  
+&lt;p&gt;このコストがかかるのは $a ^ { i } _ { n } \land \lnot a ^ { j } _ { m }$ のときです。つまりこの辺は「 $i$ が $s_1, s_2, \ldots, s _ n$ のどれかであるとき、$j$ が $s_1, s_2, \ldots, s _ m $ のどれかでないならコスト $c$ がかかる」と翻訳できます。
+先程挙げたブログの言葉を借りてこれを一般化すると、包含関係のある集合 $A_1 \subset A_2 \subset A_3 \subset \cdots$ に変数 $v_1, v_2, v_3, \ldots$ を配置していくとき、「 $v _ i \in A _ n$ かつ $v _ j \not \in A _ m $ ならコスト $c ;(&amp;gt; 0)$ がかかる」という条件を表現できます。&lt;&#x2F;p&gt;
+&lt;p&gt;これを踏まえて元の問題の禁止制約「$p _ i \to \lnot q _ j$」を「$p _ i \to p _ j \lor r _ j$」と解釈すれば、 $p, p \lor r$ という括りを作ることで上手くいきそうだ、とあたりをつけることができるかと思います。&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;2._Monge行列への意識&quot;&gt;2. Monge行列への意識&lt;&#x2F;h3&gt;
+&lt;p&gt;本問題では、禁止制約に関するコスト行列は以下のようになっています。&lt;&#x2F;p&gt;
+&lt;p&gt;$$
+\begin{array}{c|ccc}
+&amp;amp; p_i    &amp;amp; q_i &amp;amp; r_i \\ \hline
+p_j &amp;amp; 0      &amp;amp; 0   &amp;amp; 0   \\
+q_j &amp;amp; \infty &amp;amp; 0   &amp;amp; 0   \\
+r_j &amp;amp; 0      &amp;amp; 0   &amp;amp; 0
+\end{array}
+$$&lt;&#x2F;p&gt;
+&lt;p&gt;これがMongeになるよう選択肢を並び替えます。&lt;&#x2F;p&gt;
+&lt;p&gt;$$
+\begin{array}{c|ccc}
+&amp;amp; p_i    &amp;amp; r_i &amp;amp; q_i \\ \hline
+p_j &amp;amp; 0      &amp;amp; 0   &amp;amp; 0   \\
+r_j &amp;amp; 0      &amp;amp; 0   &amp;amp; 0   \\
+q_j &amp;amp; \infty &amp;amp; 0   &amp;amp; 0
+\end{array}
+$$&lt;&#x2F;p&gt;
+&lt;p&gt;するとここをこうまとめたくなります。（？）&lt;&#x2F;p&gt;
+&lt;p&gt;$$
+\begin{array}{c|c:cc}
+&amp;amp; p_i    &amp;amp; r_i &amp;amp; q_i \\ \hline
+p_j &amp;amp; 0      &amp;amp; 0   &amp;amp; 0   \\
+r_j &amp;amp; 0      &amp;amp; 0   &amp;amp; 0   \\ \hdashline
+q_j &amp;amp; \infty &amp;amp; 0   &amp;amp; 0
+\end{array}
+$$&lt;&#x2F;p&gt;
+&lt;p&gt;「 $p_i \land \lnot q_j$ 」 $=$ 「 $p_i \land \lnot (p_j \lor r_j)$ 」の場合にコストをかけたいので、 $p, p \lor r$ という二種類の頂点があればグラフで表現出来そうだな、という風に思える、らしいです。また、このようにすると $q, q \lor r$ という二種類の頂点を作ってもなんとかなりそうに思えますね（実際なんとかなる）。&lt;&#x2F;p&gt;
+&lt;p&gt;正直この方法にどのくらい汎用性があるのかは分かりません。ただ、これに限らず、グラフ表現をする上でコストが劣モジュラであることが必要だということを常に念頭におきながら問題を整理することで、なんとなく見通しを立てやすくなるのかもしれません。&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;参考記事&quot;&gt;参考記事&lt;&#x2F;h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;http:&#x2F;&#x2F;tokoharuland.hateblo.jp&#x2F;entry&#x2F;2017&#x2F;11&#x2F;12&#x2F;234636&quot;&gt;『燃やす埋める』と『ProjectSelectionProblem』 - とこはるのまとめ&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;http:&#x2F;&#x2F;tokoharuland.hateblo.jp&#x2F;entry&#x2F;2017&#x2F;12&#x2F;25&#x2F;000003&quot;&gt;Project Selection (燃やす埋める) 周りの話についてもう少し考えた - とこはるのまとめ&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;kmyk.github.io&#x2F;blog&#x2F;blog&#x2F;2017&#x2F;12&#x2F;05&#x2F;minimum-cut-and-project-selection-problem&#x2F;&quot;&gt;最小カットとProject Selection Problemのまとめ - うさぎ小屋&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;theory-and-me.hatenablog.com&#x2F;entry&#x2F;2020&#x2F;03&#x2F;13&#x2F;180935&quot;&gt;燃やす埋める問題と劣モジュラ関数のグラフ表現可能性 その① - 私と理論&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="ja">
+        <title>ABC189-C Mandarin Orange 解説（stack 活用編）</title>
+        <published>2021-01-31T00:00:00+00:00</published>
+        <updated>2021-01-31T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              nebocco
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://nebocco.github.io/post/abc189c_stack/"/>
+        <id>https://nebocco.github.io/post/abc189c_stack/</id>
+        
+        <content type="html" xml:base="https://nebocco.github.io/post/abc189c_stack/">&lt;p&gt;$O(N)$ で解きます。&lt;&#x2F;p&gt;
+&lt;p&gt;$O(N \log N)$ はこちら → &lt;a href=&quot;https:&#x2F;&#x2F;nebocco.github.io&#x2F;post&#x2F;abc189c_dancing_links&#x2F;&quot;&gt;ABC189-C Mandarin Orange 解説（Dancing Links 編）&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;問題&quot;&gt;問題&lt;&#x2F;h2&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;atcoder.jp&#x2F;contests&#x2F;abc189&#x2F;tasks&#x2F;abc189_c&quot;&gt;AtCoder Beginner Contest 189 | C - Mandarin Orange&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;概要&quot;&gt;概要&lt;&#x2F;h3&gt;
+&lt;p&gt;$$
+\max _ {1 \leq l \leq r \leq n} \left\lbrace (r - l + 1) \cdot \min _ {l \leq i \leq r} a _ i \right\rbrace
+$$&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;解法&quot;&gt;解法&lt;&#x2F;h2&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;nebocco.github.io&#x2F;post&#x2F;abc189c_dancing_links&#x2F;&quot;&gt;前回&lt;&#x2F;a&gt;に続いて、今回はstackを使った解法を紹介します。ここでは皿の大きさ順ではなく、シンプルに左から見ていくことにします。&lt;&#x2F;p&gt;
+&lt;p&gt;再び「その皿のミカンを全て取るとした時、収穫範囲を左右どこまで広げられるか」を考えます。
+ここで、左に伸ばすことと右に伸ばすことはお互いに影響しないので、まず「どこまで左に伸ばせるか」を考えます。&lt;&#x2F;p&gt;
+&lt;p&gt;どこまで伸ばせるかというと、「自分より小さな皿のうち最も近いもの」（&lt;strong&gt;境界&lt;&#x2F;strong&gt;）の一個手前までです。全ての皿について、境界を順番に計算していきます。
+ある皿の左側がこのようになっていたとします。&lt;&#x2F;p&gt;
+&lt;!-- &lt;figure class=&quot;figure-image figure-image-fotolife&quot; title=&quot;たくさんのミカン&quot;&gt;[f:id:nebocco:20210130151000p:plain]&lt;figcaption&gt;たくさんのミカン&lt;&#x2F;figcaption&gt;&lt;&#x2F;figure&gt; --&gt;
+
+  &lt;figure class=&quot;&quot;&gt;
+    
+      
+      &lt;img src=&quot;&amp;#x2F;assets&amp;#x2F;2021-01-30_abc189c&amp;#x2F;20210130151000.png&quot;  &gt;
+      
+      
+    &lt;figcaption&gt;たくさんのミカン&lt;&#x2F;figcaption&gt;
+  &lt;&#x2F;figure&gt;
+  
+&lt;p&gt;この時、次に見る皿の大きさに関わらず、 $11$ の皿は絶対に境界にはなりません。右隣にある $2$ の皿の方が小さく、しかも必ず次に見る皿に近くなってしまうからです。同様に、 $4, 19$ の皿も境界にはなりません。&lt;&#x2F;p&gt;
+&lt;p&gt;このように考えると、境界の候補は以下のように単調に増加する数列として表されます。&lt;&#x2F;p&gt;
+&lt;!-- &lt;figure class=&quot;figure-image figure-image-fotolife&quot; title=&quot;残ったミカンは単調増加&quot;&gt;[f:id:nebocco:20210130151028p:plain]&lt;figcaption&gt;残ったミカンは単調増加&lt;&#x2F;figcaption&gt;&lt;&#x2F;figure&gt;  --&gt;
+
+  &lt;figure class=&quot;&quot;&gt;
+    
+      
+      &lt;img src=&quot;&amp;#x2F;assets&amp;#x2F;2021-01-30_abc189c&amp;#x2F;20210130151028.png&quot;  &gt;
+      
+      
+    &lt;figcaption&gt;残ったミカンは単調増加&lt;&#x2F;figcaption&gt;
+  &lt;&#x2F;figure&gt;
+  
+&lt;p&gt;単調なので、二分探索によって境界の位置を求めることができます。&lt;&#x2F;p&gt;
+&lt;p&gt;その後、この列に今見た皿が追加されますが、新たに $9, 80$ の皿が絶対に境界にならなくなりました。よって、この皿も削除してしまいます。&lt;&#x2F;p&gt;
+&lt;!-- &lt;figure class=&quot;figure-image figure-image-fotolife&quot; title=&quot;結局単調増加のまま&quot;&gt;[f:id:nebocco:20210130151059p:plain]&lt;figcaption&gt;結局単調増加のまま&lt;&#x2F;figcaption&gt;&lt;&#x2F;figure&gt; --&gt;
+
+  &lt;figure class=&quot;&quot;&gt;
+    
+      
+      &lt;img src=&quot;&amp;#x2F;assets&amp;#x2F;2021-01-30_abc189c&amp;#x2F;20210130151059.png&quot;  &gt;
+      
+      
+    &lt;figcaption&gt;結局単調増加のまま&lt;&#x2F;figcaption&gt;
+  &lt;&#x2F;figure&gt;
+  
+&lt;p&gt;この時、左側で残っている皿が単調増加であることから、削除するべき大きい皿は常に末尾に固まっているはずなので、末尾が自分より大きい限り削除を続ければよいです。
+削除が終わったとき、末尾にあるものは先程二分探索で見つけた境界のはずです。ということは、&lt;strong&gt;先に削除の操作を行ってしまえば&lt;&#x2F;strong&gt;二分探索をしなくても境界を求めることができるということです。&lt;&#x2F;p&gt;
+&lt;p&gt;よって、左側にある皿を蓄えるstackを用意して、&lt;&#x2F;p&gt;
+&lt;ol&gt;
+&lt;li&gt;自分より大きな皿を削除（末尾からの&lt;code&gt;pop&lt;&#x2F;code&gt;を繰り返す）&lt;&#x2F;li&gt;
+&lt;li&gt;境界を記録して、自分を追加&lt;&#x2F;li&gt;
+&lt;&#x2F;ol&gt;
+&lt;p&gt;を繰り返すことで、全ての皿について境界（収穫範囲の左端）を求めることができます。
+&lt;code&gt;push&lt;&#x2F;code&gt;、&lt;code&gt;pop&lt;&#x2F;code&gt;の計算量は $O(1)$ であり、全ての皿は高々一度づつしか追加・削除されないので、計算量は合計で $O(N)$ です。&lt;&#x2F;p&gt;
+&lt;p&gt;同様にこれを右側から行えば、それぞれの収穫範囲の右端も求めることができます。よって全ての皿に対して最大の収穫範囲が求まるので、あとはそれらのうち答えが最大になるものを計算すれば良いです。
+計算量は全体で $O(N)$ です。&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;実装&quot;&gt;実装&lt;&#x2F;h2&gt;
+&lt;p&gt;境界を探すのを簡単にするため、stackには皿の大きさではなくindexを入れています。
+また、stackが空になった時の処理を単純化するため予め番兵を入れています。&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;atcoder.jp&#x2F;contests&#x2F;abc189&#x2F;submissions&#x2F;19762458&quot;&gt;提出コード&lt;&#x2F;a&gt; (Python3)&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;python&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-python &quot;&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span&gt;n &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= int&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;input&lt;&#x2F;span&gt;&lt;span&gt;())
+&lt;&#x2F;span&gt;&lt;span&gt;a &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= list&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;map&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;input&lt;&#x2F;span&gt;&lt;span&gt;().&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;split&lt;&#x2F;span&gt;&lt;span&gt;()))
+&lt;&#x2F;span&gt;&lt;span&gt;a &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+= &lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# 番兵
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;left &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span&gt;n &lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# left[i]: 皿iの左の境界
+&lt;&#x2F;span&gt;&lt;span&gt;right &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span&gt;n
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# 左から見る
+&lt;&#x2F;span&gt;&lt;span&gt;st &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# 番兵
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(n):
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;while &lt;&#x2F;span&gt;&lt;span&gt;a[st[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;]] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;gt;= &lt;&#x2F;span&gt;&lt;span&gt;a[i]:
+&lt;&#x2F;span&gt;&lt;span&gt;        st.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;pop&lt;&#x2F;span&gt;&lt;span&gt;()
+&lt;&#x2F;span&gt;&lt;span&gt;    left[i] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;st[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;]
+&lt;&#x2F;span&gt;&lt;span&gt;    st.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;append&lt;&#x2F;span&gt;&lt;span&gt;(i)
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# 右から
+&lt;&#x2F;span&gt;&lt;span&gt;st &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;[n] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# 番兵
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(n&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;):
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;while &lt;&#x2F;span&gt;&lt;span&gt;a[st[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;]] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;gt;= &lt;&#x2F;span&gt;&lt;span&gt;a[i]:
+&lt;&#x2F;span&gt;&lt;span&gt;        st.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;pop&lt;&#x2F;span&gt;&lt;span&gt;()
+&lt;&#x2F;span&gt;&lt;span&gt;    right[i] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;st[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;]
+&lt;&#x2F;span&gt;&lt;span&gt;    st.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;append&lt;&#x2F;span&gt;&lt;span&gt;(i)
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;ans &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= max&lt;&#x2F;span&gt;&lt;span&gt;(a[i] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span&gt;(right[i] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;- &lt;&#x2F;span&gt;&lt;span&gt;left[i] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;- &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(n))
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;print&lt;&#x2F;span&gt;&lt;span&gt;(ans)
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="ja">
+        <title>ABC189-C Mandarin Orange 解説（Dancing Links 編）</title>
+        <published>2021-01-30T00:00:00+00:00</published>
+        <updated>2021-01-30T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              nebocco
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://nebocco.github.io/post/abc189c_dancing_links/"/>
+        <id>https://nebocco.github.io/post/abc189c_dancing_links/</id>
+        
+        <content type="html" xml:base="https://nebocco.github.io/post/abc189c_dancing_links/">&lt;p&gt;$O(N \log N)$ で解きます。&lt;&#x2F;p&gt;
+&lt;p&gt;$O(N)$ はこちら → &lt;a href=&quot;https:&#x2F;&#x2F;nebocco.github.io&#x2F;post&#x2F;abc189c_stack&#x2F;&quot;&gt;ABC189-C Mandarin Orange 解説（stack 活用編）&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;問題&quot;&gt;問題&lt;&#x2F;h2&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;atcoder.jp&#x2F;contests&#x2F;abc189&#x2F;tasks&#x2F;abc189_c&quot;&gt;AtCoder Beginner Contest 189 | C - Mandarin Orange&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;概要&quot;&gt;概要&lt;&#x2F;h3&gt;
+&lt;p&gt;$$
+\max _ {1 \leq l \leq r \leq n} \left\lbrace (r - l + 1) \cdot \min _ {l \leq i \leq r} a _ i \right\rbrace
+$$&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;解法&quot;&gt;解法&lt;&#x2F;h2&gt;
+&lt;p&gt;以下では、載っているミカンが多い皿を「大きい皿」、少ないものを「小さい皿」、ミカンを取る皿の範囲を「収穫範囲」と表現します。&lt;&#x2F;p&gt;
+&lt;p&gt;「概要」では特に断りなく変形しましたが、収穫範囲を決めたらそこから取れるだけ取りたいので、最終的に一つの皿から取るミカンの個数は範囲内で最も小さい皿に一致します。
+逆に一つの皿から取るミカンの個数を決めたなら、収穫範囲はできるだけ広くした方がいいです。
+そこで、それぞれの皿ごとに「その皿のミカンを全て取るとした時、収穫範囲を左右どこまで広げられるか」を考えます。以下の二つの方針が考えられます。&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;皿が大きい順に調べる&quot;&gt;皿が大きい順に調べる&lt;&#x2F;h3&gt;
+&lt;p&gt;単純に考えるために、全ての皿に載っているミカンの個数がそれぞれ違うとします。&lt;&#x2F;p&gt;
+&lt;p&gt;まず一番大きい皿（ $A$ とします）を見ると、その両脇の皿（ $B, C$ とします）は $A$ よりも小さいので、収穫範囲は左右どちらにも伸ばすことができません。&lt;&#x2F;p&gt;
+
+  &lt;figure class=&quot;&quot;&gt;
+    
+      
+      &lt;img src=&quot;&amp;#x2F;assets&amp;#x2F;2021-01-30_abc189c&amp;#x2F;20210130144805.png&quot;  &gt;
+      
+      
+    &lt;figcaption&gt;$A$ の収穫範囲&lt;&#x2F;figcaption&gt;
+  &lt;&#x2F;figure&gt;
+  
+&lt;p&gt;この時、逆に皿 $B$ から見ると、皿 $A$ は確実に $B$ の収穫範囲に含めることができます。よって、 $B$ を見るときには $A$ は飛ばして、 $C$ が含められるかどうかを調べればよいです。 $C$ についても同様です。
+そこで、 $A$ を無かったことにして、 $B$ と $C$ を隣合わせにします。&lt;&#x2F;p&gt;
+
+  &lt;figure class=&quot;&quot;&gt;
+    
+      
+      &lt;img src=&quot;&amp;#x2F;assets&amp;#x2F;2021-01-30_abc189c&amp;#x2F;20210130144810.png&quot;  &gt;
+      
+      
+    &lt;figcaption&gt;$A$ を無視する&lt;&#x2F;figcaption&gt;
+  &lt;&#x2F;figure&gt;
+  
+&lt;p&gt;次に見る皿が $B$ だったとします。大きい順に見ているので、 $C$ は $B$ よりも小さく、収穫範囲には含められないことが分かります。
+逆に $C$ から見ると、 $C$ の収穫範囲を調べる時には $A$ だけでなく $B$ もスキップしていいことが分かります。&lt;&#x2F;p&gt;
+
+  &lt;figure class=&quot;&quot;&gt;
+    
+      
+      &lt;img src=&quot;&amp;#x2F;assets&amp;#x2F;2021-01-30_abc189c&amp;#x2F;20210130144931.png&quot;  &gt;
+      
+      
+    &lt;figcaption&gt;どんどん消えていく&lt;&#x2F;figcaption&gt;
+  &lt;&#x2F;figure&gt;
+  
+&lt;p&gt;このように考えていくと、大きい順に見ている場合、&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;strong&gt;スキップできることが決まっている皿は収穫範囲に含めることができるが、その先（今隣り合っている皿）は自分より小さいので収穫範囲に含めることができない&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;ことが分かります。よって、皿が大きい順に&lt;&#x2F;p&gt;
+&lt;ol&gt;
+&lt;li&gt;両隣の皿に挟まれた範囲を収穫範囲とする&lt;&#x2F;li&gt;
+&lt;li&gt;皿を取り除き、両隣にあった皿を新しく隣り合わせる&lt;&#x2F;li&gt;
+&lt;&#x2F;ol&gt;
+&lt;p&gt;という操作を繰り返すことで、全ての皿について最大の収穫範囲がわかるので、最終的な答えも求めることができます。&lt;&#x2F;p&gt;
+&lt;p&gt;ところで、今は「同じ大きさの皿がない」と問題を単純化していましたが、この制約を外しても上述の考え方で答えを求めることができます。&lt;&#x2F;p&gt;
+&lt;p&gt;最終的な答えを与える収穫範囲を「最適な範囲」と呼ぶことにします。この範囲は、範囲内で最小の皿 $X$ について操作を行う際に得られるもののはずです。最適な範囲の中に同じ大きさの皿が複数個含まれていたとします。これが $X$ よりも大きい場合、結局 $X$ を見ているときにはどちらも取り除かれていて、取り除かれた順番は関係ありません。 $X$ と同じ大きさの皿があった場合、それらを処理してから最後に $X$ の操作を行うことにすれば、最適な区間が得られます。さらに、同じ大きさの皿であればどれを $X$ に選んでも関係がなく、適当な順番に操作をして最後になったものを $X$ としてしまえば良いです。&lt;&#x2F;p&gt;
+&lt;p&gt;よって、同じ大きさの皿が含まれている場合でも、それらについては順不同で操作を行うことができます。&lt;&#x2F;p&gt;
+&lt;p&gt;この解法をコードに落とし込む際、実際に配列から削除していくのは効率が悪いです。そこで、すべての皿に対して自身の左右の皿へのポインタを持たせます。といっても、対応する皿のインデックスを持たせてポインタ代わりにすれば良いです。
+ある皿について操作をするとき、左右の皿のインデックスから収穫範囲が分かります。そして皿を取り除く際には、代わりに左右の皿のポインタを付け替えてあげます。こうすることで自分自身をスキップさせることができます。&lt;&#x2F;p&gt;
+&lt;!-- &lt;figure class=&quot;figure-image figure-image-fotolife&quot; title=&quot;両隣のポインタをちょっといじる&quot;&gt;[f:id:nebocco:20210130144957p:plain]
+&lt;figcaption&gt;両隣のポインタをちょっといじる&lt;&#x2F;figcaption&gt;&lt;&#x2F;figure&gt; --&gt;
+
+  &lt;figure class=&quot;&quot;&gt;
+    
+      
+      &lt;img src=&quot;&amp;#x2F;assets&amp;#x2F;2021-01-30_abc189c&amp;#x2F;20210130144957.png&quot;  &gt;
+      
+      
+    &lt;figcaption&gt;両隣のポインタをちょっといじる&lt;&#x2F;figcaption&gt;
+  &lt;&#x2F;figure&gt;
+  
+&lt;p&gt;ポインタの付け替えは $O(1)$ で済むので、全体の計算量は最初のソートがボトルネックになり $O(N\log N)$ です。&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;実装&quot;&gt;実装&lt;&#x2F;h2&gt;
+&lt;p&gt;実装の際は両端の処理に注意しましょう。両端に大きさ $0$ の皿を番兵として置いておくと良いと思います。
+以下の実装ではPythonの仕様を利用して、末尾に一つ番兵を足すことで済ませています。&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;atcoder.jp&#x2F;contests&#x2F;abc189&#x2F;submissions&#x2F;19762458&quot;&gt;提出コード&lt;&#x2F;a&gt; (Python3)&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;python&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-python &quot;&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span&gt;n &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= int&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;input&lt;&#x2F;span&gt;&lt;span&gt;())
+&lt;&#x2F;span&gt;&lt;span&gt;a &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= list&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;map&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;input&lt;&#x2F;span&gt;&lt;span&gt;().&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;split&lt;&#x2F;span&gt;&lt;span&gt;()))
+&lt;&#x2F;span&gt;&lt;span&gt;a &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+= &lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# 番兵
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;left &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= list&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;, n)) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# left[i]: 皿iの左隣の皿の番号
+&lt;&#x2F;span&gt;&lt;span&gt;right &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= list&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;, n&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;2&lt;&#x2F;span&gt;&lt;span&gt;))
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;ans &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# 大きい順に処理
+&lt;&#x2F;span&gt;&lt;span&gt;l &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= list&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;range&lt;&#x2F;span&gt;&lt;span&gt;(n))
+&lt;&#x2F;span&gt;&lt;span&gt;l.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;sort&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;key&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;lambda &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;i&lt;&#x2F;span&gt;&lt;span&gt;: a[i])
+&lt;&#x2F;span&gt;&lt;span&gt;l.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;reverse&lt;&#x2F;span&gt;&lt;span&gt;()
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;in &lt;&#x2F;span&gt;&lt;span&gt;l:
+&lt;&#x2F;span&gt;&lt;span&gt;    s &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;right[i] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;- &lt;&#x2F;span&gt;&lt;span&gt;left[i] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;- &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# 収穫範囲
+&lt;&#x2F;span&gt;&lt;span&gt;    ans &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= max&lt;&#x2F;span&gt;&lt;span&gt;(ans, s &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span&gt;a[i])
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# 「左隣の右隣」と「右隣の左隣」を書き換える
+&lt;&#x2F;span&gt;&lt;span&gt;    right[left[i]] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;right[i]
+&lt;&#x2F;span&gt;&lt;span&gt;    left[right[i]] &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;left[i]
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;print&lt;&#x2F;span&gt;&lt;span&gt;(ans)
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+</content>
+        
+    </entry>
     <entry xml:lang="ja">
         <title>ABC128-C Switches 解説</title>
         <published>2021-01-13T00:00:00+00:00</published>

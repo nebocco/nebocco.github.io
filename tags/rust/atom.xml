@@ -1,0 +1,431 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="ja">
+    <title>ねぼこの日記 - Rust</title>
+    <link rel="self" type="application/atom+xml" href="https://nebocco.github.io/tags/rust/atom.xml"/>
+    <link rel="alternate" type="text/html" href="https://nebocco.github.io"/>
+    <generator uri="https://www.getzola.org/">Zola</generator>
+    <updated>2021-11-13T00:00:00+00:00</updated>
+    <id>https://nebocco.github.io/tags/rust/atom.xml</id>
+    <entry xml:lang="ja">
+        <title>整数のまま行う偏角ソート</title>
+        <published>2021-11-13T00:00:00+00:00</published>
+        <updated>2021-11-13T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              nebocco
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://nebocco.github.io/post/arg_sort_in_int/"/>
+        <id>https://nebocco.github.io/post/arg_sort_in_int/</id>
+        
+        <content type="html" xml:base="https://nebocco.github.io/post/arg_sort_in_int/">&lt;p&gt;浮動小数点数に直して $\arg$ 求めるの嫌いなので整数のままソートしましょう。
+偏角の取りうる範囲は $[0, 2 \pi )$ とします。&lt;&#x2F;p&gt;
+&lt;h4 id=&quot;追記&quot;&gt;追記&lt;&#x2F;h4&gt;
+&lt;p&gt;投稿直後にもっと賢い方法が投稿され、膝から崩れ落ちました&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;ngtkana.hatenablog.com&#x2F;entry&#x2F;2021&#x2F;11&#x2F;13&#x2F;202103&quot;&gt;整数のまま行う偏角ソート（行列式のあれです。）の実装バリエーションの検討とご紹介です。 - ブログ名&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;追記おわり&lt;&#x2F;p&gt;
+&lt;p&gt;ソートする時には、二点 $p = (p _ x, p _ y), q = (q _ x, q _ y)$ が与えられたときにどちらの偏角が大きいのか判定できればOKです。
+なので二点の比較を行う方法だけ考えます。&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;ざっくりと比較&quot;&gt;ざっくりと比較&lt;&#x2F;h3&gt;
+&lt;p&gt;まずは座標平面を三つに切り分けて大まかな位置を特定します。&lt;&#x2F;p&gt;
+&lt;ol&gt;
+&lt;li&gt;偏角 $[0, \pi &#x2F; 2]$&lt;&#x2F;li&gt;
+&lt;li&gt;偏角 $(\pi &#x2F; 2, \pi]$&lt;&#x2F;li&gt;
+&lt;li&gt;偏角 $(\pi, 2 \pi)$&lt;&#x2F;li&gt;
+&lt;&#x2F;ol&gt;
+&lt;p&gt;これ以外の切り分け方でも大丈夫ですが、座標の正負だけ見ればいいのでこれが一番楽だと思います。
+この段階で２点の属する領域が異なれば、それだけで大小関係を決定できます。&lt;&#x2F;p&gt;
+&lt;h5 id=&quot;Python&quot;&gt;Python&lt;&#x2F;h5&gt;
+&lt;pre data-lang=&quot;python&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-python &quot;&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;def &lt;&#x2F;span&gt;&lt;span style=&quot;color:#61afef;&quot;&gt;area&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;p&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;tuple&lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span&gt;]):
+&lt;&#x2F;span&gt;&lt;span&gt;    x, y &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;p
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span&gt;y &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;lt; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;return &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;3
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;elif &lt;&#x2F;span&gt;&lt;span&gt;x &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;lt; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;return &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;2
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;else&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;return &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;def &lt;&#x2F;span&gt;&lt;span style=&quot;color:#61afef;&quot;&gt;arg_cmp&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;p&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;tuple&lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span&gt;], &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;q&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;tuple&lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span&gt;]):
+&lt;&#x2F;span&gt;&lt;span&gt;    ap &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;area&lt;&#x2F;span&gt;&lt;span&gt;(p)
+&lt;&#x2F;span&gt;&lt;span&gt;    aq &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;area&lt;&#x2F;span&gt;&lt;span&gt;(q)
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span&gt;ap &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;lt; &lt;&#x2F;span&gt;&lt;span&gt;aq:
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;return &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;elif &lt;&#x2F;span&gt;&lt;span&gt;ap &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;gt; &lt;&#x2F;span&gt;&lt;span&gt;aq:
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;return &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;else&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;return &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#7f848e;&quot;&gt;# もっと詳しく比較する必要がある
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;h5 id=&quot;Rust&quot;&gt;Rust&lt;&#x2F;h5&gt;
+&lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;use &lt;&#x2F;span&gt;&lt;span&gt;std::cmp::Ordering;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#61afef;&quot;&gt;area&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;p&lt;&#x2F;span&gt;&lt;span&gt;: (&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;i64&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;i64&lt;&#x2F;span&gt;&lt;span&gt;)) -&amp;gt; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;u8 &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let &lt;&#x2F;span&gt;&lt;span&gt;(x, y) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;=&lt;&#x2F;span&gt;&lt;span&gt; p;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;if&lt;&#x2F;span&gt;&lt;span&gt; y &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;lt; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0 &lt;&#x2F;span&gt;&lt;span&gt;{ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;3 &lt;&#x2F;span&gt;&lt;span&gt;} &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;else if&lt;&#x2F;span&gt;&lt;span&gt; x &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;lt; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0 &lt;&#x2F;span&gt;&lt;span&gt;{ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;2 &lt;&#x2F;span&gt;&lt;span&gt;} &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;else &lt;&#x2F;span&gt;&lt;span&gt;{ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1 &lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#61afef;&quot;&gt;arg_cmp&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;p&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;amp;&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;i64&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;i64&lt;&#x2F;span&gt;&lt;span&gt;), &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;q&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;amp;&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;i64&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;i64&lt;&#x2F;span&gt;&lt;span&gt;)) -&amp;gt; Ordering {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; ap &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= area&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span&gt;p);
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; aq &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= area&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span&gt;q);
+&lt;&#x2F;span&gt;&lt;span&gt;    ap.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;cmp&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;amp;&lt;&#x2F;span&gt;&lt;span&gt;aq) &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#7f848e;&quot;&gt;&#x2F;&#x2F; もっと詳しく比較する必要がある
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;h3 id=&quot;細かな比較&quot;&gt;細かな比較&lt;&#x2F;h3&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;mathwords.net&#x2F;x1y2hikux2y1&quot;&gt;座標平面上での三角形の面積の求め方&lt;&#x2F;a&gt; の考え方を利用すれば、面積の符号によって２点の位置関係を特定できます。
+２点の偏角の差が $\pi$ 以上だと符号が反転したり変な感じになってしまうので、そうならないようにあらかじめ三つの領域に分割しました。（かしこい）&lt;&#x2F;p&gt;
+&lt;h5 id=&quot;Python-1&quot;&gt;Python&lt;&#x2F;h5&gt;
+&lt;pre data-lang=&quot;python&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-python &quot;&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;def &lt;&#x2F;span&gt;&lt;span style=&quot;color:#61afef;&quot;&gt;arg_cmp&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;p&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;tuple&lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span&gt;], &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;q&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;tuple&lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span&gt;]):
+&lt;&#x2F;span&gt;&lt;span&gt;    ap &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;area&lt;&#x2F;span&gt;&lt;span&gt;(p)
+&lt;&#x2F;span&gt;&lt;span&gt;    aq &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;area&lt;&#x2F;span&gt;&lt;span&gt;(q)
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span&gt;ap &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;lt; &lt;&#x2F;span&gt;&lt;span&gt;aq:
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;return &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;elif &lt;&#x2F;span&gt;&lt;span&gt;ap &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;gt; &lt;&#x2F;span&gt;&lt;span&gt;aq:
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;return &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;else&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;        px, py &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;p
+&lt;&#x2F;span&gt;&lt;span&gt;        qx, qy &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;q
+&lt;&#x2F;span&gt;&lt;span&gt;        z &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;px &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span&gt;qy &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;- &lt;&#x2F;span&gt;&lt;span&gt;py &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span&gt;qx
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span&gt;z &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;gt; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;            &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;return &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;elif &lt;&#x2F;span&gt;&lt;span&gt;z &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;lt; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;            &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;return &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;else&lt;&#x2F;span&gt;&lt;span&gt;:
+&lt;&#x2F;span&gt;&lt;span&gt;            &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;return &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;h5 id=&quot;Rust-1&quot;&gt;Rust&lt;&#x2F;h5&gt;
+&lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;use &lt;&#x2F;span&gt;&lt;span&gt;std::cmp::Ordering;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#61afef;&quot;&gt;area&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;p&lt;&#x2F;span&gt;&lt;span&gt;: (&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;i64&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;i64&lt;&#x2F;span&gt;&lt;span&gt;)) -&amp;gt; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;u8 &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let &lt;&#x2F;span&gt;&lt;span&gt;(x, y) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;=&lt;&#x2F;span&gt;&lt;span&gt; p;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;if&lt;&#x2F;span&gt;&lt;span&gt; y &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;lt; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0 &lt;&#x2F;span&gt;&lt;span&gt;{ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;3 &lt;&#x2F;span&gt;&lt;span&gt;} &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;else if&lt;&#x2F;span&gt;&lt;span&gt; x &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;lt; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0 &lt;&#x2F;span&gt;&lt;span&gt;{ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;2 &lt;&#x2F;span&gt;&lt;span&gt;} &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;else &lt;&#x2F;span&gt;&lt;span&gt;{ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1 &lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#61afef;&quot;&gt;arg_cmp&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;p&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;amp;&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;i64&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;i64&lt;&#x2F;span&gt;&lt;span&gt;), &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;q&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;amp;&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;i64&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;i64&lt;&#x2F;span&gt;&lt;span&gt;)) -&amp;gt; Ordering {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; ap &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= area&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span&gt;p);
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; aq &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= area&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span&gt;q);
+&lt;&#x2F;span&gt;&lt;span&gt;    ap.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;cmp&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;amp;&lt;&#x2F;span&gt;&lt;span&gt;aq).&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;then&lt;&#x2F;span&gt;&lt;span&gt;((q.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span&gt; p.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;).&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;cmp&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;amp;&lt;&#x2F;span&gt;&lt;span&gt;(p.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span&gt; q.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;)))
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;あとはこれを &lt;code&gt;sort&lt;&#x2F;code&gt; に渡せば OK です。Python では比較関数を直接渡すことはできないので、 &lt;code&gt;functools&lt;&#x2F;code&gt; の &lt;code&gt;cmp_to_key&lt;&#x2F;code&gt; を使いましょう。&lt;&#x2F;p&gt;
+&lt;h5 id=&quot;Python-2&quot;&gt;Python&lt;&#x2F;h5&gt;
+&lt;pre data-lang=&quot;python&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-python &quot;&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;from &lt;&#x2F;span&gt;&lt;span&gt;functools &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#c678dd;&quot;&gt;import &lt;&#x2F;span&gt;&lt;span&gt;cmp_to_key
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;points &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;[(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;), (&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;2&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;3&lt;&#x2F;span&gt;&lt;span&gt;), (&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;4&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;5&lt;&#x2F;span&gt;&lt;span&gt;), (&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;6&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;7&lt;&#x2F;span&gt;&lt;span&gt;)]
+&lt;&#x2F;span&gt;&lt;span&gt;points.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;sort&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;key&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e06c75;&quot;&gt;cmp_to_key&lt;&#x2F;span&gt;&lt;span&gt;(arg_cmp))
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;h5 id=&quot;Rust-2&quot;&gt;Rust&lt;&#x2F;h5&gt;
+&lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#61afef;&quot;&gt;main&lt;&#x2F;span&gt;&lt;span&gt;() {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let mut&lt;&#x2F;span&gt;&lt;span&gt; points: Vec&amp;lt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;i64&lt;&#x2F;span&gt;&lt;span&gt;,&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;i64&lt;&#x2F;span&gt;&lt;span&gt;)&amp;gt; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;vec![(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;), (&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;2&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;3&lt;&#x2F;span&gt;&lt;span&gt;), (&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;4&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;5&lt;&#x2F;span&gt;&lt;span&gt;), (&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;6&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;7&lt;&#x2F;span&gt;&lt;span&gt;)];
+&lt;&#x2F;span&gt;&lt;span&gt;    points.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;sort_by&lt;&#x2F;span&gt;&lt;span&gt;(arg_cmp);
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;h4 id=&quot;補足&quot;&gt;補足&lt;&#x2F;h4&gt;
+&lt;p&gt;&lt;code&gt;area()&lt;&#x2F;code&gt; を書き換えるだけで偏角の範囲を $[- \pi &#x2F; 2, \pi &#x2F; 2)$ に変更したり、点 $(0, 0)$ を必ず先頭に持ってきたりできるのが嬉しいです。&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;使用例&quot;&gt;使用例&lt;&#x2F;h3&gt;
+&lt;h4 id=&quot;ABC225E_-_フ&quot;&gt;ABC225E - フ&lt;&#x2F;h4&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;atcoder.jp&#x2F;contests&#x2F;abc225&#x2F;tasks&#x2F;abc225_e&quot;&gt;問題ページ&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;atcoder.jp&#x2F;contests&#x2F;abc225&#x2F;submissions&#x2F;27207087&quot;&gt;提出コード (Pypy3)&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;atcoder.jp&#x2F;contests&#x2F;abc225&#x2F;submissions&#x2F;27207609&quot;&gt;提出コード (Rust)&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;Python3 だと全然間に合いませんでした。&lt;code&gt;cmp_to_key&lt;&#x2F;code&gt; の呼び出しが重いっぽい？&lt;&#x2F;p&gt;
+&lt;h4 id=&quot;Sort_Points_by_Argument_(Library_Checker)&quot;&gt;Sort Points by Argument (Library Checker)&lt;&#x2F;h4&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;judge.yosupo.jp&#x2F;problem&#x2F;sort_points_by_argument&quot;&gt;問題ページ&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;judge.yosupo.jp&#x2F;submission&#x2F;66372&quot;&gt;提出コード (Python)&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;$\arctan$ って書くとはてなキーワードリンクのせいで $\KaTeX$ 効かないのやめてくれ～～～～&lt;&#x2F;p&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="ja">
+        <title>yukicoder No.119 旅行のツアーの問題 解説</title>
+        <published>2021-03-18T00:00:00+00:00</published>
+        <updated>2021-03-18T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              nebocco
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://nebocco.github.io/post/yuki119/"/>
+        <id>https://nebocco.github.io/post/yuki119/</id>
+        
+        <content type="html" xml:base="https://nebocco.github.io/post/yuki119/">&lt;p&gt;余談が本編&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;問題&quot;&gt;問題&lt;&#x2F;h2&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;yukicoder.me&#x2F;problems&#x2F;no&#x2F;119&quot;&gt;yukicoder - No.119 旅行のツアーの問題&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;概要&quot;&gt;概要&lt;&#x2F;h3&gt;
+&lt;p&gt;$N$ 個の国があり、それぞれの国 $i \; (0 \leq i &amp;lt; N)$ に対して以下の行動のうち一つを選ぶ。&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;選択 $p$ : ツアー旅行に行く。利得 $b_i$&lt;&#x2F;li&gt;
+&lt;li&gt;選択 $q$ : 個人旅行に行く。利得 $c_i$&lt;&#x2F;li&gt;
+&lt;li&gt;選択 $r$ : 行かない。利得 $0$&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;ただし、いくつかの国のペア $i, j$ に対して「国 $i$ のツアー旅行に行くならば、国 $j$ の個人旅行に行ってはならない」という形の制約が課される。得られる最大の利得を求めよ。&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;解法&quot;&gt;解法&lt;&#x2F;h2&gt;
+&lt;p&gt;パッと見た感じだと Project Selection Plobrem（PSP、「燃やす埋める」などとも呼ばれています）を使って解けそうだけど、取りうる状態が三つあるので少し工夫が必要です。ここでは二種類の方針を紹介します。&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;strong&gt;注意&lt;&#x2F;strong&gt; :「燃やす埋める」という名前を嫌う人がいるので記事中では PSP と表現していますが、この記事でやっていることは紛れもなく「燃やす埋める」です（考え方が少し違うらしい）。本来の PSP については &lt;a href=&quot;https:&#x2F;&#x2F;tokoharuland.hateblo.jp&#x2F;entry&#x2F;2017&#x2F;12&#x2F;25&#x2F;000003&quot;&gt;Project Selection (燃やす埋める) 周りの話についてもう少し考えた - とこはるのまとめ&lt;&#x2F;a&gt; で解説されています。&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;1._辺の切断&quot;&gt;1. 辺の切断&lt;&#x2F;h3&gt;
+&lt;p&gt;まず多くの人が解説している方針を紹介します。&lt;&#x2F;p&gt;
+&lt;p&gt;一般的にはPSPは頂点の割り振りに関する問題として捉えられますが、ここでは「辺をいくつか選んで切断する」という、本来の最小カット問題に近い形式で問題を解釈してみます。&lt;&#x2F;p&gt;
+&lt;p&gt;各 $i$ について、無条件に利得 $b_i + c_i$ が得られるとした上で、始点 $\mathrm{S}$ から頂点 $i$ にコスト $b_i$ 、頂点 $i$ から終点 $\mathrm{T}$ にコスト $c_i$ の辺を張ります。すると、 $\mathrm{S}$ から $\mathrm{T}$ を到達不可能にするためには、少なくともこのどちらかの辺は切らなくてはなりません。最終的に得られる利得に注目すると、前者を切ることが $q_i$ 、後者を切ることが $p_i$ 、そしてどちらも切ることが $r_i$ に相当していることがわかります。&lt;&#x2F;p&gt;
+&lt;!-- [f:id:nebocco:20210315195145p:plain] --&gt;
+
+  &lt;figure class=&quot;&quot;&gt;
+    
+      
+      &lt;img src=&quot;&amp;#x2F;assets&amp;#x2F;2021-03-18_yuki119&amp;#x2F;20210315195145.png&quot;  &gt;
+      
+      
+    
+  &lt;&#x2F;figure&gt;
+  
+&lt;p&gt;次に禁止制約「 $p_i \to \lnot q_j$ 」を考えると、これは $p_i$ と $q_j$ が同時に選ばれたときに $\mathrm{S}$ から $\mathrm{T}$ への経路が残っているようにすればいいので、 $i$ から $j$ にコスト $\infty$ の辺を張ることで表現できます。&lt;&#x2F;p&gt;
+&lt;p&gt;しかし、これだとサンプル3のようなケースで失敗してしまいます。&lt;&#x2F;p&gt;
+&lt;!-- &lt;figure class=&quot;figure-image figure-image-fotolife&quot; title=&quot;国 2 に行かないので本当は大丈夫なはず&quot;&gt;[f:id:nebocco:20210319104245p:plain]&lt;figcaption&gt;国 2 に行かないので本当は大丈夫なはず&lt;&#x2F;figcaption&gt;&lt;&#x2F;figure&gt; --&gt;
+
+  &lt;figure class=&quot;&quot;&gt;
+    
+      
+      &lt;img src=&quot;&amp;#x2F;assets&amp;#x2F;2021-03-18_yuki119&amp;#x2F;20210319104245.png&quot;  &gt;
+      
+      
+    &lt;figcaption&gt;国 2 に行かないので本当は大丈夫なはず&lt;&#x2F;figcaption&gt;
+  &lt;&#x2F;figure&gt;
+  
+&lt;p&gt;禁止制約の辺が連鎖して、本来許されるはずの選択までブロックしてしまっています。そこで、制約の連鎖が起こらないように、各頂点を2つずつに分割して以下のように辺を張り直してみます。&lt;&#x2F;p&gt;
+&lt;!-- &lt;figure class=&quot;figure-image figure-image-fotolife&quot; title=&quot;天才&quot;&gt;[f:id:nebocco:20210315195151p:plain]&lt;figcaption&gt;天才&lt;&#x2F;figcaption&gt;&lt;&#x2F;figure&gt; --&gt;
+
+  &lt;figure class=&quot;&quot;&gt;
+    
+      
+      &lt;img src=&quot;&amp;#x2F;assets&amp;#x2F;2021-03-18_yuki119&amp;#x2F;20210315195151.png&quot;  &gt;
+      
+      
+    &lt;figcaption&gt;天才&lt;&#x2F;figcaption&gt;
+  &lt;&#x2F;figure&gt;
+  
+&lt;p&gt;$i_1$ と $i_2$ は元々同じ頂点を表しているので、これらは分断されないようにコスト $\infty$ の辺で繋いでおきましょう。こうすることで、禁止制約は上流から下流への一方通行になり、連鎖することを防げます。&lt;&#x2F;p&gt;
+&lt;p&gt;このグラフで始点から終点への最小カット（= 最大流）を求めればいいです。最小カットのコストを $K$ とすると、最終的な答えは $\sum_{i} (b_i+c_i) - K$ となります。&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let &lt;&#x2F;span&gt;&lt;span style=&quot;color:#61afef;&quot;&gt;u &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;|&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;i&lt;&#x2F;span&gt;&lt;span&gt;| { &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;2 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span&gt; i }; &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#7f848e;&quot;&gt;&#x2F;&#x2F; i_1
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let &lt;&#x2F;span&gt;&lt;span style=&quot;color:#61afef;&quot;&gt;v &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;|&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;i&lt;&#x2F;span&gt;&lt;span&gt;| { &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;2 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span&gt; i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1 &lt;&#x2F;span&gt;&lt;span&gt;}; &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#7f848e;&quot;&gt;&#x2F;&#x2F; i_2
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; source &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= u&lt;&#x2F;span&gt;&lt;span&gt;(n);
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; sink &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= v&lt;&#x2F;span&gt;&lt;span&gt;(n);
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let mut&lt;&#x2F;span&gt;&lt;span&gt; ans &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let mut&lt;&#x2F;span&gt;&lt;span&gt; din &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;Dinic::new();
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;amp;&lt;&#x2F;span&gt;&lt;span&gt;(i, j) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;in &amp;amp;&lt;&#x2F;span&gt;&lt;span&gt;cl { &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#7f848e;&quot;&gt;&#x2F;&#x2F; 禁止制約
+&lt;&#x2F;span&gt;&lt;span&gt;  din.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;add_edge&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;u&lt;&#x2F;span&gt;&lt;span&gt;(i), &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;v&lt;&#x2F;span&gt;&lt;span&gt;(j), &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;INF&lt;&#x2F;span&gt;&lt;span&gt;);
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;(i, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;amp;&lt;&#x2F;span&gt;&lt;span&gt;(b, c)) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;in&lt;&#x2F;span&gt;&lt;span&gt; plans.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;iter&lt;&#x2F;span&gt;&lt;span&gt;().&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;enumerate&lt;&#x2F;span&gt;&lt;span&gt;() { &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#7f848e;&quot;&gt;&#x2F;&#x2F; 各選択の報酬
+&lt;&#x2F;span&gt;&lt;span&gt;  ans &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+=&lt;&#x2F;span&gt;&lt;span&gt; b &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span&gt; c;
+&lt;&#x2F;span&gt;&lt;span&gt;  din.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;add_edge&lt;&#x2F;span&gt;&lt;span&gt;(source, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;u&lt;&#x2F;span&gt;&lt;span&gt;(i), b);
+&lt;&#x2F;span&gt;&lt;span&gt;  din.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;add_edge&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;u&lt;&#x2F;span&gt;&lt;span&gt;(i), &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;v&lt;&#x2F;span&gt;&lt;span&gt;(i), &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;INF&lt;&#x2F;span&gt;&lt;span&gt;);
+&lt;&#x2F;span&gt;&lt;span&gt;  din.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;add_edge&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;v&lt;&#x2F;span&gt;&lt;span&gt;(i), sink, c);
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;ans &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-=&lt;&#x2F;span&gt;&lt;span&gt; din.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;max_flow&lt;&#x2F;span&gt;&lt;span&gt;(source, sink).&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;;
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;h3 id=&quot;2._頂点の分配&quot;&gt;2. 頂点の分配&lt;&#x2F;h3&gt;
+&lt;p&gt;続いて、一般的な PSP 同様、頂点を始点側と終点側に割り振る問題として捉える方針で解いてみます。
+ソースを $\text{True}(\top)$ 、シンクを $\text{False}(⊥)$ として、頂点を割り振っていきます。&lt;&#x2F;p&gt;
+&lt;p&gt;以下の二頂点を用意します。&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;$u_i$ : 国 $i$ のツアー旅行に行くか、国 $i$ を訪れない（$p_i \lor r_i$）&lt;&#x2F;li&gt;
+&lt;li&gt;$v_i$ : 国 $i$ のツアー旅行に行く（$p_i$）&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;こうすることで、$u_i$ と $v_i$ の真偽と行動選択が以下の通りに対応します。&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;$u_i \land v_i = (p_i \lor r_i) \land p_i = p_i$&lt;&#x2F;li&gt;
+&lt;li&gt;$u_i \land \lnot v_i = (p_i \lor r_i) \land \lnot p_i = r_i$&lt;&#x2F;li&gt;
+&lt;li&gt;$\lnot u_i \land v_i = \lnot (p_i \lor r_i) \land p_i = ⊥$&lt;&#x2F;li&gt;
+&lt;li&gt;$\lnot u_i \land \lnot v_i = \lnot (p_i \lor r_i) \land \lnot p_i = \lnot p_i \land \lnot r_i = q_i$&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;よって、 $u_i, v_i$ の割り当てに応じたコストは以下の表の通りとなります。&lt;&#x2F;p&gt;
+&lt;p&gt;$$
+\begin{array}{c|cc}
+&amp;amp; u_i  &amp;amp; \lnot u_i \\ \hline
+v_i &amp;amp; -b_i &amp;amp; \infty    \\
+\lnot v_i &amp;amp; 0    &amp;amp; -c_i      \\
+\end{array}
+$$&lt;&#x2F;p&gt;
+&lt;p&gt;無条件で $b_i + c_i$ の利得が得られることにすると、以下のようにコストは全て正の値となります。&lt;&#x2F;p&gt;
+&lt;p&gt;$$
+\begin{array}{c|cc}
+&amp;amp; u_i       &amp;amp; \lnot u_i \\ \hline
+v_i &amp;amp; c_i       &amp;amp; \infty    \\
+\lnot v_i &amp;amp; b_i + c_i &amp;amp; b_i
+\end{array}
+$$&lt;&#x2F;p&gt;
+&lt;p&gt;ちゃんと劣モジュラになってるので、これは通常の2変数に関するコストとして表現可能です。例えばこんな感じ。&lt;&#x2F;p&gt;
+&lt;!-- [f:id:nebocco:20210315195139p:plain] --&gt;
+
+  &lt;figure class=&quot;&quot;&gt;
+    
+      
+      &lt;img src=&quot;&amp;#x2F;assets&amp;#x2F;2021-03-18_yuki119&amp;#x2F;20210315195139.png&quot;  &gt;
+      
+      
+    
+  &lt;&#x2F;figure&gt;
+  
+&lt;p&gt;さらに、追加制約「$p_i \to \lnot q_j$」は、$v_i \to u_i$ を用いることで&lt;&#x2F;p&gt;
+&lt;p&gt;$$
+\begin{aligned}
+p_i \to \lnot q_j
+&amp;amp; \Leftrightarrow (u_i \land v_i) \to \lnot (\lnot u_j \land \lnot v_j) \\
+&amp;amp; \Leftrightarrow v_i \to (u_j \lor v_j) \\
+&amp;amp; \Leftrightarrow v_i \to u_j
+\end{aligned}
+$$&lt;&#x2F;p&gt;
+&lt;p&gt;と言い換えることができるので、以下のように辺を張ればいいです。&lt;&#x2F;p&gt;
+&lt;!-- [f:id:nebocco:20210315195142p:plain] --&gt;
+
+  &lt;figure class=&quot;&quot;&gt;
+    
+      
+      &lt;img src=&quot;&amp;#x2F;assets&amp;#x2F;2021-03-18_yuki119&amp;#x2F;20210315195142.png&quot;  &gt;
+      
+      
+    
+  &lt;&#x2F;figure&gt;
+  
+&lt;p&gt;これで始点から終点まで流せばOKです。最終的な答えは $\sum_{i} (b_i+c_i) - K$ です。&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let &lt;&#x2F;span&gt;&lt;span style=&quot;color:#61afef;&quot;&gt;u &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;|&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;i&lt;&#x2F;span&gt;&lt;span&gt;| { &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;2 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span&gt; i };
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let &lt;&#x2F;span&gt;&lt;span style=&quot;color:#61afef;&quot;&gt;v &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;|&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;i&lt;&#x2F;span&gt;&lt;span&gt;| { &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;2 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span&gt; i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1 &lt;&#x2F;span&gt;&lt;span&gt;};
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; source &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= u&lt;&#x2F;span&gt;&lt;span&gt;(n);
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; sink &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= v&lt;&#x2F;span&gt;&lt;span&gt;(n);
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let mut&lt;&#x2F;span&gt;&lt;span&gt; ans &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let mut&lt;&#x2F;span&gt;&lt;span&gt; din &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;Dinic::new();
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;amp;&lt;&#x2F;span&gt;&lt;span&gt;(i, j) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;in &amp;amp;&lt;&#x2F;span&gt;&lt;span&gt;cl { &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#7f848e;&quot;&gt;&#x2F;&#x2F; 禁止制約
+&lt;&#x2F;span&gt;&lt;span&gt;  din.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;add_edge&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;v&lt;&#x2F;span&gt;&lt;span&gt;(i), &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;u&lt;&#x2F;span&gt;&lt;span&gt;(j), &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;INF&lt;&#x2F;span&gt;&lt;span&gt;);
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;(i, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;amp;&lt;&#x2F;span&gt;&lt;span&gt;(b, c)) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;in&lt;&#x2F;span&gt;&lt;span&gt; plans.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;iter&lt;&#x2F;span&gt;&lt;span&gt;().&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;enumerate&lt;&#x2F;span&gt;&lt;span&gt;() { &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#7f848e;&quot;&gt;&#x2F;&#x2F; 各選択の報酬
+&lt;&#x2F;span&gt;&lt;span&gt;  ans &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+=&lt;&#x2F;span&gt;&lt;span&gt; b &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span&gt; c;
+&lt;&#x2F;span&gt;&lt;span&gt;  din.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;add_edge&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;v&lt;&#x2F;span&gt;&lt;span&gt;(i), &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;u&lt;&#x2F;span&gt;&lt;span&gt;(i), &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;INF&lt;&#x2F;span&gt;&lt;span&gt;);
+&lt;&#x2F;span&gt;&lt;span&gt;  din.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;add_edge&lt;&#x2F;span&gt;&lt;span&gt;(source, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;u&lt;&#x2F;span&gt;&lt;span&gt;(i), b);
+&lt;&#x2F;span&gt;&lt;span&gt;  din.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;add_edge&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;u&lt;&#x2F;span&gt;&lt;span&gt;(i), &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;v&lt;&#x2F;span&gt;&lt;span&gt;(i), b &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span&gt; c);
+&lt;&#x2F;span&gt;&lt;span&gt;  din.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;add_edge&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;v&lt;&#x2F;span&gt;&lt;span&gt;(i), sink, c);
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;ans &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-=&lt;&#x2F;span&gt;&lt;span&gt; din.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;max_flow&lt;&#x2F;span&gt;&lt;span&gt;(source, sink).&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;;
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;h2 id=&quot;実装&quot;&gt;実装&lt;&#x2F;h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;yukicoder.me&#x2F;submissions&#x2F;630915&quot;&gt;解法 1&lt;&#x2F;a&gt; (Rust)&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;yukicoder.me&#x2F;submissions&#x2F;630914&quot;&gt;解法 2&lt;&#x2F;a&gt; (Rust)&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h2 id=&quot;余談&quot;&gt;余談&lt;&#x2F;h2&gt;
+&lt;p&gt;初見で解いていたとき、「三種類の値を取るときは、各要素に対して二つの頂点を用意していい感じに包含関係を入れるといい」という話を何となく聞いたことがあったので、二種類の命題&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;$x_i$ : 国 $i$ を訪れる（$p_i \lor q_i$）&lt;&#x2F;li&gt;
+&lt;li&gt;$y_i$ : 国 $i$ のツアー旅行に行く（$p_i$）&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;を頂点として作ることにしたのですが、間違いでした。$p$ と $q$ には「国を訪れる」という分かりやすい共通項がある上、元問題文では禁止制約があたかも「国を訪れる」という括りがあるかのように表現されていたために纒めたくなってしまいましたが、実際には完全に別の事象として捉えるべきでした（というか実際にそう）。まんまと罠にかかりました。&lt;&#x2F;p&gt;
+&lt;p&gt;$x, y$ の真偽もうまく $p, q, r$ に対応して、コストも劣モジュラになりますが、禁止制約が「 $y_i \to \lnot x_j \lor y_j$ 」となってしまい、グラフで表現することができません。&lt;&#x2F;p&gt;
+&lt;p&gt;包含関係をどのように設定すればうまくいきそうか、を判断する材料として、二種類の方針を紹介します。&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;1._包含関係のある条件の一般的な表現&quot;&gt;1. 包含関係のある条件の一般的な表現&lt;&#x2F;h3&gt;
+&lt;p&gt;&lt;a href=&quot;http:&#x2F;&#x2F;tokoharuland.hateblo.jp&#x2F;entry&#x2F;2017&#x2F;12&#x2F;25&#x2F;000003&quot;&gt;Project Selection (燃やす埋める) 周りの話についてもう少し考えた - とこはるのまとめ&lt;&#x2F;a&gt; の後半で紹介されている考え方です。 $k$ 状態を取りうる変数を、今回作ったグラフのように&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;$a_1 = s_1$&lt;&#x2F;li&gt;
+&lt;li&gt;$a_2 = s_1 \lor s_2$&lt;&#x2F;li&gt;
+&lt;li&gt;$\vdots$&lt;&#x2F;li&gt;
+&lt;li&gt;$a_{k - 1} = s_1 \lor s_2 \lor \cdots \lor s _ { k - 1 }$&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;という $k - 1$ 個の頂点 $a_1, a_2,  ..., a _ { k - 1 } $ で表現すると、グラフの形は以下のようになります。&lt;&#x2F;p&gt;
+&lt;!-- &lt;figure class=&quot;figure-image figure-image-fotolife&quot; title=&quot;a_k-1 -&amp;gt; a_k-2 -&amp;gt; ... -&amp;gt; a_2 -&amp;gt; a_1&quot;&gt;[f:id:nebocco:20210315195131p:plain]&lt;figcaption&gt;a_k-1 -&amp;gt; a_k-2 -&amp;gt; ... -&amp;gt; a_2 -&amp;gt; a_1&lt;&#x2F;figcaption&gt;&lt;&#x2F;figure&gt; --&gt;
+
+  &lt;figure class=&quot;&quot;&gt;
+    
+      
+      &lt;img src=&quot;&amp;#x2F;assets&amp;#x2F;2021-03-18_yuki119&amp;#x2F;20210315195131.png&quot;  &gt;
+      
+      
+    &lt;figcaption&gt;$a_{k-1} \to a_{k-2} \to \cdots \to a_2 \to a_1$&lt;&#x2F;figcaption&gt;
+  &lt;&#x2F;figure&gt;
+  
+&lt;p&gt;$a_k = s_1 \lor s_2 \lor \cdots \lor s _ k$ は必ず $\top$ になるので、頂点を用意する必要はありません。また、 $a _ {i - 1} \to a _ i$ が成り立つので、 $a _ {i-1} \land \lnot a _ i$ という状態に無限のコストがかかるように逆向きの辺を張っています。&lt;&#x2F;p&gt;
+&lt;p&gt;まずは一つの変数のみに着目します。
+1変数関数は必ず劣モジュラであるので、適切に辺コストを割り振りさえすればこのグラフによって各 $s _ i$ のコストは必ず表現できます。
+例えば $s_i$ を選んだ際のコストを $\theta(s _ i)$ として、以下のように対応していたとします。&lt;&#x2F;p&gt;
+&lt;p&gt;$$
+\begin{array}{c|cccc}
+i           &amp;amp; 1 &amp;amp; 2 &amp;amp; 3 &amp;amp; 4 \\ \hline
+\theta(s _ i) &amp;amp; -5 &amp;amp; 6 &amp;amp; 2 &amp;amp; -8
+\end{array}
+$$&lt;&#x2F;p&gt;
+&lt;p&gt;このとき、任意の定数 $w$ を用いて、無条件に $w$ の報酬がもらえるとした上で、以下のように辺のコストを定めることで $\theta$ が表現できます。&lt;&#x2F;p&gt;
+&lt;!-- [f:id:nebocco:20210315195134p:plain] --&gt;
+
+  &lt;figure class=&quot;&quot;&gt;
+    
+      
+      &lt;img src=&quot;&amp;#x2F;assets&amp;#x2F;2021-03-18_yuki119&amp;#x2F;20210315195134.png&quot;  &gt;
+      
+      
+    
+  &lt;&#x2F;figure&gt;
+  
+&lt;p&gt;$a _ i \land \lnot a _ { i - 1 } \to s _ i $ が成り立つので、$ a _ i , a _ { i - 1 } $ 間の辺を切るときには
+「その選択肢のコスト $\theta(s _ i)+$ 無条件にもらえてしまった報酬 $w$」のコストがかかるようにします。
+$w$ はどの辺を選んでも打ち消される値なのでなんでもよく、適切な値をとることで負辺をなくすことができます。&lt;&#x2F;p&gt;
+&lt;p&gt;次に、全ての変数 $i$ に対してこれらの頂点 $a ^ { i } _ {d} \;( 1 \leq d &amp;lt; k ) $ を用意したあと、ある頂点から別の頂点に張った辺がどのような意味を持つのかを考えてみます。
+$a ^ { i } _ { n }$ から $a ^ { j } _ { m }$ へとコスト $c$ の辺を張ってみます。&lt;&#x2F;p&gt;
+&lt;!-- &lt;figure class=&quot;figure-image figure-image-fotolife&quot; title=&quot;辺は適当に省略しています&quot;&gt;[f:id:nebocco:20210315195137p:plain]&lt;figcaption&gt;辺は適当に省略しています&lt;&#x2F;figcaption&gt;&lt;&#x2F;figure&gt; --&gt;
+
+  &lt;figure class=&quot;&quot;&gt;
+    
+      
+      &lt;img src=&quot;&amp;#x2F;assets&amp;#x2F;2021-03-18_yuki119&amp;#x2F;20210315195137.png&quot;  &gt;
+      
+      
+    &lt;figcaption&gt;辺は適当に省略しています&lt;&#x2F;figcaption&gt;
+  &lt;&#x2F;figure&gt;
+  
+&lt;p&gt;このコストがかかるのは $a ^ { i } _ { n } \land \lnot a ^ { j } _ { m }$ のときです。つまりこの辺は「 $i$ が $s_1, s_2, \ldots, s _ n$ のどれかであるとき、$j$ が $s_1, s_2, \ldots, s _ m $ のどれかでないならコスト $c$ がかかる」と翻訳できます。
+先程挙げたブログの言葉を借りてこれを一般化すると、包含関係のある集合 $A_1 \subset A_2 \subset A_3 \subset \cdots$ に変数 $v_1, v_2, v_3, \ldots$ を配置していくとき、「 $v _ i \in A _ n$ かつ $v _ j \not \in A _ m $ ならコスト $c ;(&amp;gt; 0)$ がかかる」という条件を表現できます。&lt;&#x2F;p&gt;
+&lt;p&gt;これを踏まえて元の問題の禁止制約「$p _ i \to \lnot q _ j$」を「$p _ i \to p _ j \lor r _ j$」と解釈すれば、 $p, p \lor r$ という括りを作ることで上手くいきそうだ、とあたりをつけることができるかと思います。&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;2._Monge行列への意識&quot;&gt;2. Monge行列への意識&lt;&#x2F;h3&gt;
+&lt;p&gt;本問題では、禁止制約に関するコスト行列は以下のようになっています。&lt;&#x2F;p&gt;
+&lt;p&gt;$$
+\begin{array}{c|ccc}
+&amp;amp; p_i    &amp;amp; q_i &amp;amp; r_i \\ \hline
+p_j &amp;amp; 0      &amp;amp; 0   &amp;amp; 0   \\
+q_j &amp;amp; \infty &amp;amp; 0   &amp;amp; 0   \\
+r_j &amp;amp; 0      &amp;amp; 0   &amp;amp; 0
+\end{array}
+$$&lt;&#x2F;p&gt;
+&lt;p&gt;これがMongeになるよう選択肢を並び替えます。&lt;&#x2F;p&gt;
+&lt;p&gt;$$
+\begin{array}{c|ccc}
+&amp;amp; p_i    &amp;amp; r_i &amp;amp; q_i \\ \hline
+p_j &amp;amp; 0      &amp;amp; 0   &amp;amp; 0   \\
+r_j &amp;amp; 0      &amp;amp; 0   &amp;amp; 0   \\
+q_j &amp;amp; \infty &amp;amp; 0   &amp;amp; 0
+\end{array}
+$$&lt;&#x2F;p&gt;
+&lt;p&gt;するとここをこうまとめたくなります。（？）&lt;&#x2F;p&gt;
+&lt;p&gt;$$
+\begin{array}{c|c:cc}
+&amp;amp; p_i    &amp;amp; r_i &amp;amp; q_i \\ \hline
+p_j &amp;amp; 0      &amp;amp; 0   &amp;amp; 0   \\
+r_j &amp;amp; 0      &amp;amp; 0   &amp;amp; 0   \\ \hdashline
+q_j &amp;amp; \infty &amp;amp; 0   &amp;amp; 0
+\end{array}
+$$&lt;&#x2F;p&gt;
+&lt;p&gt;「 $p_i \land \lnot q_j$ 」 $=$ 「 $p_i \land \lnot (p_j \lor r_j)$ 」の場合にコストをかけたいので、 $p, p \lor r$ という二種類の頂点があればグラフで表現出来そうだな、という風に思える、らしいです。また、このようにすると $q, q \lor r$ という二種類の頂点を作ってもなんとかなりそうに思えますね（実際なんとかなる）。&lt;&#x2F;p&gt;
+&lt;p&gt;正直この方法にどのくらい汎用性があるのかは分かりません。ただ、これに限らず、グラフ表現をする上でコストが劣モジュラであることが必要だということを常に念頭におきながら問題を整理することで、なんとなく見通しを立てやすくなるのかもしれません。&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;参考記事&quot;&gt;参考記事&lt;&#x2F;h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;http:&#x2F;&#x2F;tokoharuland.hateblo.jp&#x2F;entry&#x2F;2017&#x2F;11&#x2F;12&#x2F;234636&quot;&gt;『燃やす埋める』と『ProjectSelectionProblem』 - とこはるのまとめ&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;http:&#x2F;&#x2F;tokoharuland.hateblo.jp&#x2F;entry&#x2F;2017&#x2F;12&#x2F;25&#x2F;000003&quot;&gt;Project Selection (燃やす埋める) 周りの話についてもう少し考えた - とこはるのまとめ&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;kmyk.github.io&#x2F;blog&#x2F;blog&#x2F;2017&#x2F;12&#x2F;05&#x2F;minimum-cut-and-project-selection-problem&#x2F;&quot;&gt;最小カットとProject Selection Problemのまとめ - うさぎ小屋&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;theory-and-me.hatenablog.com&#x2F;entry&#x2F;2020&#x2F;03&#x2F;13&#x2F;180935&quot;&gt;燃やす埋める問題と劣モジュラ関数のグラフ表現可能性 その① - 私と理論&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+</content>
+        
+    </entry>
+</feed>

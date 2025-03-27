@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <title>ねぼこの日記</title>
+  <link rel="stylesheet" href="https://nebocco.github.io/main.css">
+  <meta charset="utf-8">
+  <meta name="description" content="nebocco のブログ">
+  <meta property="og:site_name" content="ねぼこの日記" />
+  
+
+
+</head>
+
+<body>
+  <div class="page-container">
+    <header>
+      <div id="title">
+        <a href="/">ねぼこの日記</a>
+      </div>
+      <nav>
+        <a href="/post">Posts</a>
+        <a href="/tags">Tags</a>
+        <a href="https://github.com/nebocco" target="_blank" rel="noreferrer noopener">Github</a>
+        <a href="https://twitter.com/nebocco27" target="_blank" rel="noreferrer noopener">Twitter</a>
+        
+        <a href="https://nebocco.github.io/atom.xml" target="_blank" rel="noreferrer noopener">Feed</a>
+        
+      </nav>
+    </header>
+
+    <main id="main">
+      <article id="post">
+        
+<div class="headline">
+  <h1 class="page-title">
+    Rime on Windows10
+  </h1>
+  
+<div class="subtitle">
+  <span class="page-date">
+    2021-05-01
+  </span>
+  
+  <span class="page-tags">
+    
+    
+    <a class="page-tag" href="https://nebocco.github.io/tags/jing-ji-puroguramingu/">競技プログラミング</a>
+    
+    
+    <a class="page-tag" href="https://nebocco.github.io/tags/windows/">Windows</a>
+    
+  </span>
+  
+</div>
+
+</div>
+
+<p>競技プログラミング作問支援ツール <a href="https://rime.readthedocs.io/ja/latest/">Rime</a> を Windows10 で使えるように改造しましょう！</p>
+<!-- <figure class="figure-image figure-image-fotolife" title="rime", style="display:none">[f:id:nebocco:20210501205255p:plain]<figcaption>rime</figcaption></figure> -->
+<p>Mac なんかに……負けないっ……！</p>
+<h4 id="おことわり">おことわり</h4>
+<ul>
+<li>作業にあたって <a href="https://rime-doc.readthedocs.io/ja/latest/index.html">Rime 非公式ドキュメント</a> を大いに参考にさせていただきました。基本的にはここのチュートリアルに従い、Windows で正しく動かなかったら適宜書き換えていく、という方針で作業を行います。</li>
+<li>自己責任でお願いします。そんなにパソコン全体に影響のあるような作業はしないので大丈夫だとは思いますが……</li>
+<li>動かない原因をコードを読みながら延々と試行錯誤した結果なので、書き換えなくていい場所や、もっと効率のいい方法があるかもしれません。</li>
+<li>「同じように作業をしたのにここが違う！」みたいなことを言われても何もわからないので自分でコードと公式リファレンス読んでください。</li>
+<li>Powershell を使用します。</li>
+</ul>
+<h2 id="インストール">インストール</h2>
+<pre style="background-color:#282c34;color:#abb2bf;"><code><span>PS C:\home&gt; pip install git+https://github.com/icpc-jag/rime
+</span><span>Collecting git+https://github.com/icpc-jag/rime
+</span><span>...（略）...
+</span></code></pre>
+<p>インストールが完了したことを確かめましょう。</p>
+<pre style="background-color:#282c34;color:#abb2bf;"><code><span>PS C:\home&gt; rime --help
+</span></code></pre>
+<!-- <figure class="figure-image figure-image-fotolife" title="？？？">[f:id:nebocco:20210501171635p:plain]<figcaption>？？？</figcaption></figure> -->
+
+  <figure class="">
+    
+      
+      <img src="&#x2F;assets&#x2F;2021-05-01_rime_on_windows10&#x2F;20210501171635.png"  >
+      
+      
+    <figcaption>？？？</figcaption>
+  </figure>
+  <!-- <figure class="figure-image figure-image-fotolife" title="？？？？？">[f:id:nebocco:20210501171653p:plain]<figcaption>？？？？？</figcaption></figure> -->
+
+  <figure class="">
+    
+      
+      <img src="&#x2F;assets&#x2F;2021-05-01_rime_on_windows10&#x2F;20210501171653.png"  >
+      
+      
+    <figcaption>？？？？？</figcaption>
+  </figure>
+  
+<p>コマンドが走らず、スクリプトファイル自体を開こうとしてしまいます。どうやら Mac ではファイル名を入力するだけで Python を起動できるようなのですが、Windows ではご存じのように</p>
+<pre data-lang="sh" style="background-color:#282c34;color:#abb2bf;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#e06c75;">python</span><span> file.py
+</span></code></pre>
+<p>のように入力しなければなりません。ではそのようにしてみましょう。</p>
+<pre style="background-color:#282c34;color:#abb2bf;"><code><span>PS C:\home&gt; python rime --help
+</span><span>C:\Users\Personal\AppData\Local\Programs\Python\Python39\python.exe: can&#39;t open file &#39;C:\home\rime&#39;: [Errno 2] No such file or directory
+</span></code></pre>
+<p>どうやら二番目以降の引数はパスが通っていても認識してくれないようです。まったくもう</p>
+<p>これをフルパスで入力するとちゃんと動きます。</p>
+<pre style="background-color:#282c34;color:#abb2bf;"><code><span>PS C:\home&gt; python &#39;C:\Users\Personal\AppData\Local\Programs\Python\Python39\Scripts\rime&#39; --help
+</span><span>rime.py &lt;command&gt; [&lt;options&gt;...] [&lt;args&gt;...]
+</span><span>
+</span><span>    Rime is a tool for programming contest organizers to automate usual, boring
+</span><span>    and error-prone process of problem set preparation. It supports various
+</span><span>    programming contest styles like ACM-ICPC, TopCoder, etc. by plugins.
+</span><span>
+</span><span>    To see a brief description and available options of a command, try:
+</span><span>
+</span><span>    rime.py help &lt;command&gt;
+</span><span>
+</span><span>Commands:
+</span><span>...（略）...
+</span></code></pre>
+<p>ただ毎回こんなことはやっていられないので、起動しやすい場所に持ってくることにします。</p>
+<p>Rime で作問をする専用のディレクトリを作成し、その中にさっきの場所にある rime と rime_init をコピーしてきましょう。エクスプローラを使ってマウスでやっても大丈夫です。（そのほうが速いかも）</p>
+<pre style="background-color:#282c34;color:#abb2bf;"><code><span>PS C:\home&gt; mkdir Rime
+</span><span>
+</span><span>
+</span><span>    ディレクトリ: C:\home
+</span><span>
+</span><span>
+</span><span>Mode                 LastWriteTime         Length Name
+</span><span>----                 -------------         ------ ----
+</span><span>d-----        2021/05/01     17:25                Rime
+</span><span>
+</span><span>
+</span><span>PS C:\home&gt; cd Rime
+</span><span>PS C:\home\Rime&gt; cp &#39;C:\Users\Personal\AppData\Local\Programs\Python\Python39\Scripts\rime&#39; .
+</span><span>PS C:\home\Rime&gt; cp &#39;C:\Users\Personal\AppData\Local\Programs\Python\Python39\Scripts\rime_init&#39; .
+</span><span>PS C:\home\Rime&gt; ls
+</span><span>
+</span><span>
+</span><span>    ディレクトリ: C:\home\Rime
+</span><span>
+</span><span>
+</span><span>Mode                 LastWriteTime         Length Name
+</span><span>----                 -------------         ------ ----
+</span><span>-a----        2021/05/01     17:11            172 rime
+</span><span>-a----        2021/05/01     17:11           2421 rime_init
+</span><span>
+</span></code></pre>
+<p>こうするとほぼ本家と同じように書くことができます。</p>
+<pre style="background-color:#282c34;color:#abb2bf;"><code><span>PS C:\home\Rime&gt; py rime --help
+</span><span>rime.py &lt;command&gt; [&lt;options&gt;...] [&lt;args&gt;...]
+</span><span>
+</span><span>    Rime is a tool for programming contest organizers to automate usual, boring
+</span><span>    and error-prone process of problem set preparation. It supports various
+</span><span>    programming contest styles like ACM-ICPC, TopCoder, etc. by plugins.
+</span><span>
+</span><span>    To see a brief description and available options of a command, try:
+</span><span>
+</span><span>    rime.py help &lt;command&gt;
+</span><span>
+</span><span>Commands:
+</span><span>...（略）...
+</span></code></pre>
+<p>以上のように、コマンドすべての頭に <code>py</code> を付ければOKです。 <code>py</code> を登録していない人は <code>python</code> に置き換えてください。</p>
+<p>これでインストールは完了です。</p>
+<h2 id="チュートリアル">チュートリアル</h2>
+<h3 id="ディレクトリの初期化">ディレクトリの初期化</h3>
+<pre style="background-color:#282c34;color:#abb2bf;"><code><span>PS C:\home\Rime&gt; py rime_init --git
+</span><span>Initialized empty Git repository in C:/home/Rime/.git/
+</span><span>[master (root-commit) fe093c2] Initial commit
+</span><span> 3 files changed, 5049 insertions(+)
+</span><span> create mode 100644 .gitignore
+</span><span> create mode 100644 PROJECT
+</span><span> create mode 100644 common/testlib.h
+</span></code></pre>
+<h3 id="新規問題の作成">新規問題の作成</h3>
+<h4 id="subprocess">subprocess</h4>
+<pre style="background-color:#282c34;color:#abb2bf;"><code><span>PS C:\home\Rime&gt; py rime add . problem aplusb
+</span><span>Note: Running Rime under Windows will be unstable.
+</span><span>Traceback (most recent call last):
+</span><span>  File &quot;c:\users\personal\appdata\local\programs\python\python39\lib\site-packages\rime\core\main.py&quot;, line 144, in Main
+</span><span>
+</span><span>...（中略）...
+</span><span>
+</span><span>FileNotFoundError: [WinError 2] 指定されたファイルが見つかりません。
+</span></code></pre>
+<p>出力ログを見ると、途中で <code>call</code> という関数を呼んでいることが分かります。これは <code>subprocess</code> というモジュールの関数なのですが、このモジュールでシェルコマンドを呼び出すためには <code>shell=True</code> という引数を与える必要があります。Rime では <code>subprocess</code> から <code>call()</code> のほかに <code>check_output()</code> と <code>Popen()</code> を使っています。これらについても <code>shell=True</code> を与える必要があります。</p>
+<p>一度、Rime の中身のコードが置かれているディレクトリに移動します。</p>
+<pre style="background-color:#282c34;color:#abb2bf;"><code><span>PS C:\home\Rime&gt; cd &#39;C:\users\personal\appdata\local\programs\python\python39\lib\site-packages\rime&#39;
+</span><span>PS C:\..\..\rime&gt;
+</span></code></pre>
+<p>以降、Rime 本体のコードに言及する時は基本的にこの中にあるものを指していると思ってください。スクリプト内で <code>call()</code> を使っている箇所をすべて見つけるため、以下のコマンドで検索します。</p>
+<pre style="background-color:#282c34;color:#abb2bf;"><code><span>PS C:\..\..\rime&gt; findstr /s /n &#39;call\(&#39; *.py
+</span><span>plugins\plus\commands.py:63:    call([EDITOR, filename])
+</span></code></pre>
+<p>これで 'call(' が書かれている箇所をすべて探すことができました。<code>call()</code> は一度しか使われていないようです。 <code>plugins\plus\commands.py</code> を見に行って、以下のように書き換えます。</p>
+<pre data-lang="python" style="background-color:#282c34;color:#abb2bf;" class="language-python "><code class="language-python" data-lang="python"><span style="color:#c678dd;">def </span><span style="color:#61afef;">EditFile</span><span>(</span><span style="font-style:italic;color:#e06c75;">filename</span><span>, </span><span style="font-style:italic;color:#e06c75;">initial</span><span>):
+</span><span>    </span><span style="color:#e5c07b;">EDITOR </span><span style="color:#56b6c2;">= </span><span>os.environ.</span><span style="color:#e06c75;">get</span><span>(</span><span style="color:#98c379;">&#39;EDITOR&#39;</span><span>, </span><span style="color:#98c379;">&#39;vi&#39;</span><span>)
+</span><span>    files.</span><span style="color:#e06c75;">WriteFile</span><span>(initial, filename)
+</span><span>    </span><span style="color:#e06c75;">call</span><span>([</span><span style="color:#e5c07b;">EDITOR</span><span>, filename], </span><span style="font-style:italic;color:#e06c75;">shell</span><span style="color:#56b6c2;">=</span><span style="color:#d19a66;">True</span><span>)
+</span></code></pre>
+<p><code>check_output()</code>, <code>Popen()</code> についても同じように探して書き換えます。</p>
+<h4 id="comple(None,_...)">comple(None, ...)</h4>
+<p>あたらめて実行しましょう。最初の実行時に作成できてしまったディレクトリは削除しておきます。</p>
+<pre style="background-color:#282c34;color:#abb2bf;"><code><span>PS C:\home\Rime&gt; py rime add . problem aplusb
+</span><span>Note: Running Rime under Windows will be unstable.
+</span><span>ERROR: aplusb: compile() arg 1 must be a string, bytes or AST object
+</span></code></pre>
+<p>これは <code>core/targets.py</code> 内の <code>TargetBase.Load()</code> 内部で、<code>compile()</code> に <code>None</code> を渡してしまっていることが原因です。そのため、以下のように条件分岐を付け加えておきます。</p>
+<pre data-lang="python" style="background-color:#282c34;color:#abb2bf;" class="language-python "><code class="language-python" data-lang="python"><span style="color:#7f848e;"># Evaluate config.
+</span><span style="color:#c678dd;">try</span><span>:
+</span><span>    script </span><span style="color:#56b6c2;">= </span><span>files.</span><span style="color:#e06c75;">ReadFile</span><span>(</span><span style="color:#e5c07b;">self</span><span>.config_file)
+</span><span style="color:#c678dd;">except </span><span>IOError:
+</span><span>    </span><span style="color:#c678dd;">raise </span><span style="color:#e06c75;">ConfigurationError</span><span>(</span><span style="color:#98c379;">&#39;cannot read file: </span><span style="color:#d19a66;">%s</span><span style="color:#98c379;">&#39; </span><span style="color:#56b6c2;">% </span><span style="color:#e5c07b;">self</span><span>.config_file)
+</span><span>
+</span><span style="color:#c678dd;">if </span><span>script </span><span style="color:#c678dd;">is </span><span style="color:#d19a66;">None</span><span>:
+</span><span>    </span><span style="color:#c678dd;">return
+</span><span>
+</span><span style="color:#c678dd;">try</span><span>:
+</span><span>    code </span><span style="color:#56b6c2;">= compile</span><span>(script, </span><span style="color:#e5c07b;">self</span><span>.config_file, </span><span style="color:#98c379;">&#39;exec&#39;</span><span>)
+</span><span>    </span><span style="color:#e5c07b;">self</span><span>.</span><span style="color:#e06c75;">PreLoad</span><span>(ui)
+</span><span>    </span><span style="color:#56b6c2;">exec</span><span>(code, </span><span style="color:#e5c07b;">self</span><span>.exports, </span><span style="color:#e5c07b;">self</span><span>.configs)
+</span><span>    </span><span style="color:#e5c07b;">self</span><span>.</span><span style="color:#e06c75;">PostLoad</span><span>(ui)
+</span><span style="color:#c678dd;">except </span><span>ReloadConfiguration:
+</span><span>    </span><span style="color:#c678dd;">raise  </span><span style="color:#7f848e;"># Passthru
+</span><span style="color:#c678dd;">except </span><span>Exception </span><span style="color:#c678dd;">as </span><span>e:
+</span><span>    </span><span style="color:#7f848e;"># TODO(nya): print pretty file/lineno for debug
+</span><span>    </span><span style="color:#c678dd;">raise </span><span style="color:#e06c75;">ConfigurationError</span><span>(e)
+</span></code></pre>
+<h4 id="vim">vim</h4>
+<pre style="background-color:#282c34;color:#abb2bf;"><code><span>PS C:\home\Rime&gt; py rime add . problem aplusb
+</span><span>Note: Running Rime under Windows will be unstable.
+</span><span>&#39;vi&#39; は、内部コマンドまたは外部コマンド、
+</span><span>操作可能なプログラムまたはバッチ ファイルとして認識されていません。
+</span><span>[   ADD    ] C:\home\Rime\aplusb/PROBLEM
+</span><span>
+</span><span>Error Summary:
+</span><span>Total 0 errors, 0 warnings
+</span></code></pre>
+<p>問題ディレクトリの作成に成功すると自動で vim が起動するのですが、私は vim を入れていないので起動に失敗します。代わりに Visual Studio Code を指定します。</p>
+<p><code>plugins/plus/commands.py</code> の <code>EditFile()</code> を以下のように書き換えます。</p>
+<pre data-lang="python" style="background-color:#282c34;color:#abb2bf;" class="language-python "><code class="language-python" data-lang="python"><span style="color:#c678dd;">def </span><span style="color:#61afef;">EditFile</span><span>(</span><span style="font-style:italic;color:#e06c75;">filename</span><span>, </span><span style="font-style:italic;color:#e06c75;">initial</span><span>):
+</span><span>    </span><span style="color:#e5c07b;">EDITOR </span><span style="color:#56b6c2;">= </span><span>os.environ.</span><span style="color:#e06c75;">get</span><span>(</span><span style="color:#98c379;">&#39;EDITOR&#39;</span><span>, </span><span style="color:#98c379;">&#39;code&#39;</span><span>)
+</span><span>    files.</span><span style="color:#e06c75;">WriteFile</span><span>(initial, filename)
+</span><span>    </span><span style="color:#e06c75;">call</span><span>([</span><span style="color:#e5c07b;">EDITOR</span><span>, filename], </span><span style="font-style:italic;color:#e06c75;">shell</span><span style="color:#56b6c2;">=</span><span style="color:#d19a66;">True</span><span>)
+</span></code></pre>
+<p>お好きなエディタを指定してください。</p>
+<p>ここまで済ませると無事に <code>Rime/aplusb</code> が作成され、<code>Rime/aplusb/PROBLEM</code> が自動で開きます！お疲れさまでした。まだまだ続きます。</p>
+<pre style="background-color:#282c34;color:#abb2bf;"><code><span>PS C:\home\Rime&gt; ls
+</span><span>
+</span><span>
+</span><span>    ディレクトリ: C:\home\Rime
+</span><span>
+</span><span>
+</span><span>Mode                 LastWriteTime         Length Name
+</span><span>----                 -------------         ------ ----
+</span><span>d-----        2021/05/01     18:21                aplusb
+</span><span>d-----        2021/05/01     17:36                common
+</span><span>-a----        2021/05/01     17:36             72 .gitignore
+</span><span>-a----        2021/05/01     17:36            671 PROJECT
+</span><span>-a----        2021/05/01     17:11            172 rime
+</span><span>-a----        2021/05/01     17:11           2421 rime_init
+</span><span>
+</span><span>
+</span><span>PS C:\home\Rime&gt; ls aplusb
+</span><span>
+</span><span>
+</span><span>    ディレクトリ: C:\home\Rime\aplusb
+</span><span>
+</span><span>
+</span><span>Mode                 LastWriteTime         Length Name
+</span><span>----                 -------------         ------ ----
+</span><span>-a----        2021/05/01     18:21            408 PROBLEM
+</span><span>
+</span><span>
+</span></code></pre>
+<h3 id="解答プログラムの作成">解答プログラムの作成</h3>
+<blockquote>
+<p>先ほど作成した <code>aplusb/</code> ディレクトリ内で、以下のコマンドを実行してみましょう。</p>
+</blockquote>
+<p>と書かれていますが、<code>Rime/</code> でもパスを指定する引数を書き換えれば同じことができるのでそうします。私は Rust が好きなので Rust で書きます。</p>
+<pre style="background-color:#282c34;color:#abb2bf;"><code><span>PS C:\home\Rime&gt; py rime add aplusb solution rust_correct
+</span><span>Note: Running Rime under Windows will be unstable.
+</span><span>[   ADD    ] C:\home\Rime\aplusb\rust_correct/SOLUTION
+</span><span>
+</span><span>Error Summary:
+</span><span>Total 0 errors, 0 warnings
+</span></code></pre>
+<p><code>Rime/aplusb/rust_correct/SOLUTION</code> が自動で開きます。Rust 用の行をコメントアウトして、<code>ans.rs</code> を書きましょう。</p>
+<pre data-lang="rust" style="background-color:#282c34;color:#abb2bf;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#c678dd;">fn </span><span style="color:#61afef;">main</span><span>() {
+</span><span>    input!{
+</span><span>        a: </span><span style="color:#c678dd;">i32</span><span>,
+</span><span>        b: </span><span style="color:#c678dd;">i32
+</span><span>    }
+</span><span>    println!(</span><span style="color:#98c379;">&quot;</span><span style="color:#d19a66;">{}</span><span style="color:#98c379;">&quot;</span><span>, a </span><span style="color:#56b6c2;">+</span><span> b);
+</span><span>}
+</span></code></pre>
+<p><code>SOLUTION</code> を見れば分かるように、コンパイルは rustc を通して行われるので、cargo を使ってほかのクレートを持ってくることができません。入出力関数なども自分で用意しましょう。</p>
+<h3 id="テスト用プログラムの作成">テスト用プログラムの作成</h3>
+<p>全部自分で書かなければならないので、generator と validator を Rust で作るのはかなり絶望的です。あきらめて C++ で書くことにします。</p>
+<p>ここまで来たら</p>
+<pre style="background-color:#282c34;color:#abb2bf;"><code><span>PS C:\home\Rime&gt; py rime add aplusb testset tests
+</span><span>Note: Running Rime under Windows will be unstable.
+</span><span>[   ADD    ] aplusb: C:\home\Rime\aplusb\tests/TESTSET
+</span><span>
+</span><span>Error Summary:
+</span><span>Total 0 errors, 0 warnings
+</span></code></pre>
+<p>も問題なく実行できるはずなので、その後は本家に則って作業してください。私はコピペしました。</p>
+<h3 id="テストの実行">テストの実行</h3>
+<h4 id="SIGXCPU">SIGXCPU</h4>
+<pre style="background-color:#282c34;color:#abb2bf;"><code><span>PS C:\home\Rime&gt; py rime test aplusb
+</span><span>Note: Running Rime under Windows will be unstable.
+</span><span>[ COMPILE  ] aplusb/tests: generator.cc
+</span><span>ERROR: aplusb/tests: generator.cc: Compile Error (On compiling: module &#39;signal&#39; has no attribute &#39;SIGXCPU&#39;)
+</span><span>[ COMPILE  ] aplusb/tests: validator.cc
+</span><span>ERROR: aplusb/tests: validator.cc: Compile Error (On compiling: module &#39;signal&#39; has no attribute &#39;SIGXCPU&#39;)
+</span><span>
+</span><span>Build Summary:
+</span><span>aplusb ... in: 0B, diff: 0B, md5: d41d8cd98f00b204e9800998ecf8427e
+</span><span>  rust_correct RUST 236 lines, 5.1kB
+</span><span>
+</span><span>Test Summary:
+</span><span>aplusb ... 1 solutions, 0 tests
+</span><span>  rust_correct FAIL Failed to build tests
+</span><span>
+</span><span>Error Summary:
+</span><span>ERROR: aplusb/tests: generator.cc: Compile Error (On compiling: module &#39;signal&#39; has no attribute &#39;SIGXCPU&#39;)
+</span><span>ERROR: aplusb/tests: validator.cc: Compile Error (On compiling: module &#39;signal&#39; has no attribute &#39;SIGXCPU&#39;)
+</span><span>Total 2 errors, 0 warnings
+</span></code></pre>
+<p>python の <a href="https://docs.python.org/ja/3/library/signal.html">signal</a> というモジュールを使っているらしいのですが、<code>SIGXCPU</code> という変数は存在しません。どうやら Python3.5 で <code>SIG_DFL</code> という変数に統合されてしまったようです。<a href="https://nebocco.github.io/post/rime_on_windows10/#subprocess">先ほど</a>と同様、 <code>findstr</code> を使って検索してすべて書き換えましょう。</p>
+<p>ここでは実行に時間が掛かりすぎている場合に処理を切り替えるような作業を行っていますが、コンパイルを行う際は必ず引っかかっているようです。これが正しい挙動なのかはわかりません。動けばよかろうなのです。だれか助けて～～～</p>
+<h4 id="seek">seek</h4>
+<pre style="background-color:#282c34;color:#abb2bf;"><code><span>PS C:\home\Rime&gt; py rime test aplusb
+</span><span>Note: Running Rime under Windows will be unstable.
+</span><span>[ COMPILE  ] aplusb/tests: generator.cc
+</span><span>ERROR: aplusb/tests: generator.cc: Compile Error (On compiling: &#39;int&#39; object has no attribute &#39;seek&#39;)
+</span><span>[ COMPILE  ] aplusb/tests: validator.cc
+</span><span>ERROR: aplusb/tests: validator.cc: Compile Error (On compiling: &#39;int&#39; object has no attribute &#39;seek&#39;)
+</span><span>
+</span><span>Build Summary:
+</span><span>aplusb ... in: 0B, diff: 0B, md5: d41d8cd98f00b204e9800998ecf8427e
+</span><span>  rust_correct RUST 236 lines, 5.1kB
+</span><span>
+</span><span>Test Summary:
+</span><span>aplusb ... 1 solutions, 0 tests
+</span><span>  rust_correct FAIL Failed to build tests
+</span><span>
+</span><span>Error Summary:
+</span><span>ERROR: aplusb/tests: generator.cc: Compile Error (On compiling: &#39;int&#39; object has no attribute &#39;seek&#39;)
+</span><span>ERROR: aplusb/tests: validator.cc: Compile Error (On compiling: &#39;int&#39; object has no attribute &#39;seek&#39;)
+</span><span>Total 2 errors, 0 warnings
+</span></code></pre>
+<p><code>rime/basic/codes.py</code> の <code>CodeBase._ResetIO()</code> 内で <code>args</code> (<code>stdin</code>, <code>stdout</code>, <code>stderr</code>) に対して <code>seek()</code> を呼びますが、<code>stderr</code> として渡される <code>subprocess.STDOUT</code> はオブジェクトではなく、特殊な名前を持つただの整数です。そこで、以下のように書き換えます。</p>
+<pre data-lang="python" style="background-color:#282c34;color:#abb2bf;" class="language-python "><code class="language-python" data-lang="python"><span style="color:#c678dd;">def </span><span style="color:#61afef;">_ResetIO</span><span>(</span><span style="font-style:italic;color:#e06c75;">self</span><span>, </span><span style="color:#56b6c2;">*</span><span style="font-style:italic;color:#e06c75;">args</span><span>):
+</span><span>    </span><span style="color:#c678dd;">for </span><span>f </span><span style="color:#c678dd;">in </span><span>args:
+</span><span>        </span><span style="color:#c678dd;">if </span><span>f </span><span style="color:#c678dd;">is </span><span style="color:#d19a66;">None </span><span style="color:#c678dd;">or </span><span>f </span><span style="color:#c678dd;">is </span><span>subprocess.</span><span style="color:#e5c07b;">STDOUT</span><span>:
+</span><span>            </span><span style="color:#c678dd;">continue
+</span><span>        </span><span style="color:#c678dd;">try</span><span>:
+</span><span>            f.</span><span style="color:#e06c75;">seek</span><span>(</span><span style="color:#d19a66;">0</span><span>)
+</span><span>            f.</span><span style="color:#e06c75;">truncate</span><span>()
+</span><span>        </span><span style="color:#c678dd;">except </span><span>IOError:
+</span><span>            </span><span style="color:#c678dd;">pass
+</span></code></pre>
+<h4 id="UTF-8">UTF-8</h4>
+<pre style="background-color:#282c34;color:#abb2bf;"><code><span>PS C:\home\Rime&gt; py rime test aplusb
+</span><span>Note: Running Rime under Windows will be unstable.
+</span><span>[ COMPILE  ] aplusb/tests: generator.cc
+</span><span>[ COMPILE  ] aplusb/tests: validator.cc
+</span><span>[ GENERATE ] aplusb/tests: generator.cc
+</span><span>[ VALIDATE ] aplusb/tests: 02_random_01.in: PASSED
+</span><span>[ VALIDATE ] aplusb/tests: 02_random_02.in: PASSED
+</span><span>[ VALIDATE ] aplusb/tests: 02_random_03.in: PASSED
+</span><span>[ VALIDATE ] aplusb/tests: 02_random_04.in: PASSED
+</span><span>[ VALIDATE ] aplusb/tests: 02_random_05.in: PASSED
+</span><span>[ VALIDATE ] aplusb/tests: 02_random_06.in: PASSED
+</span><span>[ VALIDATE ] aplusb/tests: 02_random_07.in: PASSED
+</span><span>[ VALIDATE ] aplusb/tests: 02_random_08.in: PASSED
+</span><span>[ VALIDATE ] aplusb/tests: 02_random_09.in: PASSED
+</span><span>[ VALIDATE ] aplusb/tests: 02_random_10.in: PASSED
+</span><span>[ VALIDATE ] aplusb/tests: OK
+</span><span>[ COMPILE  ] aplusb/rust_correct
+</span><span>[  REFRUN  ] aplusb/rust_correct: 02_random_01.in: DONE
+</span><span>[  REFRUN  ] aplusb/rust_correct: 02_random_02.in: DONE
+</span><span>[  REFRUN  ] aplusb/rust_correct: 02_random_03.in: DONE
+</span><span>[  REFRUN  ] aplusb/rust_correct: 02_random_04.in: DONE
+</span><span>[  REFRUN  ] aplusb/rust_correct: 02_random_05.in: DONE
+</span><span>[  REFRUN  ] aplusb/rust_correct: 02_random_06.in: DONE
+</span><span>[  REFRUN  ] aplusb/rust_correct: 02_random_07.in: DONE
+</span><span>[  REFRUN  ] aplusb/rust_correct: 02_random_08.in: DONE
+</span><span>[  REFRUN  ] aplusb/rust_correct: 02_random_09.in: DONE
+</span><span>[  REFRUN  ] aplusb/rust_correct: 02_random_10.in: DONE
+</span><span>[  REFRUN  ] aplusb/rust_correct
+</span><span>[   TEST   ] aplusb/rust_correct
+</span><span>ERROR: aplusb/rust_correct: 02_random_01.in: Wrong Answer
+</span><span>  judge log: C:\home\Rime\aplusb\rime-out\rust_correct\02_random_01.judge
+</span><span>[   TEST   ] aplusb/rust_correct: 02_random_01.in: Wrong Answer
+</span><span>
+</span><span>Build Summary:
+</span><span>aplusb ... in: 40B, diff: 25B, md5: -
+</span><span>  rust_correct RUST 236 lines, 5.1kB
+</span><span>
+</span><span>Test Summary:
+</span><span>aplusb ... 1 solutions, 10 tests
+</span><span>  rust_correct FAIL 02_random_01.in: Wrong Answer
+</span><span>
+</span><span>Error Summary:
+</span><span>ERROR: aplusb/rust_correct: 02_random_01.in: Wrong Answer
+</span><span>  judge log: C:\home\Rime\aplusb\rime-out\rust_correct\02_random_01.judge
+</span><span>Total 1 errors, 0 warnings
+</span></code></pre>
+<p>コンパイルはできましたが、どうやらジャッジが合わないようです。output を作成するコードと解答コードが同一なのに……どういうことでしょうか？ログに書かれている judge log を確認してみます。</p>
+<pre style="background-color:#282c34;color:#abb2bf;"><code><span>&#39;diff&#39; �́A�����R�}���h�܂��͊O���R�}���h�A
+</span><span>����\�ȃv���O�����܂��̓o�b�` �t�@�C���Ƃ��ĔF������Ă��܂���B
+</span><span>
+</span></code></pre>
+<p>ポンコツ太郎がよ……</p>
+<p>Python の <code>open()</code> はちゃんと文字コードを指定してあげないとこういうことが起こりがちなので、ちゃんと UTF-8 を指定してあげましょう。結構たくさんあるので頑張ってください。</p>
+<pre style="background-color:#282c34;color:#abb2bf;"><code><span>def _ExecForCompile(self, args):
+</span><span>    with open(os.path.join(self.out_dir, self.log_name), &#39;w&#39;, encoding=&#39;utf-8&#39;) as outfile:
+</span><span>        yield (yield self._ExecInternal(
+</span><span>            args=args, cwd=self.src_dir,
+</span><span>            stdin=files.OpenNull(), stdout=outfile,
+</span><span>            stderr=subprocess.STDOUT))
+</span></code></pre>
+<p>こんな感じです。</p>
+<h4 id="diff">diff</h4>
+<p>これでもう一度実行して judge log を見ます。</p>
+<pre style="background-color:#282c34;color:#abb2bf;"><code><span>&#39;diff&#39; �́A�����R�}���h�܂��͊O���R�}���h�A
+</span><span>����\�ȃv���O�����܂��̓o�b�` �t�@�C���Ƃ��ĔF������Ă��܂���B
+</span></code></pre>
+<p>どうして……</p>
+<p>私の力では judge log を出力しているのがどこなのか分からず、文字化けを治すことができませんでした。仕方がないのでここを直すのはあきらめて別エンコードで開くことにします。VSCode であれば下部の「UTF-8」と書かれた箇所をクリックすることで自分でエンコードを指定して開くことができます。</p>
+<!-- <figure class="figure-image figure-image-fotolife" title="ここ">[f:id:nebocco:20210501193656p:plain]<figcaption>ここ</figcaption></figure> -->
+
+  <figure class="">
+    
+      
+      <img src="&#x2F;assets&#x2F;2021-05-01_rime_on_windows10&#x2F;20210501193656.png"  >
+      
+      
+    <figcaption>ここ</figcaption>
+  </figure>
+  <pre style="background-color:#282c34;color:#abb2bf;"><code><span>&#39;diff&#39; は、内部コマンドまたは外部コマンド、
+</span><span>操作可能なプログラムまたはバッチ ファイルとして認識されていません。
+</span></code></pre>
+<p><code>subprocess</code> でコマンドを実行する際は Powershell ではなく cmd.exe を呼び出すのですが、残念ながら cmd.exe には <code>diff</code> というコマンドはありません。代わりに <code>fc</code> というコマンドがあるので、これを使えばよいです。<code>rime/basic/codes.py</code> の <code>InternalDiffCode.Run()</code> を書き換えます。</p>
+<pre data-lang="python" style="background-color:#282c34;color:#abb2bf;" class="language-python "><code class="language-python" data-lang="python"><span style="color:#c678dd;">def </span><span style="color:#61afef;">Run</span><span>(</span><span style="font-style:italic;color:#e06c75;">self</span><span>, </span><span style="font-style:italic;color:#e06c75;">args</span><span>, </span><span style="font-style:italic;color:#e06c75;">cwd</span><span>, </span><span style="font-style:italic;color:#e06c75;">input</span><span>, </span><span style="font-style:italic;color:#e06c75;">output</span><span>, </span><span style="font-style:italic;color:#e06c75;">timeout</span><span>, </span><span style="font-style:italic;color:#e06c75;">precise</span><span>,
+</span><span>        </span><span style="font-style:italic;color:#e06c75;">redirect_error</span><span style="color:#56b6c2;">=</span><span style="color:#d19a66;">False</span><span>):
+</span><span>    parser </span><span style="color:#56b6c2;">= </span><span>optparse.</span><span style="color:#e06c75;">OptionParser</span><span>()
+</span><span>    parser.</span><span style="color:#e06c75;">add_option</span><span>(</span><span style="color:#98c379;">&#39;-i&#39;</span><span>, </span><span style="color:#98c379;">&#39;--infile&#39;</span><span>, </span><span style="font-style:italic;color:#e06c75;">dest</span><span style="color:#56b6c2;">=</span><span style="color:#98c379;">&#39;infile&#39;</span><span>)
+</span><span>    parser.</span><span style="color:#e06c75;">add_option</span><span>(</span><span style="color:#98c379;">&#39;-d&#39;</span><span>, </span><span style="color:#98c379;">&#39;--difffile&#39;</span><span>, </span><span style="font-style:italic;color:#e06c75;">dest</span><span style="color:#56b6c2;">=</span><span style="color:#98c379;">&#39;difffile&#39;</span><span>)
+</span><span>    parser.</span><span style="color:#e06c75;">add_option</span><span>(</span><span style="color:#98c379;">&#39;-o&#39;</span><span>, </span><span style="color:#98c379;">&#39;--outfile&#39;</span><span>, </span><span style="font-style:italic;color:#e06c75;">dest</span><span style="color:#56b6c2;">=</span><span style="color:#98c379;">&#39;outfile&#39;</span><span>)
+</span><span>    (options, pos_args) </span><span style="color:#56b6c2;">= </span><span>parser.</span><span style="color:#e06c75;">parse_args</span><span>([</span><span style="color:#98c379;">&#39;&#39;</span><span>] </span><span style="color:#56b6c2;">+ list</span><span>(args))
+</span><span>    run_args </span><span style="color:#56b6c2;">= </span><span>(</span><span style="color:#98c379;">&#39;fc&#39;</span><span>, options.difffile, options.outfile) </span><span style="color:#7f848e;"># ここ
+</span><span>    </span><span style="color:#c678dd;">with </span><span style="color:#56b6c2;">open</span><span>(</span><span style="color:#56b6c2;">input</span><span>, </span><span style="color:#98c379;">&#39;r&#39;</span><span>, </span><span style="font-style:italic;color:#e06c75;">encoding</span><span style="color:#56b6c2;">=</span><span style="color:#98c379;">&#39;utf-8&#39;</span><span>) </span><span style="color:#c678dd;">as </span><span>infile:
+</span></code></pre>
+<p>UTF-8 として比較するようなオプションがあり、それがないと非ASCII文字を出力する問題でバグりそうな予感がしますが、そのオプションを付けると改行が <code>\n</code> か <code>\n\r</code> かが区別され、正しい出力でも WA と判定されてしまうので付けないことにしました。</p>
+<p>これで実行できるはずです。</p>
+<pre style="background-color:#282c34;color:#abb2bf;"><code><span>PS C:\home\Rime&gt; py rime test aplusb
+</span><span>Note: Running Rime under Windows will be unstable.
+</span><span>[ COMPILE  ] aplusb/rust_correct: up-to-date
+</span><span>[   TEST   ] aplusb/rust_correct
+</span><span>[   TEST   ] aplusb/rust_correct: 02_random_01.in: PASSED
+</span><span>[   TEST   ] aplusb/rust_correct: 02_random_02.in: PASSED
+</span><span>[   TEST   ] aplusb/rust_correct: 02_random_03.in: PASSED
+</span><span>[   TEST   ] aplusb/rust_correct: 02_random_04.in: PASSED
+</span><span>[   TEST   ] aplusb/rust_correct: 02_random_05.in: PASSED
+</span><span>[   TEST   ] aplusb/rust_correct: 02_random_06.in: PASSED
+</span><span>[   TEST   ] aplusb/rust_correct: 02_random_07.in: PASSED
+</span><span>[   TEST   ] aplusb/rust_correct: 02_random_08.in: PASSED
+</span><span>[   TEST   ] aplusb/rust_correct: 02_random_09.in: PASSED
+</span><span>[   TEST   ] aplusb/rust_correct: 02_random_10.in: PASSED
+</span><span>[   TEST   ] aplusb/rust_correct: max 0.03s, acc 0.29s
+</span><span>
+</span><span>Build Summary:
+</span><span>aplusb ... in: 40B, diff: 25B, md5: -
+</span><span>  rust_correct RUST 236 lines, 5.1kB
+</span><span>
+</span><span>Test Summary:
+</span><span>aplusb ... 1 solutions, 10 tests
+</span><span>  rust_correct  OK  max 0.03s, acc 0.29s
+</span><span>
+</span><span>Error Summary:
+</span><span>Total 0 errors, 0 warnings
+</span></code></pre>
+<h3 id="誤答が落ちることをテストする">誤答が落ちることをテストする</h3>
+<p>せっかくなのでここも試してみます。今度はpythonで書いてみることにします。</p>
+<pre style="background-color:#282c34;color:#abb2bf;"><code><span>PS C:\home\Rime&gt; py rime add aplusb solution py_wa
+</span><span>Note: Running Rime under Windows will be unstable.
+</span><span>[   ADD    ] C:\home\Rime\aplusb\py_wa/SOLUTION
+</span></code></pre>
+<p><code>SOLUTION</code> にも書かれているとおり、 shebang を忘れないようにしてください。フルパスで書かなければならず結構面倒です。ここもうまく書き換えれば shebang を省略できる気がするんですが、あんまり試してないので良く分かりません。</p>
+<pre data-lang="python" style="background-color:#282c34;color:#abb2bf;" class="language-python "><code class="language-python" data-lang="python"><span style="color:#7f848e;">#!C:\Users\Personal\AppData\Local\Programs\Python\Python39\python.exe
+</span><span>
+</span><span>a, b </span><span style="color:#56b6c2;">= map</span><span>(</span><span style="color:#56b6c2;">int</span><span>, </span><span style="color:#56b6c2;">input</span><span>().</span><span style="color:#e06c75;">split</span><span>())
+</span><span style="color:#c678dd;">if </span><span>a </span><span style="color:#56b6c2;">% </span><span style="color:#d19a66;">5 </span><span style="color:#56b6c2;">== </span><span style="color:#d19a66;">0</span><span>:
+</span><span>    a </span><span style="color:#56b6c2;">-= </span><span style="color:#d19a66;">1
+</span><span style="color:#56b6c2;">print</span><span>(a </span><span style="color:#56b6c2;">+ </span><span>b)
+</span></code></pre>
+<pre style="background-color:#282c34;color:#abb2bf;"><code><span>PS C:\home\Rime&gt; py rime test aplusb
+</span><span>Note: Running Rime under Windows will be unstable.
+</span><span>[   TEST   ] aplusb/py_wa
+</span><span>[   TEST   ] aplusb/py_wa: 02_random_01.in: PASSED
+</span><span>[   TEST   ] aplusb/py_wa: 02_random_02.in: PASSED
+</span><span>[   TEST   ] aplusb/py_wa: 02_random_03.in: PASSED
+</span><span>[   TEST   ] aplusb/py_wa: 02_random_04.in: PASSED
+</span><span>[   TEST   ] aplusb/py_wa: 02_random_05.in: PASSED
+</span><span>[   TEST   ] aplusb/py_wa: 02_random_06.in: Wrong Answer
+</span><span>[ COMPILE  ] aplusb/rust_correct: up-to-date
+</span><span>[   TEST   ] aplusb/rust_correct
+</span><span>[   TEST   ] aplusb/rust_correct: 02_random_01.in: PASSED
+</span><span>[   TEST   ] aplusb/rust_correct: 02_random_02.in: PASSED
+</span><span>[   TEST   ] aplusb/rust_correct: 02_random_03.in: PASSED
+</span><span>[   TEST   ] aplusb/rust_correct: 02_random_04.in: PASSED
+</span><span>[   TEST   ] aplusb/rust_correct: 02_random_05.in: PASSED
+</span><span>[   TEST   ] aplusb/rust_correct: 02_random_06.in: PASSED
+</span><span>[   TEST   ] aplusb/rust_correct: 02_random_07.in: PASSED
+</span><span>[   TEST   ] aplusb/rust_correct: 02_random_08.in: PASSED
+</span><span>[   TEST   ] aplusb/rust_correct: 02_random_09.in: PASSED
+</span><span>[   TEST   ] aplusb/rust_correct: 02_random_10.in: PASSED
+</span><span>[   TEST   ] aplusb/rust_correct: max 0.02s, acc 0.20s
+</span><span>
+</span><span>Build Summary:
+</span><span>aplusb ... in: 40B, diff: 25B, md5: -
+</span><span>  rust_correct RUST   236 lines, 5.1kB
+</span><span>  py_wa        SCRIPT   6 lines,  142B
+</span><span>
+</span><span>Test Summary:
+</span><span>aplusb ... 2 solutions, 10 tests
+</span><span>  rust_correct  OK  max 0.02s, acc 0.20s
+</span><span>  py_wa         OK  02_random_06.in: Wrong Answer
+</span><span>
+</span><span>Error Summary:
+</span><span>Total 0 errors, 0 warnings
+</span></code></pre>
+<p>しっかり WA も判定できました</p>
+<p>やった～～～～～～～！！！！！！！！！！！！！！！！！！！！！！</p>
+<h3 id="おわりに">おわりに</h3>
+<p>とてもがんばりました。</p>
+<p>よき作問ライフを！</p>
+
+
+
+<div class="pagination">
+  
+  <a class="next" href="https:&#x2F;&#x2F;nebocco.github.io&#x2F;post&#x2F;twisted_calculator&#x2F;">ツイステのダメージ計算 Web アプリを作りました</a>
+  
+  
+  <a class="previous" href="https:&#x2F;&#x2F;nebocco.github.io&#x2F;post&#x2F;atcoder_tab_4matter&#x2F;">AtCoder提出ページのタブ幅を変えるスクリプト</a>
+  
+</div>
+
+
+      </article>
+    </main>
+
+    <footer>
+      <span>© 2025 nebocco</span>
+      <br />
+      <span>Generated with <a href="https://www.getzola.org/">Zola</a></span>
+    </footer>
+  </div>
+</body>
+
+</html>

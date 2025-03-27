@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <title>ねぼこの日記</title>
+  <link rel="stylesheet" href="https://nebocco.github.io/main.css">
+  <meta charset="utf-8">
+  <meta name="description" content="nebocco のブログ">
+  <meta property="og:site_name" content="ねぼこの日記" />
+  
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css"
+  integrity="sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib" crossorigin="anonymous">
+
+<!-- The loading of KaTeX is deferred to speed up page rendering -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js"
+  integrity="sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh" crossorigin="anonymous"></script>
+
+<!-- To automatically render math in text elements, include the auto-render extension: -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js"
+  integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh" crossorigin="anonymous"
+  onload="renderMathInElement(document.body);"></script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    renderMathInElement(document.body, {
+      // customised options
+      // • auto-render specific keys, e.g.:
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$', right: '$', display: false },
+        { left: '\\(', right: '\\)', display: false },
+        { left: '\\[', right: '\\]', display: true }
+      ],
+      // • rendering keys, e.g.:
+      throwOnError: false
+    });
+  });
+</script>
+
+
+</head>
+
+<body>
+  <div class="page-container">
+    <header>
+      <div id="title">
+        <a href="/">ねぼこの日記</a>
+      </div>
+      <nav>
+        <a href="/post">Posts</a>
+        <a href="/tags">Tags</a>
+        <a href="https://github.com/nebocco" target="_blank" rel="noreferrer noopener">Github</a>
+        <a href="https://twitter.com/nebocco27" target="_blank" rel="noreferrer noopener">Twitter</a>
+        
+        <a href="https://nebocco.github.io/atom.xml" target="_blank" rel="noreferrer noopener">Feed</a>
+        
+      </nav>
+    </header>
+
+    <main id="main">
+      <article id="post">
+        
+<div class="headline">
+  <h1 class="page-title">
+    ABC189-C Mandarin Orange 解説（Dancing Links 編）
+  </h1>
+  
+<div class="subtitle">
+  <span class="page-date">
+    2021-01-30
+  </span>
+  
+  <span class="page-tags">
+    
+    
+    <a class="page-tag" href="https://nebocco.github.io/tags/atcoder/">AtCoder</a>
+    
+    
+    <a class="page-tag" href="https://nebocco.github.io/tags/python/">Python</a>
+    
+    
+    <a class="page-tag" href="https://nebocco.github.io/tags/yoriyoiji-suan-liang-sirizu/">よりよい計算量シリーズ</a>
+    
+    
+    <a class="page-tag" href="https://nebocco.github.io/tags/jing-ji-puroguramingu/">競技プログラミング</a>
+    
+  </span>
+  
+</div>
+
+</div>
+
+<p>$O(N \log N)$ で解きます。</p>
+<p>$O(N)$ はこちら → <a href="https://nebocco.github.io/post/abc189c_stack/">ABC189-C Mandarin Orange 解説（stack 活用編）</a></p>
+<h2 id="問題">問題</h2>
+<p><a href="https://atcoder.jp/contests/abc189/tasks/abc189_c">AtCoder Beginner Contest 189 | C - Mandarin Orange</a></p>
+<h3 id="概要">概要</h3>
+<p>$$
+\max _ {1 \leq l \leq r \leq n} \left\lbrace (r - l + 1) \cdot \min _ {l \leq i \leq r} a _ i \right\rbrace
+$$</p>
+<h2 id="解法">解法</h2>
+<p>以下では、載っているミカンが多い皿を「大きい皿」、少ないものを「小さい皿」、ミカンを取る皿の範囲を「収穫範囲」と表現します。</p>
+<p>「概要」では特に断りなく変形しましたが、収穫範囲を決めたらそこから取れるだけ取りたいので、最終的に一つの皿から取るミカンの個数は範囲内で最も小さい皿に一致します。
+逆に一つの皿から取るミカンの個数を決めたなら、収穫範囲はできるだけ広くした方がいいです。
+そこで、それぞれの皿ごとに「その皿のミカンを全て取るとした時、収穫範囲を左右どこまで広げられるか」を考えます。以下の二つの方針が考えられます。</p>
+<h3 id="皿が大きい順に調べる">皿が大きい順に調べる</h3>
+<p>単純に考えるために、全ての皿に載っているミカンの個数がそれぞれ違うとします。</p>
+<p>まず一番大きい皿（ $A$ とします）を見ると、その両脇の皿（ $B, C$ とします）は $A$ よりも小さいので、収穫範囲は左右どちらにも伸ばすことができません。</p>
+
+  <figure class="">
+    
+      
+      <img src="&#x2F;assets&#x2F;2021-01-30_abc189c&#x2F;20210130144805.png"  >
+      
+      
+    <figcaption>$A$ の収穫範囲</figcaption>
+  </figure>
+  
+<p>この時、逆に皿 $B$ から見ると、皿 $A$ は確実に $B$ の収穫範囲に含めることができます。よって、 $B$ を見るときには $A$ は飛ばして、 $C$ が含められるかどうかを調べればよいです。 $C$ についても同様です。
+そこで、 $A$ を無かったことにして、 $B$ と $C$ を隣合わせにします。</p>
+
+  <figure class="">
+    
+      
+      <img src="&#x2F;assets&#x2F;2021-01-30_abc189c&#x2F;20210130144810.png"  >
+      
+      
+    <figcaption>$A$ を無視する</figcaption>
+  </figure>
+  
+<p>次に見る皿が $B$ だったとします。大きい順に見ているので、 $C$ は $B$ よりも小さく、収穫範囲には含められないことが分かります。
+逆に $C$ から見ると、 $C$ の収穫範囲を調べる時には $A$ だけでなく $B$ もスキップしていいことが分かります。</p>
+
+  <figure class="">
+    
+      
+      <img src="&#x2F;assets&#x2F;2021-01-30_abc189c&#x2F;20210130144931.png"  >
+      
+      
+    <figcaption>どんどん消えていく</figcaption>
+  </figure>
+  
+<p>このように考えていくと、大きい順に見ている場合、</p>
+<p><strong>スキップできることが決まっている皿は収穫範囲に含めることができるが、その先（今隣り合っている皿）は自分より小さいので収穫範囲に含めることができない</strong></p>
+<p>ことが分かります。よって、皿が大きい順に</p>
+<ol>
+<li>両隣の皿に挟まれた範囲を収穫範囲とする</li>
+<li>皿を取り除き、両隣にあった皿を新しく隣り合わせる</li>
+</ol>
+<p>という操作を繰り返すことで、全ての皿について最大の収穫範囲がわかるので、最終的な答えも求めることができます。</p>
+<p>ところで、今は「同じ大きさの皿がない」と問題を単純化していましたが、この制約を外しても上述の考え方で答えを求めることができます。</p>
+<p>最終的な答えを与える収穫範囲を「最適な範囲」と呼ぶことにします。この範囲は、範囲内で最小の皿 $X$ について操作を行う際に得られるもののはずです。最適な範囲の中に同じ大きさの皿が複数個含まれていたとします。これが $X$ よりも大きい場合、結局 $X$ を見ているときにはどちらも取り除かれていて、取り除かれた順番は関係ありません。 $X$ と同じ大きさの皿があった場合、それらを処理してから最後に $X$ の操作を行うことにすれば、最適な区間が得られます。さらに、同じ大きさの皿であればどれを $X$ に選んでも関係がなく、適当な順番に操作をして最後になったものを $X$ としてしまえば良いです。</p>
+<p>よって、同じ大きさの皿が含まれている場合でも、それらについては順不同で操作を行うことができます。</p>
+<p>この解法をコードに落とし込む際、実際に配列から削除していくのは効率が悪いです。そこで、すべての皿に対して自身の左右の皿へのポインタを持たせます。といっても、対応する皿のインデックスを持たせてポインタ代わりにすれば良いです。
+ある皿について操作をするとき、左右の皿のインデックスから収穫範囲が分かります。そして皿を取り除く際には、代わりに左右の皿のポインタを付け替えてあげます。こうすることで自分自身をスキップさせることができます。</p>
+<!-- <figure class="figure-image figure-image-fotolife" title="両隣のポインタをちょっといじる">[f:id:nebocco:20210130144957p:plain]
+<figcaption>両隣のポインタをちょっといじる</figcaption></figure> -->
+
+  <figure class="">
+    
+      
+      <img src="&#x2F;assets&#x2F;2021-01-30_abc189c&#x2F;20210130144957.png"  >
+      
+      
+    <figcaption>両隣のポインタをちょっといじる</figcaption>
+  </figure>
+  
+<p>ポインタの付け替えは $O(1)$ で済むので、全体の計算量は最初のソートがボトルネックになり $O(N\log N)$ です。</p>
+<h2 id="実装">実装</h2>
+<p>実装の際は両端の処理に注意しましょう。両端に大きさ $0$ の皿を番兵として置いておくと良いと思います。
+以下の実装ではPythonの仕様を利用して、末尾に一つ番兵を足すことで済ませています。</p>
+<p><a href="https://atcoder.jp/contests/abc189/submissions/19762458">提出コード</a> (Python3)</p>
+<pre data-lang="python" style="background-color:#282c34;color:#abb2bf;" class="language-python "><code class="language-python" data-lang="python"><span>n </span><span style="color:#56b6c2;">= int</span><span>(</span><span style="color:#56b6c2;">input</span><span>())
+</span><span>a </span><span style="color:#56b6c2;">= list</span><span>(</span><span style="color:#56b6c2;">map</span><span>(</span><span style="color:#56b6c2;">int</span><span>, </span><span style="color:#56b6c2;">input</span><span>().</span><span style="color:#e06c75;">split</span><span>()))
+</span><span>a </span><span style="color:#56b6c2;">+= </span><span>[</span><span style="color:#d19a66;">0</span><span>] </span><span style="color:#7f848e;"># 番兵
+</span><span>
+</span><span>left </span><span style="color:#56b6c2;">= list</span><span>(</span><span style="color:#56b6c2;">range</span><span>(</span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>, n)) </span><span style="color:#7f848e;"># left[i]: 皿iの左隣の皿の番号
+</span><span>right </span><span style="color:#56b6c2;">= list</span><span>(</span><span style="color:#56b6c2;">range</span><span>(</span><span style="color:#d19a66;">1</span><span>, n</span><span style="color:#56b6c2;">+</span><span style="color:#d19a66;">2</span><span>))
+</span><span>
+</span><span>ans </span><span style="color:#56b6c2;">= </span><span style="color:#d19a66;">0
+</span><span>
+</span><span style="color:#7f848e;"># 大きい順に処理
+</span><span>l </span><span style="color:#56b6c2;">= list</span><span>(</span><span style="color:#56b6c2;">range</span><span>(n))
+</span><span>l.</span><span style="color:#e06c75;">sort</span><span>(</span><span style="font-style:italic;color:#e06c75;">key</span><span style="color:#56b6c2;">=</span><span style="color:#c678dd;">lambda </span><span style="font-style:italic;color:#e06c75;">i</span><span>: a[i])
+</span><span>l.</span><span style="color:#e06c75;">reverse</span><span>()
+</span><span style="color:#c678dd;">for </span><span>i </span><span style="color:#c678dd;">in </span><span>l:
+</span><span>    s </span><span style="color:#56b6c2;">= </span><span>right[i] </span><span style="color:#56b6c2;">- </span><span>left[i] </span><span style="color:#56b6c2;">- </span><span style="color:#d19a66;">1 </span><span style="color:#7f848e;"># 収穫範囲
+</span><span>    ans </span><span style="color:#56b6c2;">= max</span><span>(ans, s </span><span style="color:#56b6c2;">* </span><span>a[i])
+</span><span>
+</span><span>    </span><span style="color:#7f848e;"># 「左隣の右隣」と「右隣の左隣」を書き換える
+</span><span>    right[left[i]] </span><span style="color:#56b6c2;">= </span><span>right[i]
+</span><span>    left[right[i]] </span><span style="color:#56b6c2;">= </span><span>left[i]
+</span><span>
+</span><span style="color:#56b6c2;">print</span><span>(ans)
+</span></code></pre>
+
+
+
+<div class="pagination">
+  
+  <a class="next" href="https:&#x2F;&#x2F;nebocco.github.io&#x2F;post&#x2F;abc189c_stack&#x2F;">ABC189-C Mandarin Orange 解説（stack 活用編）</a>
+  
+  
+  <a class="previous" href="https:&#x2F;&#x2F;nebocco.github.io&#x2F;post&#x2F;abc128c&#x2F;">ABC128-C Switches 解説</a>
+  
+</div>
+
+
+      </article>
+    </main>
+
+    <footer>
+      <span>© 2025 nebocco</span>
+      <br />
+      <span>Generated with <a href="https://www.getzola.org/">Zola</a></span>
+    </footer>
+  </div>
+</body>
+
+</html>

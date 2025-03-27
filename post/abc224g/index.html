@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <title>ねぼこの日記</title>
+  <link rel="stylesheet" href="https://nebocco.github.io/main.css">
+  <meta charset="utf-8">
+  <meta name="description" content="nebocco のブログ">
+  <meta property="og:site_name" content="ねぼこの日記" />
+  
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css"
+  integrity="sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib" crossorigin="anonymous">
+
+<!-- The loading of KaTeX is deferred to speed up page rendering -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js"
+  integrity="sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh" crossorigin="anonymous"></script>
+
+<!-- To automatically render math in text elements, include the auto-render extension: -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js"
+  integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh" crossorigin="anonymous"
+  onload="renderMathInElement(document.body);"></script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    renderMathInElement(document.body, {
+      // customised options
+      // • auto-render specific keys, e.g.:
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$', right: '$', display: false },
+        { left: '\\(', right: '\\)', display: false },
+        { left: '\\[', right: '\\]', display: true }
+      ],
+      // • rendering keys, e.g.:
+      throwOnError: false
+    });
+  });
+</script>
+
+
+</head>
+
+<body>
+  <div class="page-container">
+    <header>
+      <div id="title">
+        <a href="/">ねぼこの日記</a>
+      </div>
+      <nav>
+        <a href="/post">Posts</a>
+        <a href="/tags">Tags</a>
+        <a href="https://github.com/nebocco" target="_blank" rel="noreferrer noopener">Github</a>
+        <a href="https://twitter.com/nebocco27" target="_blank" rel="noreferrer noopener">Twitter</a>
+        
+        <a href="https://nebocco.github.io/atom.xml" target="_blank" rel="noreferrer noopener">Feed</a>
+        
+      </nav>
+    </header>
+
+    <main id="main">
+      <article id="post">
+        
+<div class="headline">
+  <h1 class="page-title">
+    ABC224-G Roll or Increment 雑解法
+  </h1>
+  
+<div class="subtitle">
+  <span class="page-date">
+    2021-11-07
+  </span>
+  
+  <span class="page-tags">
+    
+    
+    <a class="page-tag" href="https://nebocco.github.io/tags/atcoder/">AtCoder</a>
+    
+    
+    <a class="page-tag" href="https://nebocco.github.io/tags/python/">Python</a>
+    
+    
+    <a class="page-tag" href="https://nebocco.github.io/tags/jing-ji-puroguramingu/">競技プログラミング</a>
+    
+  </span>
+  
+</div>
+
+</div>
+
+<p>みんなはちゃんと証明しましょう</p>
+<h2 id="問題">問題</h2>
+<p><a href="https://atcoder.jp/contests/abc224/tasks/abc224_g">AtCoder Beginner Contest 224 | G - Roll or Increment</a></p>
+<h2 id="解法">解法</h2>
+<p>現在の出目が $i$ の時、出目を $T$ に変える最適な戦略でかかる合計コストを $C(i)$ と書くことにします。
+戦略はゴールまで増やし続けるか一旦振り直すかです。</p>
+<p>振り直した後にかかるコストの期待値を $r$ と置きます。すると、</p>
+<p>$$
+C(i) =
+\begin{cases}
+\min(A(T - i), B + r) &amp; (i \le T) \\
+B + r &amp; (i &gt; T)
+\end{cases}
+$$</p>
+<p>です。さらに、$r = \sum C(i) / N$ です。</p>
+<p>ここで、 $r$ をある値 $r_{a}$ だと仮定します。すると $C(i)$ が定まり、上の式を用いて $r$ が計算できます。これを $r_b$ とします。
+$r_a$ が $r_b$ より大きいとき、真の $r$ は $r_a$ より小さく、 小さいときは $r_a$ より大きいはずです。
+このように $r$ を二分探索することで真の $r$ および $C(i)$ が計算できます。求める答えは $C(S)$ です。</p>
+<h2 id="実装">実装</h2>
+<p><a href="https://atcoder.jp/contests/abc224/submissions/27074184">提出コード</a> (Python)</p>
+<pre data-lang="python" style="background-color:#282c34;color:#abb2bf;" class="language-python "><code class="language-python" data-lang="python"><span style="color:#c678dd;">from </span><span>math </span><span style="font-style:italic;color:#c678dd;">import </span><span>ceil
+</span><span>
+</span><span>N, S, T, A, B </span><span style="color:#56b6c2;">= map</span><span>(</span><span style="color:#56b6c2;">float</span><span>, </span><span style="color:#56b6c2;">input</span><span>().</span><span style="color:#e06c75;">split</span><span>())
+</span><span>
+</span><span>hi </span><span style="color:#56b6c2;">= </span><span>N </span><span style="color:#56b6c2;">* max</span><span>(A, B)
+</span><span>lo </span><span style="color:#56b6c2;">= </span><span style="color:#d19a66;">0
+</span><span style="color:#c678dd;">for </span><span style="color:#e5c07b;">_ </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(</span><span style="color:#d19a66;">64</span><span>):
+</span><span>    ra </span><span style="color:#56b6c2;">= </span><span>(hi </span><span style="color:#56b6c2;">+ </span><span>lo) </span><span style="color:#56b6c2;">/ </span><span style="color:#d19a66;">2.
+</span><span>
+</span><span>    </span><span style="color:#7f848e;"># A * (T - i) &lt;= B + r である i の個数
+</span><span>    count </span><span style="color:#56b6c2;">= min</span><span>(T, </span><span style="color:#e06c75;">ceil</span><span>((ra </span><span style="color:#56b6c2;">+ </span><span>B) </span><span style="color:#56b6c2;">/ </span><span>A))
+</span><span>    border </span><span style="color:#56b6c2;">= </span><span>T </span><span style="color:#56b6c2;">- </span><span>count
+</span><span>
+</span><span>    </span><span style="color:#7f848e;"># C(i) の総和
+</span><span>    total </span><span style="color:#56b6c2;">= </span><span>(ra </span><span style="color:#56b6c2;">+ </span><span>B) </span><span style="color:#56b6c2;">* </span><span>(border </span><span style="color:#56b6c2;">+ </span><span>(N </span><span style="color:#56b6c2;">- </span><span>T)) </span><span style="color:#56b6c2;">+ </span><span>A </span><span style="color:#56b6c2;">* </span><span>(count </span><span style="color:#56b6c2;">- </span><span style="color:#d19a66;">1</span><span>) </span><span style="color:#56b6c2;">* </span><span>count </span><span style="color:#56b6c2;">/ </span><span style="color:#d19a66;">2
+</span><span>    rb </span><span style="color:#56b6c2;">= </span><span>total </span><span style="color:#56b6c2;">/ </span><span>N
+</span><span>
+</span><span>    </span><span style="color:#c678dd;">if </span><span>ra </span><span style="color:#56b6c2;">&gt; </span><span>rb:
+</span><span>        hi </span><span style="color:#56b6c2;">= </span><span>ra
+</span><span>    </span><span style="color:#c678dd;">else</span><span>:
+</span><span>        lo </span><span style="color:#56b6c2;">= </span><span>rb
+</span><span>
+</span><span>r </span><span style="color:#56b6c2;">= </span><span>(hi </span><span style="color:#56b6c2;">+ </span><span>lo) </span><span style="color:#56b6c2;">/ </span><span style="color:#d19a66;">2
+</span><span style="color:#c678dd;">if </span><span>S </span><span style="color:#56b6c2;">&gt; </span><span>T:
+</span><span>    ans </span><span style="color:#56b6c2;">= </span><span>r </span><span style="color:#56b6c2;">+ </span><span>B
+</span><span style="color:#c678dd;">else</span><span>:
+</span><span>    ans </span><span style="color:#56b6c2;">= min</span><span>(A </span><span style="color:#56b6c2;">* </span><span>(T </span><span style="color:#56b6c2;">- </span><span>S), r </span><span style="color:#56b6c2;">+ </span><span>B)
+</span><span style="color:#56b6c2;">print</span><span>(</span><span style="color:#c678dd;">f</span><span style="color:#98c379;">&quot;</span><span>{ans</span><span style="color:#d19a66;">:.16f</span><span>}</span><span style="color:#98c379;">&quot;</span><span>)
+</span></code></pre>
+<p>雑すぎる</p>
+
+
+
+<div class="pagination">
+  
+  <a class="next" href="https:&#x2F;&#x2F;nebocco.github.io&#x2F;post&#x2F;arg_sort_in_int&#x2F;">整数のまま行う偏角ソート</a>
+  
+  
+  <a class="previous" href="https:&#x2F;&#x2F;nebocco.github.io&#x2F;post&#x2F;abc215e&#x2F;">ABC215-E Chain Contestant 解説</a>
+  
+</div>
+
+
+      </article>
+    </main>
+
+    <footer>
+      <span>© 2025 nebocco</span>
+      <br />
+      <span>Generated with <a href="https://www.getzola.org/">Zola</a></span>
+    </footer>
+  </div>
+</body>
+
+</html>

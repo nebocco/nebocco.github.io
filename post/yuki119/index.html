@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <title>ねぼこの日記</title>
+  <link rel="stylesheet" href="https://nebocco.github.io/main.css">
+  <meta charset="utf-8">
+  <meta name="description" content="nebocco のブログ">
+  <meta property="og:site_name" content="ねぼこの日記" />
+  
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css"
+  integrity="sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib" crossorigin="anonymous">
+
+<!-- The loading of KaTeX is deferred to speed up page rendering -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js"
+  integrity="sha384-Rma6DA2IPUwhNxmrB/7S3Tno0YY7sFu9WSYMCuulLhIqYSGZ2gKCJWIqhBWqMQfh" crossorigin="anonymous"></script>
+
+<!-- To automatically render math in text elements, include the auto-render extension: -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js"
+  integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh" crossorigin="anonymous"
+  onload="renderMathInElement(document.body);"></script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    renderMathInElement(document.body, {
+      // customised options
+      // • auto-render specific keys, e.g.:
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$', right: '$', display: false },
+        { left: '\\(', right: '\\)', display: false },
+        { left: '\\[', right: '\\]', display: true }
+      ],
+      // • rendering keys, e.g.:
+      throwOnError: false
+    });
+  });
+</script>
+
+
+</head>
+
+<body>
+  <div class="page-container">
+    <header>
+      <div id="title">
+        <a href="/">ねぼこの日記</a>
+      </div>
+      <nav>
+        <a href="/post">Posts</a>
+        <a href="/tags">Tags</a>
+        <a href="https://github.com/nebocco" target="_blank" rel="noreferrer noopener">Github</a>
+        <a href="https://twitter.com/nebocco27" target="_blank" rel="noreferrer noopener">Twitter</a>
+        
+        <a href="https://nebocco.github.io/atom.xml" target="_blank" rel="noreferrer noopener">Feed</a>
+        
+      </nav>
+    </header>
+
+    <main id="main">
+      <article id="post">
+        
+<div class="headline">
+  <h1 class="page-title">
+    yukicoder No.119 旅行のツアーの問題 解説
+  </h1>
+  
+<div class="subtitle">
+  <span class="page-date">
+    2021-03-18
+  </span>
+  
+  <span class="page-tags">
+    
+    
+    <a class="page-tag" href="https://nebocco.github.io/tags/yukicoder/">yukicoder</a>
+    
+    
+    <a class="page-tag" href="https://nebocco.github.io/tags/rust/">Rust</a>
+    
+    
+    <a class="page-tag" href="https://nebocco.github.io/tags/jing-ji-puroguramingu/">競技プログラミング</a>
+    
+  </span>
+  
+</div>
+
+</div>
+
+<p>余談が本編</p>
+<h2 id="問題">問題</h2>
+<p><a href="https://yukicoder.me/problems/no/119">yukicoder - No.119 旅行のツアーの問題</a></p>
+<h3 id="概要">概要</h3>
+<p>$N$ 個の国があり、それぞれの国 $i \; (0 \leq i &lt; N)$ に対して以下の行動のうち一つを選ぶ。</p>
+<ul>
+<li>選択 $p$ : ツアー旅行に行く。利得 $b_i$</li>
+<li>選択 $q$ : 個人旅行に行く。利得 $c_i$</li>
+<li>選択 $r$ : 行かない。利得 $0$</li>
+</ul>
+<p>ただし、いくつかの国のペア $i, j$ に対して「国 $i$ のツアー旅行に行くならば、国 $j$ の個人旅行に行ってはならない」という形の制約が課される。得られる最大の利得を求めよ。</p>
+<h2 id="解法">解法</h2>
+<p>パッと見た感じだと Project Selection Plobrem（PSP、「燃やす埋める」などとも呼ばれています）を使って解けそうだけど、取りうる状態が三つあるので少し工夫が必要です。ここでは二種類の方針を紹介します。</p>
+<p><strong>注意</strong> :「燃やす埋める」という名前を嫌う人がいるので記事中では PSP と表現していますが、この記事でやっていることは紛れもなく「燃やす埋める」です（考え方が少し違うらしい）。本来の PSP については <a href="https://tokoharuland.hateblo.jp/entry/2017/12/25/000003">Project Selection (燃やす埋める) 周りの話についてもう少し考えた - とこはるのまとめ</a> で解説されています。</p>
+<h3 id="1._辺の切断">1. 辺の切断</h3>
+<p>まず多くの人が解説している方針を紹介します。</p>
+<p>一般的にはPSPは頂点の割り振りに関する問題として捉えられますが、ここでは「辺をいくつか選んで切断する」という、本来の最小カット問題に近い形式で問題を解釈してみます。</p>
+<p>各 $i$ について、無条件に利得 $b_i + c_i$ が得られるとした上で、始点 $\mathrm{S}$ から頂点 $i$ にコスト $b_i$ 、頂点 $i$ から終点 $\mathrm{T}$ にコスト $c_i$ の辺を張ります。すると、 $\mathrm{S}$ から $\mathrm{T}$ を到達不可能にするためには、少なくともこのどちらかの辺は切らなくてはなりません。最終的に得られる利得に注目すると、前者を切ることが $q_i$ 、後者を切ることが $p_i$ 、そしてどちらも切ることが $r_i$ に相当していることがわかります。</p>
+<!-- [f:id:nebocco:20210315195145p:plain] -->
+
+  <figure class="">
+    
+      
+      <img src="&#x2F;assets&#x2F;2021-03-18_yuki119&#x2F;20210315195145.png"  >
+      
+      
+    
+  </figure>
+  
+<p>次に禁止制約「 $p_i \to \lnot q_j$ 」を考えると、これは $p_i$ と $q_j$ が同時に選ばれたときに $\mathrm{S}$ から $\mathrm{T}$ への経路が残っているようにすればいいので、 $i$ から $j$ にコスト $\infty$ の辺を張ることで表現できます。</p>
+<p>しかし、これだとサンプル3のようなケースで失敗してしまいます。</p>
+<!-- <figure class="figure-image figure-image-fotolife" title="国 2 に行かないので本当は大丈夫なはず">[f:id:nebocco:20210319104245p:plain]<figcaption>国 2 に行かないので本当は大丈夫なはず</figcaption></figure> -->
+
+  <figure class="">
+    
+      
+      <img src="&#x2F;assets&#x2F;2021-03-18_yuki119&#x2F;20210319104245.png"  >
+      
+      
+    <figcaption>国 2 に行かないので本当は大丈夫なはず</figcaption>
+  </figure>
+  
+<p>禁止制約の辺が連鎖して、本来許されるはずの選択までブロックしてしまっています。そこで、制約の連鎖が起こらないように、各頂点を2つずつに分割して以下のように辺を張り直してみます。</p>
+<!-- <figure class="figure-image figure-image-fotolife" title="天才">[f:id:nebocco:20210315195151p:plain]<figcaption>天才</figcaption></figure> -->
+
+  <figure class="">
+    
+      
+      <img src="&#x2F;assets&#x2F;2021-03-18_yuki119&#x2F;20210315195151.png"  >
+      
+      
+    <figcaption>天才</figcaption>
+  </figure>
+  
+<p>$i_1$ と $i_2$ は元々同じ頂点を表しているので、これらは分断されないようにコスト $\infty$ の辺で繋いでおきましょう。こうすることで、禁止制約は上流から下流への一方通行になり、連鎖することを防げます。</p>
+<p>このグラフで始点から終点への最小カット（= 最大流）を求めればいいです。最小カットのコストを $K$ とすると、最終的な答えは $\sum_{i} (b_i+c_i) - K$ となります。</p>
+<pre data-lang="rust" style="background-color:#282c34;color:#abb2bf;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#c678dd;">let </span><span style="color:#61afef;">u </span><span style="color:#56b6c2;">= </span><span>|</span><span style="font-style:italic;color:#e06c75;">i</span><span>| { </span><span style="color:#d19a66;">2 </span><span style="color:#56b6c2;">*</span><span> i }; </span><span style="font-style:italic;color:#7f848e;">// i_1
+</span><span style="color:#c678dd;">let </span><span style="color:#61afef;">v </span><span style="color:#56b6c2;">= </span><span>|</span><span style="font-style:italic;color:#e06c75;">i</span><span>| { </span><span style="color:#d19a66;">2 </span><span style="color:#56b6c2;">*</span><span> i </span><span style="color:#56b6c2;">+ </span><span style="color:#d19a66;">1 </span><span>}; </span><span style="font-style:italic;color:#7f848e;">// i_2
+</span><span style="color:#c678dd;">let</span><span> source </span><span style="color:#56b6c2;">= u</span><span>(n);
+</span><span style="color:#c678dd;">let</span><span> sink </span><span style="color:#56b6c2;">= v</span><span>(n);
+</span><span style="color:#c678dd;">let mut</span><span> ans </span><span style="color:#56b6c2;">= </span><span style="color:#d19a66;">0</span><span>;
+</span><span style="color:#c678dd;">let mut</span><span> din </span><span style="color:#56b6c2;">= </span><span>Dinic::new();
+</span><span style="color:#c678dd;">for </span><span style="color:#56b6c2;">&amp;</span><span>(i, j) </span><span style="color:#56b6c2;">in &amp;</span><span>cl { </span><span style="font-style:italic;color:#7f848e;">// 禁止制約
+</span><span>  din.</span><span style="color:#56b6c2;">add_edge</span><span>(</span><span style="color:#56b6c2;">u</span><span>(i), </span><span style="color:#56b6c2;">v</span><span>(j), </span><span style="color:#d19a66;">INF</span><span>);
+</span><span>}
+</span><span style="color:#c678dd;">for </span><span>(i, </span><span style="color:#56b6c2;">&amp;</span><span>(b, c)) </span><span style="color:#56b6c2;">in</span><span> plans.</span><span style="color:#56b6c2;">iter</span><span>().</span><span style="color:#56b6c2;">enumerate</span><span>() { </span><span style="font-style:italic;color:#7f848e;">// 各選択の報酬
+</span><span>  ans </span><span style="color:#56b6c2;">+=</span><span> b </span><span style="color:#56b6c2;">+</span><span> c;
+</span><span>  din.</span><span style="color:#56b6c2;">add_edge</span><span>(source, </span><span style="color:#56b6c2;">u</span><span>(i), b);
+</span><span>  din.</span><span style="color:#56b6c2;">add_edge</span><span>(</span><span style="color:#56b6c2;">u</span><span>(i), </span><span style="color:#56b6c2;">v</span><span>(i), </span><span style="color:#d19a66;">INF</span><span>);
+</span><span>  din.</span><span style="color:#56b6c2;">add_edge</span><span>(</span><span style="color:#56b6c2;">v</span><span>(i), sink, c);
+</span><span>}
+</span><span>ans </span><span style="color:#56b6c2;">-=</span><span> din.</span><span style="color:#56b6c2;">max_flow</span><span>(source, sink).</span><span style="color:#d19a66;">0</span><span>;
+</span></code></pre>
+<h3 id="2._頂点の分配">2. 頂点の分配</h3>
+<p>続いて、一般的な PSP 同様、頂点を始点側と終点側に割り振る問題として捉える方針で解いてみます。
+ソースを $\text{True}(\top)$ 、シンクを $\text{False}(⊥)$ として、頂点を割り振っていきます。</p>
+<p>以下の二頂点を用意します。</p>
+<ul>
+<li>$u_i$ : 国 $i$ のツアー旅行に行くか、国 $i$ を訪れない（$p_i \lor r_i$）</li>
+<li>$v_i$ : 国 $i$ のツアー旅行に行く（$p_i$）</li>
+</ul>
+<p>こうすることで、$u_i$ と $v_i$ の真偽と行動選択が以下の通りに対応します。</p>
+<ul>
+<li>$u_i \land v_i = (p_i \lor r_i) \land p_i = p_i$</li>
+<li>$u_i \land \lnot v_i = (p_i \lor r_i) \land \lnot p_i = r_i$</li>
+<li>$\lnot u_i \land v_i = \lnot (p_i \lor r_i) \land p_i = ⊥$</li>
+<li>$\lnot u_i \land \lnot v_i = \lnot (p_i \lor r_i) \land \lnot p_i = \lnot p_i \land \lnot r_i = q_i$</li>
+</ul>
+<p>よって、 $u_i, v_i$ の割り当てに応じたコストは以下の表の通りとなります。</p>
+<p>$$
+\begin{array}{c|cc}
+&amp; u_i  &amp; \lnot u_i \\ \hline
+v_i &amp; -b_i &amp; \infty    \\
+\lnot v_i &amp; 0    &amp; -c_i      \\
+\end{array}
+$$</p>
+<p>無条件で $b_i + c_i$ の利得が得られることにすると、以下のようにコストは全て正の値となります。</p>
+<p>$$
+\begin{array}{c|cc}
+&amp; u_i       &amp; \lnot u_i \\ \hline
+v_i &amp; c_i       &amp; \infty    \\
+\lnot v_i &amp; b_i + c_i &amp; b_i
+\end{array}
+$$</p>
+<p>ちゃんと劣モジュラになってるので、これは通常の2変数に関するコストとして表現可能です。例えばこんな感じ。</p>
+<!-- [f:id:nebocco:20210315195139p:plain] -->
+
+  <figure class="">
+    
+      
+      <img src="&#x2F;assets&#x2F;2021-03-18_yuki119&#x2F;20210315195139.png"  >
+      
+      
+    
+  </figure>
+  
+<p>さらに、追加制約「$p_i \to \lnot q_j$」は、$v_i \to u_i$ を用いることで</p>
+<p>$$
+\begin{aligned}
+p_i \to \lnot q_j
+&amp; \Leftrightarrow (u_i \land v_i) \to \lnot (\lnot u_j \land \lnot v_j) \\
+&amp; \Leftrightarrow v_i \to (u_j \lor v_j) \\
+&amp; \Leftrightarrow v_i \to u_j
+\end{aligned}
+$$</p>
+<p>と言い換えることができるので、以下のように辺を張ればいいです。</p>
+<!-- [f:id:nebocco:20210315195142p:plain] -->
+
+  <figure class="">
+    
+      
+      <img src="&#x2F;assets&#x2F;2021-03-18_yuki119&#x2F;20210315195142.png"  >
+      
+      
+    
+  </figure>
+  
+<p>これで始点から終点まで流せばOKです。最終的な答えは $\sum_{i} (b_i+c_i) - K$ です。</p>
+<pre data-lang="rust" style="background-color:#282c34;color:#abb2bf;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#c678dd;">let </span><span style="color:#61afef;">u </span><span style="color:#56b6c2;">= </span><span>|</span><span style="font-style:italic;color:#e06c75;">i</span><span>| { </span><span style="color:#d19a66;">2 </span><span style="color:#56b6c2;">*</span><span> i };
+</span><span style="color:#c678dd;">let </span><span style="color:#61afef;">v </span><span style="color:#56b6c2;">= </span><span>|</span><span style="font-style:italic;color:#e06c75;">i</span><span>| { </span><span style="color:#d19a66;">2 </span><span style="color:#56b6c2;">*</span><span> i </span><span style="color:#56b6c2;">+ </span><span style="color:#d19a66;">1 </span><span>};
+</span><span style="color:#c678dd;">let</span><span> source </span><span style="color:#56b6c2;">= u</span><span>(n);
+</span><span style="color:#c678dd;">let</span><span> sink </span><span style="color:#56b6c2;">= v</span><span>(n);
+</span><span style="color:#c678dd;">let mut</span><span> ans </span><span style="color:#56b6c2;">= </span><span style="color:#d19a66;">0</span><span>;
+</span><span style="color:#c678dd;">let mut</span><span> din </span><span style="color:#56b6c2;">= </span><span>Dinic::new();
+</span><span style="color:#c678dd;">for </span><span style="color:#56b6c2;">&amp;</span><span>(i, j) </span><span style="color:#56b6c2;">in &amp;</span><span>cl { </span><span style="font-style:italic;color:#7f848e;">// 禁止制約
+</span><span>  din.</span><span style="color:#56b6c2;">add_edge</span><span>(</span><span style="color:#56b6c2;">v</span><span>(i), </span><span style="color:#56b6c2;">u</span><span>(j), </span><span style="color:#d19a66;">INF</span><span>);
+</span><span>}
+</span><span style="color:#c678dd;">for </span><span>(i, </span><span style="color:#56b6c2;">&amp;</span><span>(b, c)) </span><span style="color:#56b6c2;">in</span><span> plans.</span><span style="color:#56b6c2;">iter</span><span>().</span><span style="color:#56b6c2;">enumerate</span><span>() { </span><span style="font-style:italic;color:#7f848e;">// 各選択の報酬
+</span><span>  ans </span><span style="color:#56b6c2;">+=</span><span> b </span><span style="color:#56b6c2;">+</span><span> c;
+</span><span>  din.</span><span style="color:#56b6c2;">add_edge</span><span>(</span><span style="color:#56b6c2;">v</span><span>(i), </span><span style="color:#56b6c2;">u</span><span>(i), </span><span style="color:#d19a66;">INF</span><span>);
+</span><span>  din.</span><span style="color:#56b6c2;">add_edge</span><span>(source, </span><span style="color:#56b6c2;">u</span><span>(i), b);
+</span><span>  din.</span><span style="color:#56b6c2;">add_edge</span><span>(</span><span style="color:#56b6c2;">u</span><span>(i), </span><span style="color:#56b6c2;">v</span><span>(i), b </span><span style="color:#56b6c2;">+</span><span> c);
+</span><span>  din.</span><span style="color:#56b6c2;">add_edge</span><span>(</span><span style="color:#56b6c2;">v</span><span>(i), sink, c);
+</span><span>}
+</span><span>ans </span><span style="color:#56b6c2;">-=</span><span> din.</span><span style="color:#56b6c2;">max_flow</span><span>(source, sink).</span><span style="color:#d19a66;">0</span><span>;
+</span></code></pre>
+<h2 id="実装">実装</h2>
+<ul>
+<li><a href="https://yukicoder.me/submissions/630915">解法 1</a> (Rust)</li>
+<li><a href="https://yukicoder.me/submissions/630914">解法 2</a> (Rust)</li>
+</ul>
+<h2 id="余談">余談</h2>
+<p>初見で解いていたとき、「三種類の値を取るときは、各要素に対して二つの頂点を用意していい感じに包含関係を入れるといい」という話を何となく聞いたことがあったので、二種類の命題</p>
+<ul>
+<li>$x_i$ : 国 $i$ を訪れる（$p_i \lor q_i$）</li>
+<li>$y_i$ : 国 $i$ のツアー旅行に行く（$p_i$）</li>
+</ul>
+<p>を頂点として作ることにしたのですが、間違いでした。$p$ と $q$ には「国を訪れる」という分かりやすい共通項がある上、元問題文では禁止制約があたかも「国を訪れる」という括りがあるかのように表現されていたために纒めたくなってしまいましたが、実際には完全に別の事象として捉えるべきでした（というか実際にそう）。まんまと罠にかかりました。</p>
+<p>$x, y$ の真偽もうまく $p, q, r$ に対応して、コストも劣モジュラになりますが、禁止制約が「 $y_i \to \lnot x_j \lor y_j$ 」となってしまい、グラフで表現することができません。</p>
+<p>包含関係をどのように設定すればうまくいきそうか、を判断する材料として、二種類の方針を紹介します。</p>
+<h3 id="1._包含関係のある条件の一般的な表現">1. 包含関係のある条件の一般的な表現</h3>
+<p><a href="http://tokoharuland.hateblo.jp/entry/2017/12/25/000003">Project Selection (燃やす埋める) 周りの話についてもう少し考えた - とこはるのまとめ</a> の後半で紹介されている考え方です。 $k$ 状態を取りうる変数を、今回作ったグラフのように</p>
+<ul>
+<li>$a_1 = s_1$</li>
+<li>$a_2 = s_1 \lor s_2$</li>
+<li>$\vdots$</li>
+<li>$a_{k - 1} = s_1 \lor s_2 \lor \cdots \lor s _ { k - 1 }$</li>
+</ul>
+<p>という $k - 1$ 個の頂点 $a_1, a_2,  ..., a _ { k - 1 } $ で表現すると、グラフの形は以下のようになります。</p>
+<!-- <figure class="figure-image figure-image-fotolife" title="a_k-1 -&gt; a_k-2 -&gt; ... -&gt; a_2 -&gt; a_1">[f:id:nebocco:20210315195131p:plain]<figcaption>a_k-1 -&gt; a_k-2 -&gt; ... -&gt; a_2 -&gt; a_1</figcaption></figure> -->
+
+  <figure class="">
+    
+      
+      <img src="&#x2F;assets&#x2F;2021-03-18_yuki119&#x2F;20210315195131.png"  >
+      
+      
+    <figcaption>$a_{k-1} \to a_{k-2} \to \cdots \to a_2 \to a_1$</figcaption>
+  </figure>
+  
+<p>$a_k = s_1 \lor s_2 \lor \cdots \lor s _ k$ は必ず $\top$ になるので、頂点を用意する必要はありません。また、 $a _ {i - 1} \to a _ i$ が成り立つので、 $a _ {i-1} \land \lnot a _ i$ という状態に無限のコストがかかるように逆向きの辺を張っています。</p>
+<p>まずは一つの変数のみに着目します。
+1変数関数は必ず劣モジュラであるので、適切に辺コストを割り振りさえすればこのグラフによって各 $s _ i$ のコストは必ず表現できます。
+例えば $s_i$ を選んだ際のコストを $\theta(s _ i)$ として、以下のように対応していたとします。</p>
+<p>$$
+\begin{array}{c|cccc}
+i           &amp; 1 &amp; 2 &amp; 3 &amp; 4 \\ \hline
+\theta(s _ i) &amp; -5 &amp; 6 &amp; 2 &amp; -8
+\end{array}
+$$</p>
+<p>このとき、任意の定数 $w$ を用いて、無条件に $w$ の報酬がもらえるとした上で、以下のように辺のコストを定めることで $\theta$ が表現できます。</p>
+<!-- [f:id:nebocco:20210315195134p:plain] -->
+
+  <figure class="">
+    
+      
+      <img src="&#x2F;assets&#x2F;2021-03-18_yuki119&#x2F;20210315195134.png"  >
+      
+      
+    
+  </figure>
+  
+<p>$a _ i \land \lnot a _ { i - 1 } \to s _ i $ が成り立つので、$ a _ i , a _ { i - 1 } $ 間の辺を切るときには
+「その選択肢のコスト $\theta(s _ i)+$ 無条件にもらえてしまった報酬 $w$」のコストがかかるようにします。
+$w$ はどの辺を選んでも打ち消される値なのでなんでもよく、適切な値をとることで負辺をなくすことができます。</p>
+<p>次に、全ての変数 $i$ に対してこれらの頂点 $a ^ { i } _ {d} \;( 1 \leq d &lt; k ) $ を用意したあと、ある頂点から別の頂点に張った辺がどのような意味を持つのかを考えてみます。
+$a ^ { i } _ { n }$ から $a ^ { j } _ { m }$ へとコスト $c$ の辺を張ってみます。</p>
+<!-- <figure class="figure-image figure-image-fotolife" title="辺は適当に省略しています">[f:id:nebocco:20210315195137p:plain]<figcaption>辺は適当に省略しています</figcaption></figure> -->
+
+  <figure class="">
+    
+      
+      <img src="&#x2F;assets&#x2F;2021-03-18_yuki119&#x2F;20210315195137.png"  >
+      
+      
+    <figcaption>辺は適当に省略しています</figcaption>
+  </figure>
+  
+<p>このコストがかかるのは $a ^ { i } _ { n } \land \lnot a ^ { j } _ { m }$ のときです。つまりこの辺は「 $i$ が $s_1, s_2, \ldots, s _ n$ のどれかであるとき、$j$ が $s_1, s_2, \ldots, s _ m $ のどれかでないならコスト $c$ がかかる」と翻訳できます。
+先程挙げたブログの言葉を借りてこれを一般化すると、包含関係のある集合 $A_1 \subset A_2 \subset A_3 \subset \cdots$ に変数 $v_1, v_2, v_3, \ldots$ を配置していくとき、「 $v _ i \in A _ n$ かつ $v _ j \not \in A _ m $ ならコスト $c ;(&gt; 0)$ がかかる」という条件を表現できます。</p>
+<p>これを踏まえて元の問題の禁止制約「$p _ i \to \lnot q _ j$」を「$p _ i \to p _ j \lor r _ j$」と解釈すれば、 $p, p \lor r$ という括りを作ることで上手くいきそうだ、とあたりをつけることができるかと思います。</p>
+<h3 id="2._Monge行列への意識">2. Monge行列への意識</h3>
+<p>本問題では、禁止制約に関するコスト行列は以下のようになっています。</p>
+<p>$$
+\begin{array}{c|ccc}
+&amp; p_i    &amp; q_i &amp; r_i \\ \hline
+p_j &amp; 0      &amp; 0   &amp; 0   \\
+q_j &amp; \infty &amp; 0   &amp; 0   \\
+r_j &amp; 0      &amp; 0   &amp; 0
+\end{array}
+$$</p>
+<p>これがMongeになるよう選択肢を並び替えます。</p>
+<p>$$
+\begin{array}{c|ccc}
+&amp; p_i    &amp; r_i &amp; q_i \\ \hline
+p_j &amp; 0      &amp; 0   &amp; 0   \\
+r_j &amp; 0      &amp; 0   &amp; 0   \\
+q_j &amp; \infty &amp; 0   &amp; 0
+\end{array}
+$$</p>
+<p>するとここをこうまとめたくなります。（？）</p>
+<p>$$
+\begin{array}{c|c:cc}
+&amp; p_i    &amp; r_i &amp; q_i \\ \hline
+p_j &amp; 0      &amp; 0   &amp; 0   \\
+r_j &amp; 0      &amp; 0   &amp; 0   \\ \hdashline
+q_j &amp; \infty &amp; 0   &amp; 0
+\end{array}
+$$</p>
+<p>「 $p_i \land \lnot q_j$ 」 $=$ 「 $p_i \land \lnot (p_j \lor r_j)$ 」の場合にコストをかけたいので、 $p, p \lor r$ という二種類の頂点があればグラフで表現出来そうだな、という風に思える、らしいです。また、このようにすると $q, q \lor r$ という二種類の頂点を作ってもなんとかなりそうに思えますね（実際なんとかなる）。</p>
+<p>正直この方法にどのくらい汎用性があるのかは分かりません。ただ、これに限らず、グラフ表現をする上でコストが劣モジュラであることが必要だということを常に念頭におきながら問題を整理することで、なんとなく見通しを立てやすくなるのかもしれません。</p>
+<h3 id="参考記事">参考記事</h3>
+<ul>
+<li><a href="http://tokoharuland.hateblo.jp/entry/2017/11/12/234636">『燃やす埋める』と『ProjectSelectionProblem』 - とこはるのまとめ</a></li>
+<li><a href="http://tokoharuland.hateblo.jp/entry/2017/12/25/000003">Project Selection (燃やす埋める) 周りの話についてもう少し考えた - とこはるのまとめ</a></li>
+<li><a href="https://kmyk.github.io/blog/blog/2017/12/05/minimum-cut-and-project-selection-problem/">最小カットとProject Selection Problemのまとめ - うさぎ小屋</a></li>
+<li><a href="https://theory-and-me.hatenablog.com/entry/2020/03/13/180935">燃やす埋める問題と劣モジュラ関数のグラフ表現可能性 その① - 私と理論</a></li>
+</ul>
+
+
+
+<div class="pagination">
+  
+  <a class="next" href="https:&#x2F;&#x2F;nebocco.github.io&#x2F;post&#x2F;atcoder_tab_4matter&#x2F;">AtCoder提出ページのタブ幅を変えるスクリプト</a>
+  
+  
+  <a class="previous" href="https:&#x2F;&#x2F;nebocco.github.io&#x2F;post&#x2F;abc189c_stack&#x2F;">ABC189-C Mandarin Orange 解説（stack 活用編）</a>
+  
+</div>
+
+
+      </article>
+    </main>
+
+    <footer>
+      <span>© 2025 nebocco</span>
+      <br />
+      <span>Generated with <a href="https://www.getzola.org/">Zola</a></span>
+    </footer>
+  </div>
+</body>
+
+</html>
