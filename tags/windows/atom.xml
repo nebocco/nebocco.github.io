@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom" xml:lang="ja">
     <title>ねぼこの日記 - Windows</title>
-    <link rel="self" type="application/atom+xml" href="https://nebocco.github.io/tags/windows/atom.xml"/>
-    <link rel="alternate" type="text/html" href="https://nebocco.github.io"/>
+    <link rel="self" type="application/atom+xml" href="https://blog.nebocco.dev/tags/windows/atom.xml"/>
+    <link rel="alternate" type="text/html" href="https://blog.nebocco.dev"/>
     <generator uri="https://www.getzola.org/">Zola</generator>
     <updated>2021-05-01T00:00:00+00:00</updated>
-    <id>https://nebocco.github.io/tags/windows/atom.xml</id>
+    <id>https://blog.nebocco.dev/tags/windows/atom.xml</id>
     <entry xml:lang="ja">
         <title>Rime on Windows10</title>
         <published>2021-05-01T00:00:00+00:00</published>
@@ -19,10 +19,10 @@
           </name>
         </author>
         
-        <link rel="alternate" type="text/html" href="https://nebocco.github.io/post/rime_on_windows10/"/>
-        <id>https://nebocco.github.io/post/rime_on_windows10/</id>
+        <link rel="alternate" type="text/html" href="https://blog.nebocco.dev/post/rime_on_windows10/"/>
+        <id>https://blog.nebocco.dev/post/rime_on_windows10/</id>
         
-        <content type="html" xml:base="https://nebocco.github.io/post/rime_on_windows10/">&lt;p&gt;競技プログラミング作問支援ツール &lt;a href=&quot;https:&#x2F;&#x2F;rime.readthedocs.io&#x2F;ja&#x2F;latest&#x2F;&quot;&gt;Rime&lt;&#x2F;a&gt; を Windows10 で使えるように改造しましょう！&lt;&#x2F;p&gt;
+        <content type="html" xml:base="https://blog.nebocco.dev/post/rime_on_windows10/">&lt;p&gt;競技プログラミング作問支援ツール &lt;a href=&quot;https:&#x2F;&#x2F;rime.readthedocs.io&#x2F;ja&#x2F;latest&#x2F;&quot;&gt;Rime&lt;&#x2F;a&gt; を Windows10 で使えるように改造しましょう！&lt;&#x2F;p&gt;
 &lt;!-- &lt;figure class=&quot;figure-image figure-image-fotolife&quot; title=&quot;rime&quot;, style=&quot;display:none&quot;&gt;[f:id:nebocco:20210501205255p:plain]&lt;figcaption&gt;rime&lt;&#x2F;figcaption&gt;&lt;&#x2F;figure&gt; --&gt;
 &lt;p&gt;Mac なんかに……負けないっ……！&lt;&#x2F;p&gt;
 &lt;h4 id=&quot;おことわり&quot;&gt;おことわり&lt;&#x2F;h4&gt;
@@ -296,7 +296,7 @@
 &lt;&#x2F;span&gt;&lt;span&gt;ERROR: aplusb&#x2F;tests: validator.cc: Compile Error (On compiling: module &amp;#39;signal&amp;#39; has no attribute &amp;#39;SIGXCPU&amp;#39;)
 &lt;&#x2F;span&gt;&lt;span&gt;Total 2 errors, 0 warnings
 &lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
-&lt;p&gt;python の &lt;a href=&quot;https:&#x2F;&#x2F;docs.python.org&#x2F;ja&#x2F;3&#x2F;library&#x2F;signal.html&quot;&gt;signal&lt;&#x2F;a&gt; というモジュールを使っているらしいのですが、&lt;code&gt;SIGXCPU&lt;&#x2F;code&gt; という変数は存在しません。どうやら Python3.5 で &lt;code&gt;SIG_DFL&lt;&#x2F;code&gt; という変数に統合されてしまったようです。&lt;a href=&quot;https:&#x2F;&#x2F;nebocco.github.io&#x2F;post&#x2F;rime_on_windows10&#x2F;#subprocess&quot;&gt;先ほど&lt;&#x2F;a&gt;と同様、 &lt;code&gt;findstr&lt;&#x2F;code&gt; を使って検索してすべて書き換えましょう。&lt;&#x2F;p&gt;
+&lt;p&gt;python の &lt;a href=&quot;https:&#x2F;&#x2F;docs.python.org&#x2F;ja&#x2F;3&#x2F;library&#x2F;signal.html&quot;&gt;signal&lt;&#x2F;a&gt; というモジュールを使っているらしいのですが、&lt;code&gt;SIGXCPU&lt;&#x2F;code&gt; という変数は存在しません。どうやら Python3.5 で &lt;code&gt;SIG_DFL&lt;&#x2F;code&gt; という変数に統合されてしまったようです。&lt;a href=&quot;https:&#x2F;&#x2F;blog.nebocco.dev&#x2F;post&#x2F;rime_on_windows10&#x2F;#subprocess&quot;&gt;先ほど&lt;&#x2F;a&gt;と同様、 &lt;code&gt;findstr&lt;&#x2F;code&gt; を使って検索してすべて書き換えましょう。&lt;&#x2F;p&gt;
 &lt;p&gt;ここでは実行に時間が掛かりすぎている場合に処理を切り替えるような作業を行っていますが、コンパイルを行う際は必ず引っかかっているようです。これが正しい挙動なのかはわかりません。動けばよかろうなのです。だれか助けて～～～&lt;&#x2F;p&gt;
 &lt;h4 id=&quot;seek&quot;&gt;seek&lt;&#x2F;h4&gt;
 &lt;pre style=&quot;background-color:#282c34;color:#abb2bf;&quot;&gt;&lt;code&gt;&lt;span&gt;PS C:\home\Rime&amp;gt; py rime test aplusb

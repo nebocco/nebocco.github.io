@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom" xml:lang="ja">
     <title>ねぼこの日記 - よりよい計算量シリーズ</title>
-    <link rel="self" type="application/atom+xml" href="https://nebocco.github.io/tags/yoriyoiji-suan-liang-sirizu/atom.xml"/>
-    <link rel="alternate" type="text/html" href="https://nebocco.github.io"/>
+    <link rel="self" type="application/atom+xml" href="https://blog.nebocco.dev/tags/yoriyoiji-suan-liang-sirizu/atom.xml"/>
+    <link rel="alternate" type="text/html" href="https://blog.nebocco.dev"/>
     <generator uri="https://www.getzola.org/">Zola</generator>
     <updated>2021-08-25T00:00:00+00:00</updated>
-    <id>https://nebocco.github.io/tags/yoriyoiji-suan-liang-sirizu/atom.xml</id>
+    <id>https://blog.nebocco.dev/tags/yoriyoiji-suan-liang-sirizu/atom.xml</id>
     <entry xml:lang="ja">
         <title>ABC215-E Chain Contestant 解説</title>
         <published>2021-08-25T00:00:00+00:00</published>
@@ -19,10 +19,10 @@
           </name>
         </author>
         
-        <link rel="alternate" type="text/html" href="https://nebocco.github.io/post/abc215e/"/>
-        <id>https://nebocco.github.io/post/abc215e/</id>
+        <link rel="alternate" type="text/html" href="https://blog.nebocco.dev/post/abc215e/"/>
+        <id>https://blog.nebocco.dev/post/abc215e/</id>
         
-        <content type="html" xml:base="https://nebocco.github.io/post/abc215e/">&lt;p&gt;文字列に含まれる文字の種類数を $\sigma$ とおきます。 $O(N2^{\sigma})$ で解きます。&lt;&#x2F;p&gt;
+        <content type="html" xml:base="https://blog.nebocco.dev/post/abc215e/">&lt;p&gt;文字列に含まれる文字の種類数を $\sigma$ とおきます。 $O(N2^{\sigma})$ で解きます。&lt;&#x2F;p&gt;
 &lt;h2 id=&quot;問題&quot;&gt;問題&lt;&#x2F;h2&gt;
 &lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;atcoder.jp&#x2F;contests&#x2F;abc215&#x2F;tasks&#x2F;abc215_e&quot;&gt;AtCoder Beginner Contest 215 | E - Chain Contestant&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
 &lt;h2 id=&quot;解法&quot;&gt;解法&lt;&#x2F;h2&gt;
@@ -239,11 +239,11 @@ $\mathrm{dp}[S][i] \coloneqq \text{$s[0, i)$ から $S$ 中の文字を選ぶ方
           </name>
         </author>
         
-        <link rel="alternate" type="text/html" href="https://nebocco.github.io/post/abc189c_stack/"/>
-        <id>https://nebocco.github.io/post/abc189c_stack/</id>
+        <link rel="alternate" type="text/html" href="https://blog.nebocco.dev/post/abc189c_stack/"/>
+        <id>https://blog.nebocco.dev/post/abc189c_stack/</id>
         
-        <content type="html" xml:base="https://nebocco.github.io/post/abc189c_stack/">&lt;p&gt;$O(N)$ で解きます。&lt;&#x2F;p&gt;
-&lt;p&gt;$O(N \log N)$ はこちら → &lt;a href=&quot;https:&#x2F;&#x2F;nebocco.github.io&#x2F;post&#x2F;abc189c_dancing_links&#x2F;&quot;&gt;ABC189-C Mandarin Orange 解説（Dancing Links 編）&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+        <content type="html" xml:base="https://blog.nebocco.dev/post/abc189c_stack/">&lt;p&gt;$O(N)$ で解きます。&lt;&#x2F;p&gt;
+&lt;p&gt;$O(N \log N)$ はこちら → &lt;a href=&quot;https:&#x2F;&#x2F;blog.nebocco.dev&#x2F;post&#x2F;abc189c_dancing_links&#x2F;&quot;&gt;ABC189-C Mandarin Orange 解説（Dancing Links 編）&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
 &lt;h2 id=&quot;問題&quot;&gt;問題&lt;&#x2F;h2&gt;
 &lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;atcoder.jp&#x2F;contests&#x2F;abc189&#x2F;tasks&#x2F;abc189_c&quot;&gt;AtCoder Beginner Contest 189 | C - Mandarin Orange&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
 &lt;h3 id=&quot;概要&quot;&gt;概要&lt;&#x2F;h3&gt;
@@ -251,7 +251,7 @@ $\mathrm{dp}[S][i] \coloneqq \text{$s[0, i)$ から $S$ 中の文字を選ぶ方
 \max _ {1 \leq l \leq r \leq n} \left\lbrace (r - l + 1) \cdot \min _ {l \leq i \leq r} a _ i \right\rbrace
 $$&lt;&#x2F;p&gt;
 &lt;h2 id=&quot;解法&quot;&gt;解法&lt;&#x2F;h2&gt;
-&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;nebocco.github.io&#x2F;post&#x2F;abc189c_dancing_links&#x2F;&quot;&gt;前回&lt;&#x2F;a&gt;に続いて、今回はstackを使った解法を紹介します。ここでは皿の大きさ順ではなく、シンプルに左から見ていくことにします。&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;blog.nebocco.dev&#x2F;post&#x2F;abc189c_dancing_links&#x2F;&quot;&gt;前回&lt;&#x2F;a&gt;に続いて、今回はstackを使った解法を紹介します。ここでは皿の大きさ順ではなく、シンプルに左から見ていくことにします。&lt;&#x2F;p&gt;
 &lt;p&gt;再び「その皿のミカンを全て取るとした時、収穫範囲を左右どこまで広げられるか」を考えます。
 ここで、左に伸ばすことと右に伸ばすことはお互いに影響しないので、まず「どこまで左に伸ばせるか」を考えます。&lt;&#x2F;p&gt;
 &lt;p&gt;どこまで伸ばせるかというと、「自分より小さな皿のうち最も近いもの」（&lt;strong&gt;境界&lt;&#x2F;strong&gt;）の一個手前までです。全ての皿について、境界を順番に計算していきます。
@@ -350,11 +350,11 @@ $$&lt;&#x2F;p&gt;
           </name>
         </author>
         
-        <link rel="alternate" type="text/html" href="https://nebocco.github.io/post/abc189c_dancing_links/"/>
-        <id>https://nebocco.github.io/post/abc189c_dancing_links/</id>
+        <link rel="alternate" type="text/html" href="https://blog.nebocco.dev/post/abc189c_dancing_links/"/>
+        <id>https://blog.nebocco.dev/post/abc189c_dancing_links/</id>
         
-        <content type="html" xml:base="https://nebocco.github.io/post/abc189c_dancing_links/">&lt;p&gt;$O(N \log N)$ で解きます。&lt;&#x2F;p&gt;
-&lt;p&gt;$O(N)$ はこちら → &lt;a href=&quot;https:&#x2F;&#x2F;nebocco.github.io&#x2F;post&#x2F;abc189c_stack&#x2F;&quot;&gt;ABC189-C Mandarin Orange 解説（stack 活用編）&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+        <content type="html" xml:base="https://blog.nebocco.dev/post/abc189c_dancing_links/">&lt;p&gt;$O(N \log N)$ で解きます。&lt;&#x2F;p&gt;
+&lt;p&gt;$O(N)$ はこちら → &lt;a href=&quot;https:&#x2F;&#x2F;blog.nebocco.dev&#x2F;post&#x2F;abc189c_stack&#x2F;&quot;&gt;ABC189-C Mandarin Orange 解説（stack 活用編）&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
 &lt;h2 id=&quot;問題&quot;&gt;問題&lt;&#x2F;h2&gt;
 &lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;atcoder.jp&#x2F;contests&#x2F;abc189&#x2F;tasks&#x2F;abc189_c&quot;&gt;AtCoder Beginner Contest 189 | C - Mandarin Orange&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
 &lt;h3 id=&quot;概要&quot;&gt;概要&lt;&#x2F;h3&gt;
@@ -472,10 +472,10 @@ $$&lt;&#x2F;p&gt;
           </name>
         </author>
         
-        <link rel="alternate" type="text/html" href="https://nebocco.github.io/post/abc128c/"/>
-        <id>https://nebocco.github.io/post/abc128c/</id>
+        <link rel="alternate" type="text/html" href="https://blog.nebocco.dev/post/abc128c/"/>
+        <id>https://blog.nebocco.dev/post/abc128c/</id>
         
-        <content type="html" xml:base="https://nebocco.github.io/post/abc128c/">&lt;p&gt;$O(M ^ 2)$ （一般の $N, M$ については $O(NM ^ 2)$ ）で解きます。&lt;&#x2F;p&gt;
+        <content type="html" xml:base="https://blog.nebocco.dev/post/abc128c/">&lt;p&gt;$O(M ^ 2)$ （一般の $N, M$ については $O(NM ^ 2)$ ）で解きます。&lt;&#x2F;p&gt;
 &lt;h2 id=&quot;問題&quot;&gt;問題&lt;&#x2F;h2&gt;
 &lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;atcoder.jp&#x2F;contests&#x2F;abc128&#x2F;tasks&#x2F;abc128_c&quot;&gt;AtCoder Beginner Contest 128 | C - Switches&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
 &lt;h3 id=&quot;概要&quot;&gt;概要&lt;&#x2F;h3&gt;
@@ -594,10 +594,10 @@ $$&lt;&#x2F;p&gt;
           </name>
         </author>
         
-        <link rel="alternate" type="text/html" href="https://nebocco.github.io/post/abc142f/"/>
-        <id>https://nebocco.github.io/post/abc142f/</id>
+        <link rel="alternate" type="text/html" href="https://blog.nebocco.dev/post/abc142f/"/>
+        <id>https://blog.nebocco.dev/post/abc142f/</id>
         
-        <content type="html" xml:base="https://nebocco.github.io/post/abc142f/">&lt;p&gt;$O(N+M)$ で解きます。&lt;&#x2F;p&gt;
+        <content type="html" xml:base="https://blog.nebocco.dev/post/abc142f/">&lt;p&gt;$O(N+M)$ で解きます。&lt;&#x2F;p&gt;
 &lt;h2 id=&quot;問題&quot;&gt;問題&lt;&#x2F;h2&gt;
 &lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;atcoder.jp&#x2F;contests&#x2F;abc142&#x2F;tasks&#x2F;abc142_f&quot;&gt;AtCoder Beginner Contest 142 | F - Pure&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
 &lt;h3 id=&quot;概要&quot;&gt;概要&lt;&#x2F;h3&gt;
@@ -737,10 +737,10 @@ $$&lt;&#x2F;p&gt;
           </name>
         </author>
         
-        <link rel="alternate" type="text/html" href="https://nebocco.github.io/post/abc187b/"/>
-        <id>https://nebocco.github.io/post/abc187b/</id>
+        <link rel="alternate" type="text/html" href="https://blog.nebocco.dev/post/abc187b/"/>
+        <id>https://blog.nebocco.dev/post/abc187b/</id>
         
-        <content type="html" xml:base="https://nebocco.github.io/post/abc187b/">&lt;p&gt;\(O(N \log N)\) で解きます。&lt;&#x2F;p&gt;
+        <content type="html" xml:base="https://blog.nebocco.dev/post/abc187b/">&lt;p&gt;\(O(N \log N)\) で解きます。&lt;&#x2F;p&gt;
 &lt;h2 id=&quot;問題&quot;&gt;問題&lt;&#x2F;h2&gt;
 &lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;atcoder.jp&#x2F;contests&#x2F;abc187&#x2F;tasks&#x2F;abc187_b&quot;&gt;AtCoder Beginner Contest 187 | B - Gentle Pairs&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
 &lt;h3 id=&quot;概要&quot;&gt;概要&lt;&#x2F;h3&gt;
@@ -804,10 +804,10 @@ $$&lt;&#x2F;p&gt;
           </name>
         </author>
         
-        <link rel="alternate" type="text/html" href="https://nebocco.github.io/post/agc005b/"/>
-        <id>https://nebocco.github.io/post/agc005b/</id>
+        <link rel="alternate" type="text/html" href="https://blog.nebocco.dev/post/agc005b/"/>
+        <id>https://blog.nebocco.dev/post/agc005b/</id>
         
-        <content type="html" xml:base="https://nebocco.github.io/post/agc005b/">&lt;p&gt;\(O(N )\) で解きます。&lt;&#x2F;p&gt;
+        <content type="html" xml:base="https://blog.nebocco.dev/post/agc005b/">&lt;p&gt;\(O(N )\) で解きます。&lt;&#x2F;p&gt;
 &lt;h2 id=&quot;問題&quot;&gt;問題&lt;&#x2F;h2&gt;
 &lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;atcoder.jp&#x2F;contests&#x2F;agc005&#x2F;tasks&#x2F;agc005_b&quot;&gt;AtCoder Grand Contest 005 | B - Minimum Sum&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
 &lt;h3 id=&quot;概要&quot;&gt;概要&lt;&#x2F;h3&gt;
@@ -935,10 +935,10 @@ $$&lt;&#x2F;p&gt;
           </name>
         </author>
         
-        <link rel="alternate" type="text/html" href="https://nebocco.github.io/post/abc122/"/>
-        <id>https://nebocco.github.io/post/abc122/</id>
+        <link rel="alternate" type="text/html" href="https://blog.nebocco.dev/post/abc122/"/>
+        <id>https://blog.nebocco.dev/post/abc122/</id>
         
-        <content type="html" xml:base="https://nebocco.github.io/post/abc122/">&lt;p&gt;\(O( \log N )\) で解きます。&lt;&#x2F;p&gt;
+        <content type="html" xml:base="https://blog.nebocco.dev/post/abc122/">&lt;p&gt;\(O( \log N )\) で解きます。&lt;&#x2F;p&gt;
 &lt;h2 id=&quot;問題&quot;&gt;問題&lt;&#x2F;h2&gt;
 &lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;atcoder.jp&#x2F;contests&#x2F;abc122&#x2F;tasks&#x2F;abc122_d&quot;&gt;AtCoder Beginner Contest 122 | D - We Like AGC&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
 &lt;h2 id=&quot;解法&quot;&gt;解法&lt;&#x2F;h2&gt;
@@ -1021,10 +1021,10 @@ $$&lt;&#x2F;p&gt;
           </name>
         </author>
         
-        <link rel="alternate" type="text/html" href="https://nebocco.github.io/post/abc156c/"/>
-        <id>https://nebocco.github.io/post/abc156c/</id>
+        <link rel="alternate" type="text/html" href="https://blog.nebocco.dev/post/abc156c/"/>
+        <id>https://blog.nebocco.dev/post/abc156c/</id>
         
-        <content type="html" xml:base="https://nebocco.github.io/post/abc156c/">&lt;p&gt;\(O(N)\) で解きます。&lt;&#x2F;p&gt;
+        <content type="html" xml:base="https://blog.nebocco.dev/post/abc156c/">&lt;p&gt;\(O(N)\) で解きます。&lt;&#x2F;p&gt;
 &lt;h2 id=&quot;問題&quot;&gt;問題&lt;&#x2F;h2&gt;
 &lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;atcoder.jp&#x2F;contests&#x2F;abc156&#x2F;tasks&#x2F;abc156_c&quot;&gt;AtCoder Beginner Contest 156 | C - Rally&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
 &lt;h3 id=&quot;概要&quot;&gt;概要&lt;&#x2F;h3&gt;
@@ -1087,10 +1087,10 @@ $$&lt;&#x2F;p&gt;
           </name>
         </author>
         
-        <link rel="alternate" type="text/html" href="https://nebocco.github.io/post/abc175d/"/>
-        <id>https://nebocco.github.io/post/abc175d/</id>
+        <link rel="alternate" type="text/html" href="https://blog.nebocco.dev/post/abc175d/"/>
+        <id>https://blog.nebocco.dev/post/abc175d/</id>
         
-        <content type="html" xml:base="https://nebocco.github.io/post/abc175d/">&lt;p&gt;\(O(N \log K )\) で解きます。また、本問題の「与えられたグラフが巡回置換に分解できる」という特性をほとんど用いていないので、 \(P\) が順列でない場合でも少し書き換えるだけで解くことができます。&lt;&#x2F;p&gt;
+        <content type="html" xml:base="https://blog.nebocco.dev/post/abc175d/">&lt;p&gt;\(O(N \log K )\) で解きます。また、本問題の「与えられたグラフが巡回置換に分解できる」という特性をほとんど用いていないので、 \(P\) が順列でない場合でも少し書き換えるだけで解くことができます。&lt;&#x2F;p&gt;
 &lt;h2 id=&quot;問題&quot;&gt;問題&lt;&#x2F;h2&gt;
 &lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;atcoder.jp&#x2F;contests&#x2F;abc175&#x2F;tasks&#x2F;abc175_d&quot;&gt;AtCoder Beginner Contest 175 | D - Moving Piece&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
 &lt;h2 id=&quot;解法&quot;&gt;解法&lt;&#x2F;h2&gt;
@@ -1259,10 +1259,10 @@ $$&lt;&#x2F;p&gt;
           </name>
         </author>
         
-        <link rel="alternate" type="text/html" href="https://nebocco.github.io/post/abc172d/"/>
-        <id>https://nebocco.github.io/post/abc172d/</id>
+        <link rel="alternate" type="text/html" href="https://blog.nebocco.dev/post/abc172d/"/>
+        <id>https://blog.nebocco.dev/post/abc172d/</id>
         
-        <content type="html" xml:base="https://nebocco.github.io/post/abc172d/">&lt;p&gt;$O(\sqrt N)$ で解きます。&lt;&#x2F;p&gt;
+        <content type="html" xml:base="https://blog.nebocco.dev/post/abc172d/">&lt;p&gt;$O(\sqrt N)$ で解きます。&lt;&#x2F;p&gt;
 &lt;h2 id=&quot;問題&quot;&gt;問題&lt;&#x2F;h2&gt;
 &lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;atcoder.jp&#x2F;contests&#x2F;abc172&#x2F;tasks&#x2F;abc172_d&quot;&gt;AtCoder Beginner Contest 172 | D - Sum of Divisors&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
 &lt;h3 id=&quot;概要&quot;&gt;概要&lt;&#x2F;h3&gt;
