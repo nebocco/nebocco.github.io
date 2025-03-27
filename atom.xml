@@ -4,8 +4,50 @@
     <link rel="self" type="application/atom+xml" href="https://blog.nebocco.dev/atom.xml"/>
     <link rel="alternate" type="text/html" href="https://blog.nebocco.dev"/>
     <generator uri="https://www.getzola.org/">Zola</generator>
-    <updated>2021-11-13T00:00:00+00:00</updated>
+    <updated>2025-03-28T00:00:00+00:00</updated>
     <id>https://blog.nebocco.dev/atom.xml</id>
+    <entry xml:lang="ja">
+        <title>Zola でブログを作りました</title>
+        <published>2025-03-28T00:00:00+00:00</published>
+        <updated>2025-03-28T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              nebocco
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://blog.nebocco.dev/post/deploy_zola_blog/"/>
+        <id>https://blog.nebocco.dev/post/deploy_zola_blog/</id>
+        
+        <content type="html" xml:base="https://blog.nebocco.dev/post/deploy_zola_blog/">&lt;p&gt;Zola でブログをつくり、GitHub Pages でホストして公開しました。&lt;&#x2F;p&gt;
+&lt;h4 id=&quot;Zola_とは&quot;&gt;Zola とは&lt;&#x2F;h4&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;www.getzola.org&#x2F;&quot;&gt;Zola&lt;&#x2F;a&gt; は Rust で書かれた静的サイトジェネレータ (SSG) です。&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;移行の理由&quot;&gt;移行の理由&lt;&#x2F;h2&gt;
+&lt;p&gt;はてなブログに特に不満はなかったんですが、必要な機能だけに絞ったミニマルなブログを作りたいな～とずっと思っていました。&lt;&#x2F;p&gt;
+&lt;p&gt;加えて、自分の書いた記事がオンラインでしか見られないのはやや不安だし、Markdown で書いて Git で管理したい気持ちがありました。Markdown から自動で HTML を生成してくれる SSG なるものがあるらしい、と調べていたら、いい具合に使いやすそうなエンジンを見つけたので使ってみることにしました。&lt;&#x2F;p&gt;
+&lt;p&gt;大昔に買って放置していたドメインもついでに利用できていい感じです。&lt;&#x2F;p&gt;
+&lt;h4 id=&quot;参考にしたサイト&quot;&gt;参考にしたサイト&lt;&#x2F;h4&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;slnq.github.io&#x2F;post&#x2F;20230626&#x2F;&quot;&gt;Zolaでブログを作る - 夏果&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;shimopino.github.io&#x2F;blog&#x2F;crafting-tech-blog-with-zola&#x2F;&quot;&gt;Zolaで始める技術ブログ - shimopino&#x27;s blog&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;yng87.page&#x2F;blog&#x2F;2023&#x2F;zola&#x2F;&quot;&gt;Rust 製の静的サイトジェネレータ Zola を使ってみる - yng87.page&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;zenn.dev&#x2F;anz&#x2F;scraps&#x2F;ebf857a5cbcfb6&quot;&gt;Zola事始め作業ログ - anz&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;blog.ymgyt.io&#x2F;entry&#x2F;migrated-blog-to-zola-and-github-pages&#x2F;&quot;&gt;🚛 BlogをZola + Github Pagesに移行した - Happy developing&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h2 id=&quot;今後の更新&quot;&gt;今後の更新&lt;&#x2F;h2&gt;
+&lt;p&gt;ブログも長らく書いていなかったけど、これを機に書いていこうかなと思っています。ただ競プロはすっかり引退してしまったので、昔書いていたような解説記事はあんまり書かなくなりそうです。日記とか技術的な個人メモみたいな感覚で気軽に更新できたらいいな。&lt;&#x2F;p&gt;
+&lt;p&gt;暫くの間ははてなブログで書いていた記事を順次移行しながら、レイアウトの壊れた部分を見つけては直し、見つけては直し……を繰り返すことになると思います。&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;雑記&quot;&gt;雑記&lt;&#x2F;h3&gt;
+&lt;p&gt;久々に CSS を書いたのですが、書き方をまるっきり忘れていて悲しかったです。ドキュメントを引っ掻き回しながら書いては消し、やっとなんとかマシな見た目になりました。媒体やライトモード・ダークモードによって見た目が変わるようにしたのでぜひ見てみてほしいです。頑張ったので。&lt;&#x2F;p&gt;
+&lt;p&gt;色味をもっとやわらかな優しいものにしたいけど、特にダークモードとの兼ね合いが難しく、ためしに緑を基調で作っています。いつか急に紫基調とかになったりするかもしれません。&lt;&#x2F;p&gt;
+&lt;p&gt;OGP とかも設定したいな……未だにあれがどういうものかよくわかっていないので次の休みにでも勉強します。&lt;&#x2F;p&gt;
+&lt;p&gt;このブログ書く間 Copilot をオンにしていたんですが、補完によって自分の思考の方向性が誘導されている感じがしてかなり気持ち悪いです。（この文も「気持ち悪い」と自分で書くまでポジティブな文末がひたすら提案されていました。）Markdown に対しては補完を切ったほうがいいな……&lt;&#x2F;p&gt;
+</content>
+        
+    </entry>
     <entry xml:lang="ja">
         <title>整数のまま行う偏角ソート</title>
         <published>2021-11-13T00:00:00+00:00</published>

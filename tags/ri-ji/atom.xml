@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom" xml:lang="ja">
-    <title>ねぼこの日記 - Web</title>
-    <link rel="self" type="application/atom+xml" href="https://blog.nebocco.dev/tags/web/atom.xml"/>
+    <title>ねぼこの日記 - 日記</title>
+    <link rel="self" type="application/atom+xml" href="https://blog.nebocco.dev/tags/ri-ji/atom.xml"/>
     <link rel="alternate" type="text/html" href="https://blog.nebocco.dev"/>
     <generator uri="https://www.getzola.org/">Zola</generator>
     <updated>2025-03-28T00:00:00+00:00</updated>
-    <id>https://blog.nebocco.dev/tags/web/atom.xml</id>
+    <id>https://blog.nebocco.dev/tags/ri-ji/atom.xml</id>
     <entry xml:lang="ja">
         <title>Zola でブログを作りました</title>
         <published>2025-03-28T00:00:00+00:00</published>
@@ -45,32 +45,6 @@
 &lt;p&gt;色味をもっとやわらかな優しいものにしたいけど、特にダークモードとの兼ね合いが難しく、ためしに緑を基調で作っています。いつか急に紫基調とかになったりするかもしれません。&lt;&#x2F;p&gt;
 &lt;p&gt;OGP とかも設定したいな……未だにあれがどういうものかよくわかっていないので次の休みにでも勉強します。&lt;&#x2F;p&gt;
 &lt;p&gt;このブログ書く間 Copilot をオンにしていたんですが、補完によって自分の思考の方向性が誘導されている感じがしてかなり気持ち悪いです。（この文も「気持ち悪い」と自分で書くまでポジティブな文末がひたすら提案されていました。）Markdown に対しては補完を切ったほうがいいな……&lt;&#x2F;p&gt;
-</content>
-        
-    </entry>
-    <entry xml:lang="ja">
-        <title>ツイステのダメージ計算 Web アプリを作りました</title>
-        <published>2021-06-21T00:00:00+00:00</published>
-        <updated>2021-06-21T00:00:00+00:00</updated>
-        
-        <author>
-          <name>
-            
-              nebocco
-            
-          </name>
-        </author>
-        
-        <link rel="alternate" type="text/html" href="https://blog.nebocco.dev/post/twisted_calculator/"/>
-        <id>https://blog.nebocco.dev/post/twisted_calculator/</id>
-        
-        <content type="html" xml:base="https://blog.nebocco.dev/post/twisted_calculator/">&lt;p&gt;初めてのWebアプリを作りました。&lt;&#x2F;p&gt;
-&lt;p&gt;&lt;del&gt;&lt;a href=&quot;https:&#x2F;&#x2F;twst-simulator.herokuapp.com&quot;&gt;ツイステのダメージ計算&lt;&#x2F;a&gt;&lt;&#x2F;del&gt; （&lt;strong&gt;2022&#x2F;07&#x2F;11 追記&lt;&#x2F;strong&gt;：公開を停止しました。）&lt;&#x2F;p&gt;
-&lt;p&gt;プログラミングをやっているからにはいつかWebの技術も触りたいなあ、と思いながらも特に作るアイデアもなくのうのうと過ごしていましたが、ふとこれを思いついたので作ってみました。&lt;&#x2F;p&gt;
-&lt;p&gt;これのためにHTML、CSS、JavaScript (Vue.js) を一から勉強しました。本当に大変だった&lt;&#x2F;p&gt;
-&lt;p&gt;URLがいつまでたってもGoogleに登録されないので検索に引っかからず、だれにも使ってもらえません   ウケるね   いつか登録されるといいですね&lt;&#x2F;p&gt;
-&lt;p&gt;作る過程で Vue.js に慣れていったので、次はもう少しうまく書ける気がします。&lt;br &#x2F;&gt;
-次は何つくろっかな～   何かの投稿サイトとか作りたいね&lt;&#x2F;p&gt;
 </content>
         
     </entry>
