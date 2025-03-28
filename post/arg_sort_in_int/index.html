@@ -5,9 +5,29 @@
   <title>ねぼこの日記</title>
   <link rel="stylesheet" href="https://blog.nebocco.dev/main.css">
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="nebocco のブログ">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  
+  <link rel="alternate" type="application/rss+xml" title="RSS" href="https://blog.nebocco.dev/atom.xml" />
+  
+
+  
+
+<meta name="description" content="浮動小数点数に直して $\arg$ 求めるの嫌いなので整数のままソートしましょう。 偏角の取りうる範囲は $[0, 2 \pi )$ とします。 追記 投稿直後にもっと賢い方法が投稿され、膝から崩れ落ちました 整数のまま行う偏角ソート（行列式のあれです。）の実装バリエーションの検討とご紹介です。 - ブログ名 追記おわり ソートする時には、二点 $p = (p _ x, p _ y), q = (…">
+<meta name="keywords" content="Python Rust 競技プログラミング">
+
+<meta property="og:title" content="整数のまま行う偏角ソート - ねぼこの日記">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://blog.nebocco.dev/post/arg_sort_in_int/">
+<meta property="og:description" content="浮動小数点数に直して $\arg$ 求めるの嫌いなので整数のままソートしましょう。 偏角の取りうる範囲は $[0, 2 \pi )$ とします。 追記 投稿直後にもっと賢い方法が投稿され、膝から崩れ落ちました 整数のまま行う偏角ソート（行列式のあれです。）の実装バリエーションの検討とご紹介です。 - ブログ名 追記おわり ソートする時には、二点 $p = (p _ x, p _ y), q = (…">
+<meta property="twitter:description" content="浮動小数点数に直して $\arg$ 求めるの嫌いなので整数のままソートしましょう。 偏角の取りうる範囲は $[0, 2 \pi )$ とします。 追記 投稿直後にもっと賢い方法が投稿され、膝から崩れ落ちました 整数のまま行う偏角ソート（行列式のあれです。）の実装バリエーションの検討とご紹介です。 - ブログ名 追記おわり ソートする時には、二点 $p = (p _ x, p _ y), q = (…">
+
+  <meta property="og:image" content="https://blog.nebocco.dev/assets/ogp400x400.jpg" />
   <meta property="og:site_name" content="ねぼこの日記" />
+  <meta property="og:locale" content="ja_JP" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:site" content="@nebocco27" />
+
   
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css"
