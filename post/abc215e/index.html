@@ -166,14 +166,14 @@ $\Rightarrow g _ {\text{A}}[4] \times 2^{1}$ 通り</p>
 <p>$s[0, 6)$ からいくつか $\text{A}$ を選び、$s[6]$ を選ぶ。
 $\Rightarrow g _ {\text{A}}[6] \times 2^{0}$ 通り</p>
 <p>これらの合計が $g _ {\text{AB}}[7]$ になります。足し合わせるべき $g _ {\text{A}}[i]$ を以下のように累積的に計算すれば、前から見ていくことで $g _ {\text{AB}}$ を計算することができます。</p>
-<pre data-lang="python" style="background-color:#282c34;color:#abb2bf;" class="language-python "><code class="language-python" data-lang="python"><span>acc </span><span style="color:#56b6c2;">= </span><span style="color:#d19a66;">0
-</span><span style="color:#c678dd;">for </span><span>i </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(N):
-</span><span>    </span><span style="color:#c678dd;">if </span><span>s[i] </span><span style="color:#56b6c2;">== </span><span style="color:#98c379;">&#39;B&#39;</span><span>:
-</span><span>        acc </span><span style="color:#56b6c2;">= </span><span>acc </span><span style="color:#56b6c2;">* </span><span style="color:#d19a66;">2 </span><span style="color:#56b6c2;">+ </span><span>gA[i]
-</span><span>        gAB[i</span><span style="color:#56b6c2;">+</span><span style="color:#d19a66;">1</span><span>] </span><span style="color:#56b6c2;">= </span><span>acc
-</span><span>    </span><span style="color:#c678dd;">else</span><span>:
-</span><span>        gAB[i</span><span style="color:#56b6c2;">+</span><span style="color:#d19a66;">1</span><span>] </span><span style="color:#56b6c2;">= </span><span>gAB[i]
-</span></code></pre>
+<pre data-lang="python" class="language-python "><code class="language-python" data-lang="python">acc = 0
+for i in range(N):
+    if s[i] == &#x27;B&#x27;:
+        acc = acc * 2 + gA[i]
+        gAB[i+1] = acc
+    else:
+        gAB[i+1] = gAB[i]
+</code></pre>
 <p>同様に $g _ {\text{B}}$ から $g _ {\text{BA}}$ も計算できます。</p>
 <p>ここで、 $g _ {\text{\{A,B\}}}[i] \coloneqq \text{$s[0, i)$ から A, B を選ぶ方法の個数}$ という配列を考えると、 $g _ {\text{\{A,B\}}}[i] = g _ {\text{AB}}[i] + g _ {\text{BA}}[i]$ が成り立ちます。また、文字列中に出現する文字全体の集合を $U$ とおくと、本問題で求めるべき答えは</p>
 <p>$$
@@ -183,14 +183,14 @@ $$</p>
 <h3 id="$\sigma_\ge_3$_のとき">$\sigma \ge 3$ のとき</h3>
 <p>これまでとおおむね同様にして $g _ {*}$ を求めていくことができます。
 例えば $g _ {\text{ABCD}}$ であれば以下のようなコードになります。</p>
-<pre data-lang="python" style="background-color:#282c34;color:#abb2bf;" class="language-python "><code class="language-python" data-lang="python"><span>acc </span><span style="color:#56b6c2;">= </span><span style="color:#d19a66;">0
-</span><span style="color:#c678dd;">for </span><span>i </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(N):
-</span><span>    </span><span style="color:#c678dd;">if </span><span>s[i] </span><span style="color:#56b6c2;">== </span><span style="color:#98c379;">&#39;D&#39;</span><span>:
-</span><span>        acc </span><span style="color:#56b6c2;">= </span><span>acc </span><span style="color:#56b6c2;">* </span><span style="color:#d19a66;">2 </span><span style="color:#56b6c2;">+ </span><span>gABC[i]
-</span><span>        gABCD[i</span><span style="color:#56b6c2;">+</span><span style="color:#d19a66;">1</span><span>] </span><span style="color:#56b6c2;">= </span><span>acc
-</span><span>    </span><span style="color:#c678dd;">else</span><span>:
-</span><span>        gABCD[i</span><span style="color:#56b6c2;">+</span><span style="color:#d19a66;">1</span><span>] </span><span style="color:#56b6c2;">= </span><span>gABCD[i]
-</span></code></pre>
+<pre data-lang="python" class="language-python "><code class="language-python" data-lang="python">acc = 0
+for i in range(N):
+    if s[i] == &#x27;D&#x27;:
+        acc = acc * 2 + gABC[i]
+        gABCD[i+1] = acc
+    else:
+        gABCD[i+1] = gABCD[i]
+</code></pre>
 <p>特に $\sigma$ が大きくなると、ありうるすべての順列について $g _ {*}$ を足し合わせるのが困難となるので、直接 $g _ {S}$ を求める必要があります。この方法について、 $\sigma = 2$ の場合に戻って考えます。</p>
 <h4 id="$g___{S}$_を直接求める">$g _ {S}$ を直接求める</h4>
 <p>$s = \text{\textquotedblleft ABAABAB\textquotedblright}$ とします。ここで、以下の二種類の配列を考えます。</p>
@@ -225,104 +225,104 @@ $$</p>
   </figure>
   
 <p>$f _ {\text{AB}}$ は以下のように計算可能ですが、</p>
-<pre data-lang="python" style="background-color:#282c34;color:#abb2bf;" class="language-python "><code class="language-python" data-lang="python"><span>fAB </span><span style="color:#56b6c2;">= </span><span>[</span><span style="color:#d19a66;">0</span><span>] </span><span style="color:#56b6c2;">* </span><span>(N</span><span style="color:#56b6c2;">+</span><span style="color:#d19a66;">1</span><span>)
-</span><span>acc </span><span style="color:#56b6c2;">= </span><span style="color:#d19a66;">0
-</span><span style="color:#c678dd;">for </span><span>i </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(N):
-</span><span>    </span><span style="color:#c678dd;">if </span><span>s[i] </span><span style="color:#56b6c2;">== </span><span style="color:#98c379;">&#39;B&#39;</span><span>:
-</span><span>        </span><span style="color:#7f848e;"># s[i-1] を必ず使うという条件により、2の指数が1減る
-</span><span>        </span><span style="color:#7f848e;"># それに伴い更新式が若干変化した
-</span><span>        fAB[i</span><span style="color:#56b6c2;">+</span><span style="color:#d19a66;">1</span><span>] </span><span style="color:#56b6c2;">= </span><span>acc </span><span style="color:#56b6c2;">+ </span><span>g_A_[i]
-</span><span>        acc </span><span style="color:#56b6c2;">= </span><span>acc </span><span style="color:#56b6c2;">* </span><span style="color:#d19a66;">2 </span><span style="color:#56b6c2;">+ </span><span>g_A_[i]
-</span></code></pre>
+<pre data-lang="python" class="language-python "><code class="language-python" data-lang="python">fAB = [0] * (N+1)
+acc = 0
+for i in range(N):
+    if s[i] == &#x27;B&#x27;:
+        # s[i-1] を必ず使うという条件により、2の指数が1減る
+        # それに伴い更新式が若干変化した
+        fAB[i+1] = acc + g_A_[i]
+        acc = acc * 2 + g_A_[i]
+</code></pre>
 <p>$f _ {\text{AB}}$ と $f _ {\text{BA}}$ の更新のタイミングはかぶらないため、<code>if</code>, <code>else</code> によって以下のようにまとめることができます。</p>
-<pre data-lang="python" style="background-color:#282c34;color:#abb2bf;" class="language-python "><code class="language-python" data-lang="python"><span>fAB </span><span style="color:#56b6c2;">= </span><span>[</span><span style="color:#d19a66;">0</span><span>] </span><span style="color:#56b6c2;">* </span><span>(N</span><span style="color:#56b6c2;">+</span><span style="color:#d19a66;">1</span><span>)
-</span><span>fBA </span><span style="color:#56b6c2;">= </span><span>[</span><span style="color:#d19a66;">0</span><span>] </span><span style="color:#56b6c2;">* </span><span>(N</span><span style="color:#56b6c2;">+</span><span style="color:#d19a66;">1</span><span>)
-</span><span>accA </span><span style="color:#56b6c2;">= </span><span style="color:#d19a66;">0
-</span><span>accB </span><span style="color:#56b6c2;">= </span><span style="color:#d19a66;">0
-</span><span style="color:#c678dd;">for </span><span>i </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(N):
-</span><span>    </span><span style="color:#c678dd;">if </span><span>s[i] </span><span style="color:#56b6c2;">== </span><span style="color:#98c379;">&#39;A&#39;</span><span>:
-</span><span>        fBA[i</span><span style="color:#56b6c2;">+</span><span style="color:#d19a66;">1</span><span>] </span><span style="color:#56b6c2;">= </span><span>accA </span><span style="color:#56b6c2;">+ </span><span>g_B_[i]
-</span><span>        accA </span><span style="color:#56b6c2;">= </span><span>accA </span><span style="color:#56b6c2;">* </span><span style="color:#d19a66;">2 </span><span style="color:#56b6c2;">+ </span><span>g_B_[i]
-</span><span>    </span><span style="color:#c678dd;">else</span><span>:
-</span><span>        fAB[i</span><span style="color:#56b6c2;">+</span><span style="color:#d19a66;">1</span><span>] </span><span style="color:#56b6c2;">= </span><span>accB </span><span style="color:#56b6c2;">+ </span><span>g_A_[i]
-</span><span>        accB </span><span style="color:#56b6c2;">= </span><span>accB </span><span style="color:#56b6c2;">* </span><span style="color:#d19a66;">2 </span><span style="color:#56b6c2;">+ </span><span>g_A_[i]
-</span></code></pre>
+<pre data-lang="python" class="language-python "><code class="language-python" data-lang="python">fAB = [0] * (N+1)
+fBA = [0] * (N+1)
+accA = 0
+accB = 0
+for i in range(N):
+    if s[i] == &#x27;A&#x27;:
+        fBA[i+1] = accA + g_B_[i]
+        accA = accA * 2 + g_B_[i]
+    else:
+        fAB[i+1] = accB + g_A_[i]
+        accB = accB * 2 + g_A_[i]
+</code></pre>
 <p>さらに配列もひとつにまとめてしまうことで、直接 $f _ {\text{\{A,B\}}}$ を計算することができます。</p>
-<pre data-lang="python" style="background-color:#282c34;color:#abb2bf;" class="language-python "><code class="language-python" data-lang="python"><span>f_AB_</span><span style="color:#56b6c2;">= </span><span>[</span><span style="color:#d19a66;">0</span><span>] </span><span style="color:#56b6c2;">* </span><span>(N</span><span style="color:#56b6c2;">+</span><span style="color:#d19a66;">1</span><span>)
-</span><span>accA </span><span style="color:#56b6c2;">= </span><span style="color:#d19a66;">0
-</span><span>accB </span><span style="color:#56b6c2;">= </span><span style="color:#d19a66;">0
-</span><span style="color:#c678dd;">for </span><span>i </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(N):
-</span><span>    </span><span style="color:#c678dd;">if </span><span>s[i] </span><span style="color:#56b6c2;">== </span><span style="color:#98c379;">&#39;A&#39;</span><span>:
-</span><span>        f_AB_[i</span><span style="color:#56b6c2;">+</span><span style="color:#d19a66;">1</span><span>] </span><span style="color:#56b6c2;">= </span><span>accA </span><span style="color:#56b6c2;">+ </span><span>g_B_[i]
-</span><span>        accA </span><span style="color:#56b6c2;">= </span><span>accA </span><span style="color:#56b6c2;">* </span><span style="color:#d19a66;">2 </span><span style="color:#56b6c2;">+ </span><span>g_B_[i]
-</span><span>    </span><span style="color:#c678dd;">else</span><span>:
-</span><span>        f_AB_[i</span><span style="color:#56b6c2;">+</span><span style="color:#d19a66;">1</span><span>] </span><span style="color:#56b6c2;">= </span><span>accB </span><span style="color:#56b6c2;">+ </span><span>g_A_[i]
-</span><span>        accB </span><span style="color:#56b6c2;">= </span><span>accB </span><span style="color:#56b6c2;">* </span><span style="color:#d19a66;">2 </span><span style="color:#56b6c2;">+ </span><span>g_A_[i]
-</span></code></pre>
+<pre data-lang="python" class="language-python "><code class="language-python" data-lang="python">f_AB_= [0] * (N+1)
+accA = 0
+accB = 0
+for i in range(N):
+    if s[i] == &#x27;A&#x27;:
+        f_AB_[i+1] = accA + g_B_[i]
+        accA = accA * 2 + g_B_[i]
+    else:
+        f_AB_[i+1] = accB + g_A_[i]
+        accB = accB * 2 + g_A_[i]
+</code></pre>
 <p>以上の内容と、 $f$ の累積和を取ると $g$ になることから、$g _ {\text{\{A,B\}}}$ は結局以下のように直接計算することができます。</p>
-<pre data-lang="python" style="background-color:#282c34;color:#abb2bf;" class="language-python "><code class="language-python" data-lang="python"><span>g_AB_</span><span style="color:#56b6c2;">= </span><span>[</span><span style="color:#d19a66;">0</span><span>] </span><span style="color:#56b6c2;">* </span><span>(N</span><span style="color:#56b6c2;">+</span><span style="color:#d19a66;">1</span><span>)
-</span><span>accA </span><span style="color:#56b6c2;">= </span><span style="color:#d19a66;">0
-</span><span>accB </span><span style="color:#56b6c2;">= </span><span style="color:#d19a66;">0
-</span><span style="color:#c678dd;">for </span><span>i </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(N):
-</span><span>    </span><span style="color:#c678dd;">if </span><span>s[i] </span><span style="color:#56b6c2;">== </span><span style="color:#98c379;">&#39;A&#39;</span><span>:
-</span><span>        g_AB_[i</span><span style="color:#56b6c2;">+</span><span style="color:#d19a66;">1</span><span>] </span><span style="color:#56b6c2;">= </span><span>accA </span><span style="color:#56b6c2;">+ </span><span>g_B_[i]
-</span><span>        accA </span><span style="color:#56b6c2;">= </span><span>accA </span><span style="color:#56b6c2;">* </span><span style="color:#d19a66;">2 </span><span style="color:#56b6c2;">+ </span><span>g_B_[i]
-</span><span>    </span><span style="color:#c678dd;">else</span><span>:
-</span><span>        g_AB_[i</span><span style="color:#56b6c2;">+</span><span style="color:#d19a66;">1</span><span>] </span><span style="color:#56b6c2;">= </span><span>accB </span><span style="color:#56b6c2;">+ </span><span>g_A_[i]
-</span><span>        accB </span><span style="color:#56b6c2;">= </span><span>accB </span><span style="color:#56b6c2;">* </span><span style="color:#d19a66;">2 </span><span style="color:#56b6c2;">+ </span><span>g_A_[i]
-</span><span>    g_AB_[i</span><span style="color:#56b6c2;">+</span><span style="color:#d19a66;">1</span><span>] </span><span style="color:#56b6c2;">+= </span><span>g_AB_[i]
-</span></code></pre>
+<pre data-lang="python" class="language-python "><code class="language-python" data-lang="python">g_AB_= [0] * (N+1)
+accA = 0
+accB = 0
+for i in range(N):
+    if s[i] == &#x27;A&#x27;:
+        g_AB_[i+1] = accA + g_B_[i]
+        accA = accA * 2 + g_B_[i]
+    else:
+        g_AB_[i+1] = accB + g_A_[i]
+        accB = accB * 2 + g_A_[i]
+    g_AB_[i+1] += g_AB_[i]
+</code></pre>
 <h3 id="一般の_$\sigma$_について">一般の $\sigma$ について</h3>
 <p>より多くの文字が含まれる場合についても、最後に選ぶ文字がどれであるかによって分類すると、同様の計算が可能です。
 $\mathrm{dp}[S][i] \coloneqq \text{$s[0, i)$ から $S$ 中の文字を選ぶ方法の個数}$ を埋めていきます。
 更新式は以下のように表されます。</p>
-<pre data-lang="python" style="background-color:#282c34;color:#abb2bf;" class="language-python "><code class="language-python" data-lang="python"><span style="color:#7f848e;"># 更新のイメージ
-</span><span style="color:#c678dd;">for </span><span>i </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(N):
-</span><span>    c </span><span style="color:#56b6c2;">= </span><span>s[i]
-</span><span>    </span><span style="color:#c678dd;">if </span><span>c </span><span style="color:#c678dd;">in </span><span>S:
-</span><span>        dp[S][i</span><span style="color:#56b6c2;">+</span><span style="color:#d19a66;">1</span><span>] </span><span style="color:#56b6c2;">= </span><span>acc[c] </span><span style="color:#56b6c2;">+ </span><span>dp[S\</span><span style="color:#ffffff;">{c}][i]
-</span><span>        acc[c] = acc[c] </span><span style="color:#56b6c2;">* </span><span style="color:#d19a66;">2 </span><span style="color:#56b6c2;">+ </span><span>dp[S\</span><span style="color:#ffffff;">{c}][i]
-</span><span>    dp[S][i</span><span style="color:#56b6c2;">+</span><span style="color:#d19a66;">1</span><span>] </span><span style="color:#56b6c2;">+</span><span>= dp[S][i]
-</span></code></pre>
+<pre data-lang="python" class="language-python "><code class="language-python" data-lang="python"># 更新のイメージ
+for i in range(N):
+    c = s[i]
+    if c in S:
+        dp[S][i+1] = acc[c] + dp[S\{c}][i]
+        acc[c] = acc[c] * 2 + dp[S\{c}][i]
+    dp[S][i+1] += dp[S][i]
+</code></pre>
 <p>ここで、 $\mathrm{dp}[S]$ を計算する際には $\mathrm{dp}[S \setminus \{c\}]$ が既に計算されている必要があることに注意してください。</p>
 <p>実際に実装する際には $S$ はビット表現として持つことになるので、以下のようなコードになります。</p>
-<pre data-lang="python" style="background-color:#282c34;color:#abb2bf;" class="language-python "><code class="language-python" data-lang="python"><span style="color:#7f848e;"># 各文字は適当な整数に変換
-</span><span style="color:#c678dd;">for </span><span>i </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(N):
-</span><span>    c </span><span style="color:#56b6c2;">= </span><span>s[i]
-</span><span>    </span><span style="color:#c678dd;">if </span><span>bit</span><span style="color:#56b6c2;">&gt;&gt;</span><span>c </span><span style="color:#56b6c2;">&amp; </span><span style="color:#d19a66;">1</span><span>:
-</span><span>        dp[bit][i</span><span style="color:#56b6c2;">+</span><span style="color:#d19a66;">1</span><span>] </span><span style="color:#56b6c2;">= </span><span>acc[c] </span><span style="color:#56b6c2;">+ </span><span>dp[bit </span><span style="color:#56b6c2;">^ </span><span style="color:#d19a66;">1</span><span style="color:#56b6c2;">&lt;&lt;</span><span>c][i]
-</span><span>        acc[c] </span><span style="color:#56b6c2;">= </span><span>acc[c] </span><span style="color:#56b6c2;">* </span><span style="color:#d19a66;">2 </span><span style="color:#56b6c2;">+ </span><span>dp[bit </span><span style="color:#56b6c2;">^ </span><span style="color:#d19a66;">1</span><span style="color:#56b6c2;">&lt;&lt;</span><span>c][i]
-</span><span>    dp[bit][i</span><span style="color:#56b6c2;">+</span><span style="color:#d19a66;">1</span><span>] </span><span style="color:#56b6c2;">+= </span><span>dp[bit][i]
-</span></code></pre>
+<pre data-lang="python" class="language-python "><code class="language-python" data-lang="python"># 各文字は適当な整数に変換
+for i in range(N):
+    c = s[i]
+    if bit&gt;&gt;c &amp; 1:
+        dp[bit][i+1] = acc[c] + dp[bit ^ 1&lt;&lt;c][i]
+        acc[c] = acc[c] * 2 + dp[bit ^ 1&lt;&lt;c][i]
+    dp[bit][i+1] += dp[bit][i]
+</code></pre>
 <p><code>bit</code> について昇順に更新していけば、$\mathrm{dp}[S]$ の更新に必要な $\mathrm{dp}[T] ~ (T \subset S)$ は全て計算済みとなります。</p>
 <h4 id="余談">余談</h4>
 <p>逆に言えば自分の上位集合はまだ計算されていないことになるので、<code>if</code> を省略することができます。</p>
-<pre data-lang="python" style="background-color:#282c34;color:#abb2bf;" class="language-python "><code class="language-python" data-lang="python"><span style="color:#c678dd;">for </span><span>i </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(N):
-</span><span>    </span><span style="color:#7f848e;"># bit &amp; 1&lt;&lt;s[i] == 0 なら dp[bit | 1&lt;&lt;s[i]][i] == 0
-</span><span>    </span><span style="color:#7f848e;"># acc[s[i]] もずっと 0 のまま
-</span><span>    dp[bit][i</span><span style="color:#56b6c2;">+</span><span style="color:#d19a66;">1</span><span>] </span><span style="color:#56b6c2;">= </span><span>acc[s[i]] </span><span style="color:#56b6c2;">+ </span><span>dp[bit </span><span style="color:#56b6c2;">^ </span><span style="color:#d19a66;">1</span><span style="color:#56b6c2;">&lt;&lt;</span><span>s[i]][i] </span><span style="color:#56b6c2;">+ </span><span>dp[bit][i]
-</span><span>    acc[s[i]] </span><span style="color:#56b6c2;">= </span><span>acc[s[i]] </span><span style="color:#56b6c2;">* </span><span style="color:#d19a66;">2 </span><span style="color:#56b6c2;">+ </span><span>dp[bit </span><span style="color:#56b6c2;">^ </span><span style="color:#d19a66;">1</span><span style="color:#56b6c2;">&lt;&lt;</span><span>s[i]][i]
-</span></code></pre>
+<pre data-lang="python" class="language-python "><code class="language-python" data-lang="python">for i in range(N):
+    # bit &amp; 1&lt;&lt;s[i] == 0 なら dp[bit | 1&lt;&lt;s[i]][i] == 0
+    # acc[s[i]] もずっと 0 のまま
+    dp[bit][i+1] = acc[s[i]] + dp[bit ^ 1&lt;&lt;s[i]][i] + dp[bit][i]
+    acc[s[i]] = acc[s[i]] * 2 + dp[bit ^ 1&lt;&lt;s[i]][i]
+</code></pre>
 <h2 id="実装">実装</h2>
 <p>全体の実装は以下の通りです。計算量は $O(N2^\sigma)$ です。</p>
 <p><a href="https://atcoder.jp/contests/abc215/submissions/25328761">提出コード</a> (Python)</p>
-<pre data-lang="python" style="background-color:#282c34;color:#abb2bf;" class="language-python "><code class="language-python" data-lang="python"><span>K </span><span style="color:#56b6c2;">= </span><span style="color:#d19a66;">10
-</span><span style="color:#e5c07b;">MOD </span><span style="color:#56b6c2;">= </span><span style="color:#d19a66;">998_244_353
-</span><span>
-</span><span>N </span><span style="color:#56b6c2;">= int</span><span>(</span><span style="color:#56b6c2;">input</span><span>())
-</span><span>s </span><span style="color:#56b6c2;">= </span><span>[</span><span style="color:#56b6c2;">ord</span><span>(x) </span><span style="color:#56b6c2;">- ord</span><span>(</span><span style="color:#98c379;">&#39;A&#39;</span><span>) </span><span style="color:#c678dd;">for </span><span>x </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">input</span><span>()]
-</span><span>dp </span><span style="color:#56b6c2;">= </span><span>[[</span><span style="color:#d19a66;">0</span><span>] </span><span style="color:#56b6c2;">* </span><span>(N</span><span style="color:#56b6c2;">+</span><span style="color:#d19a66;">1</span><span>) </span><span style="color:#c678dd;">for </span><span style="color:#e5c07b;">_ </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(</span><span style="color:#d19a66;">1</span><span style="color:#56b6c2;">&lt;&lt;</span><span>K)]
-</span><span>dp[</span><span style="color:#d19a66;">0</span><span>][</span><span style="color:#d19a66;">0</span><span>] </span><span style="color:#56b6c2;">= </span><span style="color:#d19a66;">1
-</span><span>
-</span><span style="color:#c678dd;">for </span><span>bit </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(</span><span style="color:#d19a66;">1</span><span style="color:#56b6c2;">&lt;&lt;</span><span>K):
-</span><span>    acc </span><span style="color:#56b6c2;">= </span><span>[</span><span style="color:#d19a66;">0</span><span>] </span><span style="color:#56b6c2;">* </span><span>K
-</span><span>    </span><span style="color:#c678dd;">for </span><span>i </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(N):
-</span><span>        dp[bit][i</span><span style="color:#56b6c2;">+</span><span style="color:#d19a66;">1</span><span>] </span><span style="color:#56b6c2;">= </span><span>(acc[s[i]] </span><span style="color:#56b6c2;">+ </span><span>dp[bit </span><span style="color:#56b6c2;">^ </span><span style="color:#d19a66;">1</span><span style="color:#56b6c2;">&lt;&lt;</span><span>s[i]][i] </span><span style="color:#56b6c2;">+ </span><span>dp[bit][i]) </span><span style="color:#56b6c2;">% </span><span style="color:#e5c07b;">MOD
-</span><span>        acc[s[i]] </span><span style="color:#56b6c2;">= </span><span>(acc[s[i]] </span><span style="color:#56b6c2;">* </span><span style="color:#d19a66;">2 </span><span style="color:#56b6c2;">+ </span><span>dp[bit </span><span style="color:#56b6c2;">^ </span><span style="color:#d19a66;">1</span><span style="color:#56b6c2;">&lt;&lt;</span><span>s[i]][i]) </span><span style="color:#56b6c2;">% </span><span style="color:#e5c07b;">MOD
-</span><span>
-</span><span>ans </span><span style="color:#56b6c2;">= sum</span><span>(dp[bit][N] </span><span style="color:#c678dd;">for </span><span>bit </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(</span><span style="color:#d19a66;">1</span><span>, </span><span style="color:#d19a66;">1</span><span style="color:#56b6c2;">&lt;&lt;</span><span>K)) </span><span style="color:#56b6c2;">% </span><span style="color:#e5c07b;">MOD
-</span><span style="color:#56b6c2;">print</span><span>(ans)
-</span></code></pre>
+<pre data-lang="python" class="language-python "><code class="language-python" data-lang="python">K = 10
+MOD = 998_244_353
+
+N = int(input())
+s = [ord(x) - ord(&#x27;A&#x27;) for x in input()]
+dp = [[0] * (N+1) for _ in range(1&lt;&lt;K)]
+dp[0][0] = 1
+
+for bit in range(1&lt;&lt;K):
+    acc = [0] * K
+    for i in range(N):
+        dp[bit][i+1] = (acc[s[i]] + dp[bit ^ 1&lt;&lt;s[i]][i] + dp[bit][i]) % MOD
+        acc[s[i]] = (acc[s[i]] * 2 + dp[bit ^ 1&lt;&lt;s[i]][i]) % MOD
+
+ans = sum(dp[bit][N] for bit in range(1, 1&lt;&lt;K)) % MOD
+print(ans)
+</code></pre>
 
 
 

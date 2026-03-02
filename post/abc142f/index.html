@@ -170,79 +170,79 @@ $$</p>
 <p>計算量は全体で $O(N+M)$ です。</p>
 <h2 id="実装">実装</h2>
 <p><a href="https://atcoder.jp/contests/abc142/submissions/19417394">提出コード</a> (Python)</p>
-<pre data-lang="python" style="background-color:#282c34;color:#abb2bf;" class="language-python "><code class="language-python" data-lang="python"><span>N, M </span><span style="color:#56b6c2;">= map</span><span>(</span><span style="color:#56b6c2;">int</span><span>, </span><span style="color:#56b6c2;">input</span><span>().</span><span style="color:#e06c75;">split</span><span>())
-</span><span>edges </span><span style="color:#56b6c2;">= </span><span>[</span><span style="color:#56b6c2;">tuple</span><span>(</span><span style="color:#56b6c2;">map</span><span>(</span><span style="color:#56b6c2;">int</span><span>, </span><span style="color:#56b6c2;">input</span><span>().</span><span style="color:#e06c75;">split</span><span>())) </span><span style="color:#c678dd;">for </span><span style="color:#e5c07b;">_ </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(M)]
-</span><span>
-</span><span>G </span><span style="color:#56b6c2;">= </span><span>[</span><span style="color:#56b6c2;">list</span><span>() </span><span style="color:#c678dd;">for </span><span style="color:#e5c07b;">_ </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(N</span><span style="color:#56b6c2;">+</span><span style="color:#d19a66;">1</span><span>)]
-</span><span style="color:#c678dd;">for </span><span>(u, v) </span><span style="color:#c678dd;">in </span><span>edges:
-</span><span>  G[u].</span><span style="color:#e06c75;">append</span><span>(v)
-</span><span>
-</span><span style="color:#7f848e;"># サイクル検出
-</span><span>seen </span><span style="color:#56b6c2;">= </span><span>[</span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>]</span><span style="color:#56b6c2;">*</span><span>(N</span><span style="color:#56b6c2;">+</span><span style="color:#d19a66;">1</span><span>)
-</span><span style="color:#7f848e;"># -1: 未到達
-</span><span style="color:#7f848e;"># 0: stack追加済み
-</span><span style="color:#7f848e;"># 1: 行きがけで通過済み(cycle候補)
-</span><span style="color:#7f848e;"># 2: 帰りがけで通過済み
-</span><span>curr_path </span><span style="color:#56b6c2;">= </span><span>[]
-</span><span>stack </span><span style="color:#56b6c2;">= </span><span>[]
-</span><span>
-</span><span style="color:#c678dd;">def </span><span style="color:#61afef;">dfs</span><span>():
-</span><span>  </span><span style="color:#c678dd;">for </span><span>i </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(</span><span style="color:#d19a66;">1</span><span>, N</span><span style="color:#56b6c2;">+</span><span style="color:#d19a66;">1</span><span>):
-</span><span>    </span><span style="color:#c678dd;">if </span><span>seen[i] </span><span style="color:#56b6c2;">== </span><span style="color:#d19a66;">2</span><span>:
-</span><span>      </span><span style="color:#c678dd;">continue
-</span><span>    stack.</span><span style="color:#e06c75;">append</span><span>(i)
-</span><span>    </span><span style="color:#c678dd;">while </span><span>stack:
-</span><span>      u </span><span style="color:#56b6c2;">= </span><span>stack.</span><span style="color:#e06c75;">pop</span><span>()
-</span><span>      </span><span style="color:#c678dd;">if </span><span>u </span><span style="color:#56b6c2;">&gt; </span><span style="color:#d19a66;">0</span><span>: </span><span style="color:#7f848e;"># 行きがけ
-</span><span>        stack.</span><span style="color:#e06c75;">append</span><span>(</span><span style="color:#56b6c2;">-</span><span>u)
-</span><span>        curr_path.</span><span style="color:#e06c75;">append</span><span>(u)
-</span><span>        seen[u] </span><span style="color:#56b6c2;">= </span><span style="color:#d19a66;">1
-</span><span>        </span><span style="color:#c678dd;">for </span><span>v </span><span style="color:#c678dd;">in </span><span>G[u]:
-</span><span>          </span><span style="color:#c678dd;">if </span><span>seen[v] </span><span style="color:#56b6c2;">== -</span><span style="color:#d19a66;">1</span><span>:
-</span><span>            seen[v] </span><span style="color:#56b6c2;">= </span><span style="color:#d19a66;">0
-</span><span>            stack.</span><span style="color:#e06c75;">append</span><span>(v)
-</span><span>          </span><span style="color:#c678dd;">elif </span><span>seen[v] </span><span style="color:#56b6c2;">== </span><span style="color:#d19a66;">1</span><span>:
-</span><span>            cycle </span><span style="color:#56b6c2;">= </span><span>curr_path[curr_path.</span><span style="color:#e06c75;">index</span><span>(v):]
-</span><span>            </span><span style="color:#c678dd;">return </span><span>cycle
-</span><span>      </span><span style="color:#c678dd;">else</span><span>: </span><span style="color:#7f848e;"># 帰りがけ
-</span><span>        seen[</span><span style="color:#56b6c2;">-</span><span>u] </span><span style="color:#56b6c2;">= </span><span style="color:#d19a66;">2
-</span><span>        curr_path.</span><span style="color:#e06c75;">pop</span><span>()
-</span><span>  </span><span style="color:#c678dd;">return </span><span style="color:#56b6c2;">list</span><span>()
-</span><span>
-</span><span>cycle </span><span style="color:#56b6c2;">= </span><span style="color:#e06c75;">dfs</span><span>()
-</span><span style="color:#c678dd;">if not </span><span>cycle:
-</span><span>  </span><span style="color:#56b6c2;">print</span><span>(</span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>)
-</span><span>  </span><span style="color:#e06c75;">exit</span><span>()
-</span><span>
-</span><span style="color:#7f848e;"># サイクルを小さくする
-</span><span style="color:#7f848e;"># 準備
-</span><span>used </span><span style="color:#56b6c2;">= </span><span>[</span><span style="color:#d19a66;">False</span><span>] </span><span style="color:#56b6c2;">* </span><span>(N</span><span style="color:#56b6c2;">+</span><span style="color:#d19a66;">1</span><span>)
-</span><span style="color:#56b6c2;">next = </span><span>[</span><span style="color:#d19a66;">0</span><span>] </span><span style="color:#56b6c2;">* </span><span>(N</span><span style="color:#56b6c2;">+</span><span style="color:#d19a66;">1</span><span>)
-</span><span style="color:#c678dd;">for </span><span>i </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(</span><span style="color:#56b6c2;">len</span><span>(cycle)):
-</span><span>  used[cycle[i]] </span><span style="color:#56b6c2;">= </span><span style="color:#d19a66;">True
-</span><span>  </span><span style="color:#56b6c2;">next</span><span>[cycle[i</span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>]] </span><span style="color:#56b6c2;">= </span><span>cycle[i]
-</span><span>
-</span><span style="color:#7f848e;"># ショートカットできるか確かめる
-</span><span style="color:#c678dd;">for </span><span>(u, v) </span><span style="color:#c678dd;">in </span><span>edges:
-</span><span>  </span><span style="color:#c678dd;">if </span><span>used[u] </span><span style="color:#c678dd;">and </span><span>used[v] </span><span style="color:#c678dd;">and </span><span style="color:#56b6c2;">next</span><span>[u] </span><span style="color:#56b6c2;">!= </span><span>v:
-</span><span>    w </span><span style="color:#56b6c2;">= next</span><span>[u]
-</span><span>    </span><span style="color:#c678dd;">while </span><span>w </span><span style="color:#56b6c2;">!= </span><span>v:
-</span><span>      used[w] </span><span style="color:#56b6c2;">= </span><span style="color:#d19a66;">False
-</span><span>      w </span><span style="color:#56b6c2;">= next</span><span>[w]
-</span><span>    </span><span style="color:#56b6c2;">next</span><span>[u] </span><span style="color:#56b6c2;">= </span><span>v
-</span><span>
-</span><span style="color:#7f848e;"># サイクル復元
-</span><span>u </span><span style="color:#56b6c2;">= </span><span>used.</span><span style="color:#e06c75;">index</span><span>(</span><span style="color:#d19a66;">True</span><span>)
-</span><span>ans </span><span style="color:#56b6c2;">= </span><span>[u]
-</span><span>v </span><span style="color:#56b6c2;">= next</span><span>[u]
-</span><span style="color:#c678dd;">while </span><span>v </span><span style="color:#56b6c2;">!= </span><span>u:
-</span><span>  ans.</span><span style="color:#e06c75;">append</span><span>(v)
-</span><span>  v </span><span style="color:#56b6c2;">= next</span><span>[v]
-</span><span>
-</span><span style="color:#56b6c2;">print</span><span>(</span><span style="color:#56b6c2;">len</span><span>(ans))
-</span><span style="color:#c678dd;">for </span><span>x </span><span style="color:#c678dd;">in </span><span>ans:
-</span><span>  </span><span style="color:#56b6c2;">print</span><span>(x)
-</span></code></pre>
+<pre data-lang="python" class="language-python "><code class="language-python" data-lang="python">N, M = map(int, input().split())
+edges = [tuple(map(int, input().split())) for _ in range(M)]
+
+G = [list() for _ in range(N+1)]
+for (u, v) in edges:
+  G[u].append(v)
+
+# サイクル検出
+seen = [-1]*(N+1)
+# -1: 未到達
+# 0: stack追加済み
+# 1: 行きがけで通過済み(cycle候補)
+# 2: 帰りがけで通過済み
+curr_path = []
+stack = []
+
+def dfs():
+  for i in range(1, N+1):
+    if seen[i] == 2:
+      continue
+    stack.append(i)
+    while stack:
+      u = stack.pop()
+      if u &gt; 0: # 行きがけ
+        stack.append(-u)
+        curr_path.append(u)
+        seen[u] = 1
+        for v in G[u]:
+          if seen[v] == -1:
+            seen[v] = 0
+            stack.append(v)
+          elif seen[v] == 1:
+            cycle = curr_path[curr_path.index(v):]
+            return cycle
+      else: # 帰りがけ
+        seen[-u] = 2
+        curr_path.pop()
+  return list()
+
+cycle = dfs()
+if not cycle:
+  print(-1)
+  exit()
+
+# サイクルを小さくする
+# 準備
+used = [False] * (N+1)
+next = [0] * (N+1)
+for i in range(len(cycle)):
+  used[cycle[i]] = True
+  next[cycle[i-1]] = cycle[i]
+
+# ショートカットできるか確かめる
+for (u, v) in edges:
+  if used[u] and used[v] and next[u] != v:
+    w = next[u]
+    while w != v:
+      used[w] = False
+      w = next[w]
+    next[u] = v
+
+# サイクル復元
+u = used.index(True)
+ans = [u]
+v = next[u]
+while v != u:
+  ans.append(v)
+  v = next[v]
+
+print(len(ans))
+for x in ans:
+  print(x)
+</code></pre>
 <h4 id="余談">余談</h4>
 <p><a href="https://atcoder.jp/contests/abc142/submissions/19417479">提出コード</a></p>
 <p>ウケますね</p>

@@ -142,34 +142,34 @@
 <h2 id="実装">実装</h2>
 <p>今回の制約ではわざわざ座標圧縮を行う必要はありませんが、負数がなくなるよう底上げする処理が必要なのでせっかくだしやることにしました。</p>
 <p><a href="https://atcoder.jp/contests/abc187/submissions/19253538">提出コード（Python）</a></p>
-<pre data-lang="python" style="background-color:#282c34;color:#abb2bf;" class="language-python "><code class="language-python" data-lang="python"><span style="color:#c678dd;">class </span><span>FenwickTree:
-</span><span>    </span><span style="color:#7f848e;"># 実装略
-</span><span>
-</span><span>N </span><span style="color:#56b6c2;">= int</span><span>(</span><span style="color:#56b6c2;">input</span><span>())
-</span><span>P </span><span style="color:#56b6c2;">= </span><span>[</span><span style="color:#56b6c2;">tuple</span><span>(</span><span style="color:#56b6c2;">map</span><span>(</span><span style="color:#56b6c2;">int</span><span>, </span><span style="color:#56b6c2;">input</span><span>().</span><span style="color:#e06c75;">split</span><span>())) </span><span style="color:#c678dd;">for </span><span style="color:#e5c07b;">_ </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(N)]
-</span><span>
-</span><span style="color:#7f848e;"># 座標変換
-</span><span>P </span><span style="color:#56b6c2;">= </span><span>[(x</span><span style="color:#56b6c2;">-</span><span>y, x</span><span style="color:#56b6c2;">+</span><span>y) </span><span style="color:#c678dd;">for </span><span>(x, y) </span><span style="color:#c678dd;">in </span><span>P]
-</span><span>
-</span><span style="color:#7f848e;"># 座標圧縮
-</span><span style="color:#c678dd;">def </span><span style="color:#61afef;">compress</span><span>(</span><span style="font-style:italic;color:#e06c75;">p</span><span>):
-</span><span>    x_set </span><span style="color:#56b6c2;">= sorted</span><span>(</span><span style="color:#56b6c2;">set</span><span>([x </span><span style="color:#c678dd;">for </span><span>(x, y) </span><span style="color:#c678dd;">in </span><span>p]))
-</span><span>    y_set </span><span style="color:#56b6c2;">= sorted</span><span>(</span><span style="color:#56b6c2;">set</span><span>([y </span><span style="color:#c678dd;">for </span><span>(x, y) </span><span style="color:#c678dd;">in </span><span>p]))
-</span><span>    x_dict </span><span style="color:#56b6c2;">= </span><span>{x:i </span><span style="color:#c678dd;">for </span><span>i, x </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">enumerate</span><span>(x_set)}
-</span><span>    y_dict </span><span style="color:#56b6c2;">= </span><span>{y:i </span><span style="color:#c678dd;">for </span><span>i, y </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">enumerate</span><span>(y_set)}
-</span><span>    </span><span style="color:#c678dd;">return </span><span>[(x_dict[x], y_dict[y]) </span><span style="color:#c678dd;">for </span><span>(x, y) </span><span style="color:#c678dd;">in </span><span>p]
-</span><span>
-</span><span>P </span><span style="color:#56b6c2;">= </span><span style="color:#e06c75;">compress</span><span>(P)
-</span><span>
-</span><span style="color:#7f848e;"># 平面走査
-</span><span>P.</span><span style="color:#e06c75;">sort</span><span>()
-</span><span>bit </span><span style="color:#56b6c2;">= </span><span style="color:#e06c75;">FenwickTree</span><span>(N)
-</span><span>ans </span><span style="color:#56b6c2;">= </span><span style="color:#d19a66;">0
-</span><span style="color:#c678dd;">for </span><span>(</span><span style="color:#e5c07b;">_</span><span>, y) </span><span style="color:#c678dd;">in </span><span>P:
-</span><span>    ans </span><span style="color:#56b6c2;">+= </span><span>bit.</span><span style="color:#e06c75;">bitsum</span><span>(y</span><span style="color:#56b6c2;">+</span><span style="color:#d19a66;">1</span><span>)
-</span><span>    bit.</span><span style="color:#e06c75;">bitadd</span><span>(y, </span><span style="color:#d19a66;">1</span><span>)
-</span><span style="color:#56b6c2;">print</span><span>(ans)
-</span></code></pre>
+<pre data-lang="python" class="language-python "><code class="language-python" data-lang="python">class FenwickTree:
+    # 実装略
+
+N = int(input())
+P = [tuple(map(int, input().split())) for _ in range(N)]
+
+# 座標変換
+P = [(x-y, x+y) for (x, y) in P]
+
+# 座標圧縮
+def compress(p):
+    x_set = sorted(set([x for (x, y) in p]))
+    y_set = sorted(set([y for (x, y) in p]))
+    x_dict = {x:i for i, x in enumerate(x_set)}
+    y_dict = {y:i for i, y in enumerate(y_set)}
+    return [(x_dict[x], y_dict[y]) for (x, y) in p]
+
+P = compress(P)
+
+# 平面走査
+P.sort()
+bit = FenwickTree(N)
+ans = 0
+for (_, y) in P:
+    ans += bit.bitsum(y+1)
+    bit.bitadd(y, 1)
+print(ans)
+</code></pre>
 
 
 

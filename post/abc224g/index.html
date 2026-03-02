@@ -139,35 +139,35 @@ $r_a$ が $r_b$ より大きいとき、真の $r$ は $r_a$ より小さく、 
 このように $r$ を二分探索することで真の $r$ および $C(i)$ が計算できます。求める答えは $C(S)$ です。</p>
 <h2 id="実装">実装</h2>
 <p><a href="https://atcoder.jp/contests/abc224/submissions/27074184">提出コード</a> (Python)</p>
-<pre data-lang="python" style="background-color:#282c34;color:#abb2bf;" class="language-python "><code class="language-python" data-lang="python"><span style="color:#c678dd;">from </span><span>math </span><span style="font-style:italic;color:#c678dd;">import </span><span>ceil
-</span><span>
-</span><span>N, S, T, A, B </span><span style="color:#56b6c2;">= map</span><span>(</span><span style="color:#56b6c2;">float</span><span>, </span><span style="color:#56b6c2;">input</span><span>().</span><span style="color:#e06c75;">split</span><span>())
-</span><span>
-</span><span>hi </span><span style="color:#56b6c2;">= </span><span>N </span><span style="color:#56b6c2;">* max</span><span>(A, B)
-</span><span>lo </span><span style="color:#56b6c2;">= </span><span style="color:#d19a66;">0
-</span><span style="color:#c678dd;">for </span><span style="color:#e5c07b;">_ </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(</span><span style="color:#d19a66;">64</span><span>):
-</span><span>    ra </span><span style="color:#56b6c2;">= </span><span>(hi </span><span style="color:#56b6c2;">+ </span><span>lo) </span><span style="color:#56b6c2;">/ </span><span style="color:#d19a66;">2.
-</span><span>
-</span><span>    </span><span style="color:#7f848e;"># A * (T - i) &lt;= B + r である i の個数
-</span><span>    count </span><span style="color:#56b6c2;">= min</span><span>(T, </span><span style="color:#e06c75;">ceil</span><span>((ra </span><span style="color:#56b6c2;">+ </span><span>B) </span><span style="color:#56b6c2;">/ </span><span>A))
-</span><span>    border </span><span style="color:#56b6c2;">= </span><span>T </span><span style="color:#56b6c2;">- </span><span>count
-</span><span>
-</span><span>    </span><span style="color:#7f848e;"># C(i) の総和
-</span><span>    total </span><span style="color:#56b6c2;">= </span><span>(ra </span><span style="color:#56b6c2;">+ </span><span>B) </span><span style="color:#56b6c2;">* </span><span>(border </span><span style="color:#56b6c2;">+ </span><span>(N </span><span style="color:#56b6c2;">- </span><span>T)) </span><span style="color:#56b6c2;">+ </span><span>A </span><span style="color:#56b6c2;">* </span><span>(count </span><span style="color:#56b6c2;">- </span><span style="color:#d19a66;">1</span><span>) </span><span style="color:#56b6c2;">* </span><span>count </span><span style="color:#56b6c2;">/ </span><span style="color:#d19a66;">2
-</span><span>    rb </span><span style="color:#56b6c2;">= </span><span>total </span><span style="color:#56b6c2;">/ </span><span>N
-</span><span>
-</span><span>    </span><span style="color:#c678dd;">if </span><span>ra </span><span style="color:#56b6c2;">&gt; </span><span>rb:
-</span><span>        hi </span><span style="color:#56b6c2;">= </span><span>ra
-</span><span>    </span><span style="color:#c678dd;">else</span><span>:
-</span><span>        lo </span><span style="color:#56b6c2;">= </span><span>rb
-</span><span>
-</span><span>r </span><span style="color:#56b6c2;">= </span><span>(hi </span><span style="color:#56b6c2;">+ </span><span>lo) </span><span style="color:#56b6c2;">/ </span><span style="color:#d19a66;">2
-</span><span style="color:#c678dd;">if </span><span>S </span><span style="color:#56b6c2;">&gt; </span><span>T:
-</span><span>    ans </span><span style="color:#56b6c2;">= </span><span>r </span><span style="color:#56b6c2;">+ </span><span>B
-</span><span style="color:#c678dd;">else</span><span>:
-</span><span>    ans </span><span style="color:#56b6c2;">= min</span><span>(A </span><span style="color:#56b6c2;">* </span><span>(T </span><span style="color:#56b6c2;">- </span><span>S), r </span><span style="color:#56b6c2;">+ </span><span>B)
-</span><span style="color:#56b6c2;">print</span><span>(</span><span style="color:#c678dd;">f</span><span style="color:#98c379;">&quot;</span><span>{ans</span><span style="color:#d19a66;">:.16f</span><span>}</span><span style="color:#98c379;">&quot;</span><span>)
-</span></code></pre>
+<pre data-lang="python" class="language-python "><code class="language-python" data-lang="python">from math import ceil
+
+N, S, T, A, B = map(float, input().split())
+
+hi = N * max(A, B)
+lo = 0
+for _ in range(64):
+    ra = (hi + lo) &#x2F; 2.
+
+    # A * (T - i) &lt;= B + r である i の個数
+    count = min(T, ceil((ra + B) &#x2F; A))
+    border = T - count
+
+    # C(i) の総和
+    total = (ra + B) * (border + (N - T)) + A * (count - 1) * count &#x2F; 2
+    rb = total &#x2F; N
+
+    if ra &gt; rb:
+        hi = ra
+    else:
+        lo = rb
+
+r = (hi + lo) &#x2F; 2
+if S &gt; T:
+    ans = r + B
+else:
+    ans = min(A * (T - S), r + B)
+print(f&quot;{ans:.16f}&quot;)
+</code></pre>
 <p>雑すぎる</p>
 
 

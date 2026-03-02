@@ -78,23 +78,23 @@
   
 &lt;p&gt;$i_1$ と $i_2$ は元々同じ頂点を表しているので、これらは分断されないようにコスト $\infty$ の辺で繋いでおきましょう。こうすることで、禁止制約は上流から下流への一方通行になり、連鎖することを防げます。&lt;&#x2F;p&gt;
 &lt;p&gt;このグラフで始点から終点への最小カット（= 最大流）を求めればいいです。最小カットのコストを $K$ とすると、最終的な答えは $\sum_{i} (b_i+c_i) - K$ となります。&lt;&#x2F;p&gt;
-&lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let &lt;&#x2F;span&gt;&lt;span style=&quot;color:#61afef;&quot;&gt;u &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;|&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;i&lt;&#x2F;span&gt;&lt;span&gt;| { &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;2 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span&gt; i }; &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#7f848e;&quot;&gt;&#x2F;&#x2F; i_1
-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let &lt;&#x2F;span&gt;&lt;span style=&quot;color:#61afef;&quot;&gt;v &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;|&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;i&lt;&#x2F;span&gt;&lt;span&gt;| { &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;2 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span&gt; i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1 &lt;&#x2F;span&gt;&lt;span&gt;}; &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#7f848e;&quot;&gt;&#x2F;&#x2F; i_2
-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; source &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= u&lt;&#x2F;span&gt;&lt;span&gt;(n);
-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; sink &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= v&lt;&#x2F;span&gt;&lt;span&gt;(n);
-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let mut&lt;&#x2F;span&gt;&lt;span&gt; ans &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;;
-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let mut&lt;&#x2F;span&gt;&lt;span&gt; din &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;Dinic::new();
-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;amp;&lt;&#x2F;span&gt;&lt;span&gt;(i, j) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;in &amp;amp;&lt;&#x2F;span&gt;&lt;span&gt;cl { &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#7f848e;&quot;&gt;&#x2F;&#x2F; 禁止制約
-&lt;&#x2F;span&gt;&lt;span&gt;  din.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;add_edge&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;u&lt;&#x2F;span&gt;&lt;span&gt;(i), &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;v&lt;&#x2F;span&gt;&lt;span&gt;(j), &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;INF&lt;&#x2F;span&gt;&lt;span&gt;);
-&lt;&#x2F;span&gt;&lt;span&gt;}
-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;(i, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;amp;&lt;&#x2F;span&gt;&lt;span&gt;(b, c)) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;in&lt;&#x2F;span&gt;&lt;span&gt; plans.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;iter&lt;&#x2F;span&gt;&lt;span&gt;().&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;enumerate&lt;&#x2F;span&gt;&lt;span&gt;() { &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#7f848e;&quot;&gt;&#x2F;&#x2F; 各選択の報酬
-&lt;&#x2F;span&gt;&lt;span&gt;  ans &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+=&lt;&#x2F;span&gt;&lt;span&gt; b &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span&gt; c;
-&lt;&#x2F;span&gt;&lt;span&gt;  din.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;add_edge&lt;&#x2F;span&gt;&lt;span&gt;(source, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;u&lt;&#x2F;span&gt;&lt;span&gt;(i), b);
-&lt;&#x2F;span&gt;&lt;span&gt;  din.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;add_edge&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;u&lt;&#x2F;span&gt;&lt;span&gt;(i), &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;v&lt;&#x2F;span&gt;&lt;span&gt;(i), &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;INF&lt;&#x2F;span&gt;&lt;span&gt;);
-&lt;&#x2F;span&gt;&lt;span&gt;  din.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;add_edge&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;v&lt;&#x2F;span&gt;&lt;span&gt;(i), sink, c);
-&lt;&#x2F;span&gt;&lt;span&gt;}
-&lt;&#x2F;span&gt;&lt;span&gt;ans &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-=&lt;&#x2F;span&gt;&lt;span&gt; din.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;max_flow&lt;&#x2F;span&gt;&lt;span&gt;(source, sink).&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;;
-&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;pre data-lang=&quot;rust&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;let u = |i| { 2 * i }; &amp;#x2F;&amp;#x2F; i_1
+let v = |i| { 2 * i + 1 }; &amp;#x2F;&amp;#x2F; i_2
+let source = u(n);
+let sink = v(n);
+let mut ans = 0;
+let mut din = Dinic::new();
+for &amp;amp;(i, j) in &amp;amp;cl { &amp;#x2F;&amp;#x2F; 禁止制約
+  din.add_edge(u(i), v(j), INF);
+}
+for (i, &amp;amp;(b, c)) in plans.iter().enumerate() { &amp;#x2F;&amp;#x2F; 各選択の報酬
+  ans += b + c;
+  din.add_edge(source, u(i), b);
+  din.add_edge(u(i), v(i), INF);
+  din.add_edge(v(i), sink, c);
+}
+ans -= din.max_flow(source, sink).0;
+&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
 &lt;h3 id=&quot;2._頂点の分配&quot;&gt;2. 頂点の分配&lt;&#x2F;h3&gt;
 &lt;p&gt;続いて、一般的な PSP 同様、頂点を始点側と終点側に割り振る問題として捉える方針で解いてみます。
 ソースを $\text{True}(\top)$ 、シンクを $\text{False}(⊥)$ として、頂点を割り振っていきます。&lt;&#x2F;p&gt;
@@ -160,24 +160,24 @@ $$&lt;&#x2F;p&gt;
   &lt;&#x2F;figure&gt;
   
 &lt;p&gt;これで始点から終点まで流せばOKです。最終的な答えは $\sum_{i} (b_i+c_i) - K$ です。&lt;&#x2F;p&gt;
-&lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#282c34;color:#abb2bf;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let &lt;&#x2F;span&gt;&lt;span style=&quot;color:#61afef;&quot;&gt;u &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;|&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;i&lt;&#x2F;span&gt;&lt;span&gt;| { &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;2 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span&gt; i };
-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let &lt;&#x2F;span&gt;&lt;span style=&quot;color:#61afef;&quot;&gt;v &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;|&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e06c75;&quot;&gt;i&lt;&#x2F;span&gt;&lt;span&gt;| { &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;2 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span&gt; i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;1 &lt;&#x2F;span&gt;&lt;span&gt;};
-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; source &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= u&lt;&#x2F;span&gt;&lt;span&gt;(n);
-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; sink &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= v&lt;&#x2F;span&gt;&lt;span&gt;(n);
-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let mut&lt;&#x2F;span&gt;&lt;span&gt; ans &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;;
-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;let mut&lt;&#x2F;span&gt;&lt;span&gt; din &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span&gt;Dinic::new();
-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;amp;&lt;&#x2F;span&gt;&lt;span&gt;(i, j) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;in &amp;amp;&lt;&#x2F;span&gt;&lt;span&gt;cl { &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#7f848e;&quot;&gt;&#x2F;&#x2F; 禁止制約
-&lt;&#x2F;span&gt;&lt;span&gt;  din.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;add_edge&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;v&lt;&#x2F;span&gt;&lt;span&gt;(i), &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;u&lt;&#x2F;span&gt;&lt;span&gt;(j), &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;INF&lt;&#x2F;span&gt;&lt;span&gt;);
-&lt;&#x2F;span&gt;&lt;span&gt;}
-&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c678dd;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;(i, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;&amp;amp;&lt;&#x2F;span&gt;&lt;span&gt;(b, c)) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;in&lt;&#x2F;span&gt;&lt;span&gt; plans.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;iter&lt;&#x2F;span&gt;&lt;span&gt;().&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;enumerate&lt;&#x2F;span&gt;&lt;span&gt;() { &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#7f848e;&quot;&gt;&#x2F;&#x2F; 各選択の報酬
-&lt;&#x2F;span&gt;&lt;span&gt;  ans &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+=&lt;&#x2F;span&gt;&lt;span&gt; b &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span&gt; c;
-&lt;&#x2F;span&gt;&lt;span&gt;  din.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;add_edge&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;v&lt;&#x2F;span&gt;&lt;span&gt;(i), &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;u&lt;&#x2F;span&gt;&lt;span&gt;(i), &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;INF&lt;&#x2F;span&gt;&lt;span&gt;);
-&lt;&#x2F;span&gt;&lt;span&gt;  din.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;add_edge&lt;&#x2F;span&gt;&lt;span&gt;(source, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;u&lt;&#x2F;span&gt;&lt;span&gt;(i), b);
-&lt;&#x2F;span&gt;&lt;span&gt;  din.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;add_edge&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;u&lt;&#x2F;span&gt;&lt;span&gt;(i), &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;v&lt;&#x2F;span&gt;&lt;span&gt;(i), b &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span&gt; c);
-&lt;&#x2F;span&gt;&lt;span&gt;  din.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;add_edge&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;v&lt;&#x2F;span&gt;&lt;span&gt;(i), sink, c);
-&lt;&#x2F;span&gt;&lt;span&gt;}
-&lt;&#x2F;span&gt;&lt;span&gt;ans &lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;-=&lt;&#x2F;span&gt;&lt;span&gt; din.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#56b6c2;&quot;&gt;max_flow&lt;&#x2F;span&gt;&lt;span&gt;(source, sink).&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d19a66;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;;
-&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;pre data-lang=&quot;rust&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;let u = |i| { 2 * i };
+let v = |i| { 2 * i + 1 };
+let source = u(n);
+let sink = v(n);
+let mut ans = 0;
+let mut din = Dinic::new();
+for &amp;amp;(i, j) in &amp;amp;cl { &amp;#x2F;&amp;#x2F; 禁止制約
+  din.add_edge(v(i), u(j), INF);
+}
+for (i, &amp;amp;(b, c)) in plans.iter().enumerate() { &amp;#x2F;&amp;#x2F; 各選択の報酬
+  ans += b + c;
+  din.add_edge(v(i), u(i), INF);
+  din.add_edge(source, u(i), b);
+  din.add_edge(u(i), v(i), b + c);
+  din.add_edge(v(i), sink, c);
+}
+ans -= din.max_flow(source, sink).0;
+&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
 &lt;h2 id=&quot;実装&quot;&gt;実装&lt;&#x2F;h2&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;yukicoder.me&#x2F;submissions&#x2F;630915&quot;&gt;解法 1&lt;&#x2F;a&gt; (Rust)&lt;&#x2F;li&gt;

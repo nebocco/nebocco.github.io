@@ -175,23 +175,23 @@
   
 <p>$i_1$ と $i_2$ は元々同じ頂点を表しているので、これらは分断されないようにコスト $\infty$ の辺で繋いでおきましょう。こうすることで、禁止制約は上流から下流への一方通行になり、連鎖することを防げます。</p>
 <p>このグラフで始点から終点への最小カット（= 最大流）を求めればいいです。最小カットのコストを $K$ とすると、最終的な答えは $\sum_{i} (b_i+c_i) - K$ となります。</p>
-<pre data-lang="rust" style="background-color:#282c34;color:#abb2bf;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#c678dd;">let </span><span style="color:#61afef;">u </span><span style="color:#56b6c2;">= </span><span>|</span><span style="font-style:italic;color:#e06c75;">i</span><span>| { </span><span style="color:#d19a66;">2 </span><span style="color:#56b6c2;">*</span><span> i }; </span><span style="font-style:italic;color:#7f848e;">// i_1
-</span><span style="color:#c678dd;">let </span><span style="color:#61afef;">v </span><span style="color:#56b6c2;">= </span><span>|</span><span style="font-style:italic;color:#e06c75;">i</span><span>| { </span><span style="color:#d19a66;">2 </span><span style="color:#56b6c2;">*</span><span> i </span><span style="color:#56b6c2;">+ </span><span style="color:#d19a66;">1 </span><span>}; </span><span style="font-style:italic;color:#7f848e;">// i_2
-</span><span style="color:#c678dd;">let</span><span> source </span><span style="color:#56b6c2;">= u</span><span>(n);
-</span><span style="color:#c678dd;">let</span><span> sink </span><span style="color:#56b6c2;">= v</span><span>(n);
-</span><span style="color:#c678dd;">let mut</span><span> ans </span><span style="color:#56b6c2;">= </span><span style="color:#d19a66;">0</span><span>;
-</span><span style="color:#c678dd;">let mut</span><span> din </span><span style="color:#56b6c2;">= </span><span>Dinic::new();
-</span><span style="color:#c678dd;">for </span><span style="color:#56b6c2;">&amp;</span><span>(i, j) </span><span style="color:#56b6c2;">in &amp;</span><span>cl { </span><span style="font-style:italic;color:#7f848e;">// 禁止制約
-</span><span>  din.</span><span style="color:#56b6c2;">add_edge</span><span>(</span><span style="color:#56b6c2;">u</span><span>(i), </span><span style="color:#56b6c2;">v</span><span>(j), </span><span style="color:#d19a66;">INF</span><span>);
-</span><span>}
-</span><span style="color:#c678dd;">for </span><span>(i, </span><span style="color:#56b6c2;">&amp;</span><span>(b, c)) </span><span style="color:#56b6c2;">in</span><span> plans.</span><span style="color:#56b6c2;">iter</span><span>().</span><span style="color:#56b6c2;">enumerate</span><span>() { </span><span style="font-style:italic;color:#7f848e;">// 各選択の報酬
-</span><span>  ans </span><span style="color:#56b6c2;">+=</span><span> b </span><span style="color:#56b6c2;">+</span><span> c;
-</span><span>  din.</span><span style="color:#56b6c2;">add_edge</span><span>(source, </span><span style="color:#56b6c2;">u</span><span>(i), b);
-</span><span>  din.</span><span style="color:#56b6c2;">add_edge</span><span>(</span><span style="color:#56b6c2;">u</span><span>(i), </span><span style="color:#56b6c2;">v</span><span>(i), </span><span style="color:#d19a66;">INF</span><span>);
-</span><span>  din.</span><span style="color:#56b6c2;">add_edge</span><span>(</span><span style="color:#56b6c2;">v</span><span>(i), sink, c);
-</span><span>}
-</span><span>ans </span><span style="color:#56b6c2;">-=</span><span> din.</span><span style="color:#56b6c2;">max_flow</span><span>(source, sink).</span><span style="color:#d19a66;">0</span><span>;
-</span></code></pre>
+<pre data-lang="rust" class="language-rust "><code class="language-rust" data-lang="rust">let u = |i| { 2 * i }; &#x2F;&#x2F; i_1
+let v = |i| { 2 * i + 1 }; &#x2F;&#x2F; i_2
+let source = u(n);
+let sink = v(n);
+let mut ans = 0;
+let mut din = Dinic::new();
+for &amp;(i, j) in &amp;cl { &#x2F;&#x2F; 禁止制約
+  din.add_edge(u(i), v(j), INF);
+}
+for (i, &amp;(b, c)) in plans.iter().enumerate() { &#x2F;&#x2F; 各選択の報酬
+  ans += b + c;
+  din.add_edge(source, u(i), b);
+  din.add_edge(u(i), v(i), INF);
+  din.add_edge(v(i), sink, c);
+}
+ans -= din.max_flow(source, sink).0;
+</code></pre>
 <h3 id="2._頂点の分配">2. 頂点の分配</h3>
 <p>続いて、一般的な PSP 同様、頂点を始点側と終点側に割り振る問題として捉える方針で解いてみます。
 ソースを $\text{True}(\top)$ 、シンクを $\text{False}(⊥)$ として、頂点を割り振っていきます。</p>
@@ -257,24 +257,24 @@ $$</p>
   </figure>
   
 <p>これで始点から終点まで流せばOKです。最終的な答えは $\sum_{i} (b_i+c_i) - K$ です。</p>
-<pre data-lang="rust" style="background-color:#282c34;color:#abb2bf;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#c678dd;">let </span><span style="color:#61afef;">u </span><span style="color:#56b6c2;">= </span><span>|</span><span style="font-style:italic;color:#e06c75;">i</span><span>| { </span><span style="color:#d19a66;">2 </span><span style="color:#56b6c2;">*</span><span> i };
-</span><span style="color:#c678dd;">let </span><span style="color:#61afef;">v </span><span style="color:#56b6c2;">= </span><span>|</span><span style="font-style:italic;color:#e06c75;">i</span><span>| { </span><span style="color:#d19a66;">2 </span><span style="color:#56b6c2;">*</span><span> i </span><span style="color:#56b6c2;">+ </span><span style="color:#d19a66;">1 </span><span>};
-</span><span style="color:#c678dd;">let</span><span> source </span><span style="color:#56b6c2;">= u</span><span>(n);
-</span><span style="color:#c678dd;">let</span><span> sink </span><span style="color:#56b6c2;">= v</span><span>(n);
-</span><span style="color:#c678dd;">let mut</span><span> ans </span><span style="color:#56b6c2;">= </span><span style="color:#d19a66;">0</span><span>;
-</span><span style="color:#c678dd;">let mut</span><span> din </span><span style="color:#56b6c2;">= </span><span>Dinic::new();
-</span><span style="color:#c678dd;">for </span><span style="color:#56b6c2;">&amp;</span><span>(i, j) </span><span style="color:#56b6c2;">in &amp;</span><span>cl { </span><span style="font-style:italic;color:#7f848e;">// 禁止制約
-</span><span>  din.</span><span style="color:#56b6c2;">add_edge</span><span>(</span><span style="color:#56b6c2;">v</span><span>(i), </span><span style="color:#56b6c2;">u</span><span>(j), </span><span style="color:#d19a66;">INF</span><span>);
-</span><span>}
-</span><span style="color:#c678dd;">for </span><span>(i, </span><span style="color:#56b6c2;">&amp;</span><span>(b, c)) </span><span style="color:#56b6c2;">in</span><span> plans.</span><span style="color:#56b6c2;">iter</span><span>().</span><span style="color:#56b6c2;">enumerate</span><span>() { </span><span style="font-style:italic;color:#7f848e;">// 各選択の報酬
-</span><span>  ans </span><span style="color:#56b6c2;">+=</span><span> b </span><span style="color:#56b6c2;">+</span><span> c;
-</span><span>  din.</span><span style="color:#56b6c2;">add_edge</span><span>(</span><span style="color:#56b6c2;">v</span><span>(i), </span><span style="color:#56b6c2;">u</span><span>(i), </span><span style="color:#d19a66;">INF</span><span>);
-</span><span>  din.</span><span style="color:#56b6c2;">add_edge</span><span>(source, </span><span style="color:#56b6c2;">u</span><span>(i), b);
-</span><span>  din.</span><span style="color:#56b6c2;">add_edge</span><span>(</span><span style="color:#56b6c2;">u</span><span>(i), </span><span style="color:#56b6c2;">v</span><span>(i), b </span><span style="color:#56b6c2;">+</span><span> c);
-</span><span>  din.</span><span style="color:#56b6c2;">add_edge</span><span>(</span><span style="color:#56b6c2;">v</span><span>(i), sink, c);
-</span><span>}
-</span><span>ans </span><span style="color:#56b6c2;">-=</span><span> din.</span><span style="color:#56b6c2;">max_flow</span><span>(source, sink).</span><span style="color:#d19a66;">0</span><span>;
-</span></code></pre>
+<pre data-lang="rust" class="language-rust "><code class="language-rust" data-lang="rust">let u = |i| { 2 * i };
+let v = |i| { 2 * i + 1 };
+let source = u(n);
+let sink = v(n);
+let mut ans = 0;
+let mut din = Dinic::new();
+for &amp;(i, j) in &amp;cl { &#x2F;&#x2F; 禁止制約
+  din.add_edge(v(i), u(j), INF);
+}
+for (i, &amp;(b, c)) in plans.iter().enumerate() { &#x2F;&#x2F; 各選択の報酬
+  ans += b + c;
+  din.add_edge(v(i), u(i), INF);
+  din.add_edge(source, u(i), b);
+  din.add_edge(u(i), v(i), b + c);
+  din.add_edge(v(i), sink, c);
+}
+ans -= din.max_flow(source, sink).0;
+</code></pre>
 <h2 id="実装">実装</h2>
 <ul>
 <li><a href="https://yukicoder.me/submissions/630915">解法 1</a> (Rust)</li>

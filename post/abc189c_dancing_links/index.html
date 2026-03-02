@@ -202,29 +202,29 @@ $$</p>
 <p>実装の際は両端の処理に注意しましょう。両端に大きさ $0$ の皿を番兵として置いておくと良いと思います。
 以下の実装ではPythonの仕様を利用して、末尾に一つ番兵を足すことで済ませています。</p>
 <p><a href="https://atcoder.jp/contests/abc189/submissions/19762458">提出コード</a> (Python3)</p>
-<pre data-lang="python" style="background-color:#282c34;color:#abb2bf;" class="language-python "><code class="language-python" data-lang="python"><span>n </span><span style="color:#56b6c2;">= int</span><span>(</span><span style="color:#56b6c2;">input</span><span>())
-</span><span>a </span><span style="color:#56b6c2;">= list</span><span>(</span><span style="color:#56b6c2;">map</span><span>(</span><span style="color:#56b6c2;">int</span><span>, </span><span style="color:#56b6c2;">input</span><span>().</span><span style="color:#e06c75;">split</span><span>()))
-</span><span>a </span><span style="color:#56b6c2;">+= </span><span>[</span><span style="color:#d19a66;">0</span><span>] </span><span style="color:#7f848e;"># 番兵
-</span><span>
-</span><span>left </span><span style="color:#56b6c2;">= list</span><span>(</span><span style="color:#56b6c2;">range</span><span>(</span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>, n)) </span><span style="color:#7f848e;"># left[i]: 皿iの左隣の皿の番号
-</span><span>right </span><span style="color:#56b6c2;">= list</span><span>(</span><span style="color:#56b6c2;">range</span><span>(</span><span style="color:#d19a66;">1</span><span>, n</span><span style="color:#56b6c2;">+</span><span style="color:#d19a66;">2</span><span>))
-</span><span>
-</span><span>ans </span><span style="color:#56b6c2;">= </span><span style="color:#d19a66;">0
-</span><span>
-</span><span style="color:#7f848e;"># 大きい順に処理
-</span><span>l </span><span style="color:#56b6c2;">= list</span><span>(</span><span style="color:#56b6c2;">range</span><span>(n))
-</span><span>l.</span><span style="color:#e06c75;">sort</span><span>(</span><span style="font-style:italic;color:#e06c75;">key</span><span style="color:#56b6c2;">=</span><span style="color:#c678dd;">lambda </span><span style="font-style:italic;color:#e06c75;">i</span><span>: a[i])
-</span><span>l.</span><span style="color:#e06c75;">reverse</span><span>()
-</span><span style="color:#c678dd;">for </span><span>i </span><span style="color:#c678dd;">in </span><span>l:
-</span><span>    s </span><span style="color:#56b6c2;">= </span><span>right[i] </span><span style="color:#56b6c2;">- </span><span>left[i] </span><span style="color:#56b6c2;">- </span><span style="color:#d19a66;">1 </span><span style="color:#7f848e;"># 収穫範囲
-</span><span>    ans </span><span style="color:#56b6c2;">= max</span><span>(ans, s </span><span style="color:#56b6c2;">* </span><span>a[i])
-</span><span>
-</span><span>    </span><span style="color:#7f848e;"># 「左隣の右隣」と「右隣の左隣」を書き換える
-</span><span>    right[left[i]] </span><span style="color:#56b6c2;">= </span><span>right[i]
-</span><span>    left[right[i]] </span><span style="color:#56b6c2;">= </span><span>left[i]
-</span><span>
-</span><span style="color:#56b6c2;">print</span><span>(ans)
-</span></code></pre>
+<pre data-lang="python" class="language-python "><code class="language-python" data-lang="python">n = int(input())
+a = list(map(int, input().split()))
+a += [0] # 番兵
+
+left = list(range(-1, n)) # left[i]: 皿iの左隣の皿の番号
+right = list(range(1, n+2))
+
+ans = 0
+
+# 大きい順に処理
+l = list(range(n))
+l.sort(key=lambda i: a[i])
+l.reverse()
+for i in l:
+    s = right[i] - left[i] - 1 # 収穫範囲
+    ans = max(ans, s * a[i])
+
+    # 「左隣の右隣」と「右隣の左隣」を書き換える
+    right[left[i]] = right[i]
+    left[right[i]] = left[i]
+
+print(ans)
+</code></pre>
 
 
 

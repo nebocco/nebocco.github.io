@@ -143,21 +143,21 @@
 <li>\(\mathrm{score}[b][i] :=\)頂点 \(i\) から \(2 ^ b\) 回移動したときに何点もらえるか</li>
 </ul>
 <p>という二つの表を用意します。 \(\mathrm{score}[0][i] = C _  {P _ i}\) となるのがやや気持ち悪いので、公式 editorial 同様に一つずらして考え、 \(\mathrm{score}[0][i] = C _  i\) となるように \(C\) を書き換えてからダブリングを行っています。</p>
-<pre data-lang="python" style="background-color:#282c34;color:#abb2bf;" class="language-python "><code class="language-python" data-lang="python"><span>vertex </span><span style="color:#56b6c2;">= list</span><span>()
-</span><span>score </span><span style="color:#56b6c2;">= list</span><span>()
-</span><span>vertex.</span><span style="color:#e06c75;">append</span><span>(P)
-</span><span>score.</span><span style="color:#e06c75;">append</span><span>(C)
-</span><span>
-</span><span>m </span><span style="color:#56b6c2;">= </span><span style="color:#d19a66;">31 </span><span style="color:#7f848e;"># bit数
-</span><span style="color:#c678dd;">for </span><span>b </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(</span><span style="color:#d19a66;">1</span><span>, m</span><span style="color:#56b6c2;">+</span><span style="color:#d19a66;">1</span><span>):
-</span><span>    p_bth </span><span style="color:#56b6c2;">= </span><span>[</span><span style="color:#d19a66;">0</span><span>] </span><span style="color:#56b6c2;">* </span><span>N
-</span><span>    c_bth </span><span style="color:#56b6c2;">= </span><span>[</span><span style="color:#d19a66;">0</span><span>] </span><span style="color:#56b6c2;">* </span><span>N
-</span><span>    </span><span style="color:#c678dd;">for </span><span>i </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(n):
-</span><span>        p_bth[i] </span><span style="color:#56b6c2;">= </span><span>vertex[b</span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>][vertex[b</span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>][i]]
-</span><span>        c_bth[i] </span><span style="color:#56b6c2;">= </span><span>score[b</span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>][i] </span><span style="color:#56b6c2;">+ </span><span>score[b</span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>][vertex[b</span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>][i]]
-</span><span>    vertex.</span><span style="color:#e06c75;">append</span><span>(p_bth)
-</span><span>    score.</span><span style="color:#e06c75;">append</span><span>(c_bth)
-</span></code></pre>
+<pre data-lang="python" class="language-python "><code class="language-python" data-lang="python">vertex = list()
+score = list()
+vertex.append(P)
+score.append(C)
+
+m = 31 # bit数
+for b in range(1, m+1):
+    p_bth = [0] * N
+    c_bth = [0] * N
+    for i in range(n):
+        p_bth[i] = vertex[b-1][vertex[b-1][i]]
+        c_bth[i] = score[b-1][i] + score[b-1][vertex[b-1][i]]
+    vertex.append(p_bth)
+    score.append(c_bth)
+</code></pre>
 <p>計算量は \(O(Nm) = O(N \log K)\) です。</p>
 <h3 id="桁DP">桁DP</h3>
 <p>\(\mathrm{dp}[b][i][j] :=\) 下から \(b\) bit目まで見て、頂点 \(i\) に状態 \(j\) で存在するときのスコアの最大値</p>
@@ -190,35 +190,35 @@ $$</p>
 \mathrm{dp}[b-1][i][1] \leftarrow \mathrm{dp}[b][i][1]
 $$</p>
 <p>以上の遷移をコードに落とし込むと以下のようになります。ここでは、 \(j\) の値による場合分けは行わず、直接全パターンを書き下しています。</p>
-<pre data-lang="python" style="background-color:#282c34;color:#abb2bf;" class="language-python "><code class="language-python" data-lang="python"><span>m </span><span style="color:#56b6c2;">= </span><span style="color:#d19a66;">31 </span><span style="color:#7f848e;"># bit数
-</span><span style="color:#c678dd;">for </span><span>b </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(m, </span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>, </span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>):
-</span><span>    </span><span style="color:#c678dd;">for </span><span>i </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(N):
-</span><span>        </span><span style="color:#c678dd;">if </span><span>(K </span><span style="color:#56b6c2;">&gt;&gt; </span><span>b) </span><span style="color:#56b6c2;">&amp; </span><span style="color:#d19a66;">1</span><span>:
-</span><span>            dp[b</span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>][vertex[b][i]][</span><span style="color:#d19a66;">0</span><span>] </span><span style="color:#56b6c2;">= max</span><span>(dp[b</span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>][vertex[b][i]][</span><span style="color:#d19a66;">0</span><span>], dp[b][i][</span><span style="color:#d19a66;">0</span><span>] </span><span style="color:#56b6c2;">+ </span><span>score[b][i])
-</span><span>            dp[b</span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>][vertex[b][i]][</span><span style="color:#d19a66;">1</span><span>] </span><span style="color:#56b6c2;">= max</span><span>(dp[b</span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>][vertex[b][i]][</span><span style="color:#d19a66;">1</span><span>], dp[b][i][</span><span style="color:#d19a66;">1</span><span>] </span><span style="color:#56b6c2;">+ </span><span>score[b][i])
-</span><span>            dp[b</span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>][i][</span><span style="color:#d19a66;">0</span><span>] </span><span style="color:#56b6c2;">= max</span><span>(dp[b</span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>][i][</span><span style="color:#d19a66;">0</span><span>], dp[b][i][</span><span style="color:#d19a66;">0</span><span>], dp[b][i][</span><span style="color:#d19a66;">1</span><span>])
-</span><span>        </span><span style="color:#c678dd;">else</span><span>:
-</span><span>            dp[b</span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>][vertex[b][i]][</span><span style="color:#d19a66;">0</span><span>] </span><span style="color:#56b6c2;">= max</span><span>(dp[b</span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>][vertex[b][i]][</span><span style="color:#d19a66;">0</span><span>], dp[b][i][</span><span style="color:#d19a66;">0</span><span>] </span><span style="color:#56b6c2;">+ </span><span>score[b][i])
-</span><span>            dp[b</span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>][i][</span><span style="color:#d19a66;">0</span><span>] </span><span style="color:#56b6c2;">= max</span><span>(dp[b</span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>][i][</span><span style="color:#d19a66;">0</span><span>], dp[b][i][</span><span style="color:#d19a66;">0</span><span>])
-</span><span>            dp[b</span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>][i][</span><span style="color:#d19a66;">1</span><span>] </span><span style="color:#56b6c2;">= max</span><span>(dp[b</span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>][i][</span><span style="color:#d19a66;">1</span><span>], dp[b][i][</span><span style="color:#d19a66;">1</span><span>])
-</span><span>
-</span></code></pre>
+<pre data-lang="python" class="language-python "><code class="language-python" data-lang="python">m = 31 # bit数
+for b in range(m, -1, -1):
+    for i in range(N):
+        if (K &gt;&gt; b) &amp; 1:
+            dp[b-1][vertex[b][i]][0] = max(dp[b-1][vertex[b][i]][0], dp[b][i][0] + score[b][i])
+            dp[b-1][vertex[b][i]][1] = max(dp[b-1][vertex[b][i]][1], dp[b][i][1] + score[b][i])
+            dp[b-1][i][0] = max(dp[b-1][i][0], dp[b][i][0], dp[b][i][1])
+        else:
+            dp[b-1][vertex[b][i]][0] = max(dp[b-1][vertex[b][i]][0], dp[b][i][0] + score[b][i])
+            dp[b-1][i][0] = max(dp[b-1][i][0], dp[b][i][0])
+            dp[b-1][i][1] = max(dp[b-1][i][1], dp[b][i][1])
+
+</code></pre>
 <p>ただし、以上のコードをそのまま走らせると終端で \(\mathrm{dp}[-1]\) にアクセスしてしまいます。</p>
 <p>対策としては、添え字 \(b\) を一つ分ずらして考えるのもよいですが、更新に一行前のデータしか必要がないことを利用して、二本の配列 \(\mathrm{prv},\, \mathrm{nxt}\) を用意して順繰りに更新していくように書き換えました。これで空間計算量が削減されるだけではなく、速度も向上することが見込まれます。</p>
-<pre data-lang="python" style="background-color:#282c34;color:#abb2bf;" class="language-python "><code class="language-python" data-lang="python"><span>m </span><span style="color:#56b6c2;">= </span><span style="color:#d19a66;">31 </span><span style="color:#7f848e;"># bit数
-</span><span style="color:#c678dd;">for </span><span>b </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(m, </span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>, </span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>):
-</span><span>    </span><span style="color:#c678dd;">for </span><span>i </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(N):
-</span><span>        </span><span style="color:#c678dd;">if </span><span>(K </span><span style="color:#56b6c2;">&gt;&gt; </span><span>b) </span><span style="color:#56b6c2;">&amp; </span><span style="color:#d19a66;">1</span><span>:
-</span><span>            nxt[vertex[b][i]][</span><span style="color:#d19a66;">0</span><span>] </span><span style="color:#56b6c2;">= max</span><span>(nxt[vertex[b][i]][</span><span style="color:#d19a66;">0</span><span>], prv[i][</span><span style="color:#d19a66;">0</span><span>] </span><span style="color:#56b6c2;">+ </span><span>score[b][i])
-</span><span>            nxt[vertex[b][i]][</span><span style="color:#d19a66;">1</span><span>] </span><span style="color:#56b6c2;">= max</span><span>(nxt[vertex[b][i]][</span><span style="color:#d19a66;">1</span><span>], prv[i][</span><span style="color:#d19a66;">1</span><span>] </span><span style="color:#56b6c2;">+ </span><span>score[b][i])
-</span><span>            nxt[i][</span><span style="color:#d19a66;">0</span><span>] </span><span style="color:#56b6c2;">= max</span><span>(nxt[i][</span><span style="color:#d19a66;">0</span><span>], prv[i][</span><span style="color:#d19a66;">0</span><span>], prv[i][</span><span style="color:#d19a66;">1</span><span>])
-</span><span>        </span><span style="color:#c678dd;">else</span><span>:
-</span><span>            nxt[vertex[b][i]][</span><span style="color:#d19a66;">0</span><span>] </span><span style="color:#56b6c2;">= max</span><span>(nxt[vertex[b][i]][</span><span style="color:#d19a66;">0</span><span>], prv[i][</span><span style="color:#d19a66;">0</span><span>] </span><span style="color:#56b6c2;">+ </span><span>score[b][i])
-</span><span>            nxt[i][</span><span style="color:#d19a66;">0</span><span>] </span><span style="color:#56b6c2;">= max</span><span>(nxt[i][</span><span style="color:#d19a66;">0</span><span>], prv[i][</span><span style="color:#d19a66;">0</span><span>])
-</span><span>            nxt[i][</span><span style="color:#d19a66;">1</span><span>] </span><span style="color:#56b6c2;">= max</span><span>(nxt[i][</span><span style="color:#d19a66;">1</span><span>], prv[i][</span><span style="color:#d19a66;">1</span><span>])
-</span><span>    prv, nxt </span><span style="color:#56b6c2;">= </span><span>nxt, prv
-</span><span>
-</span></code></pre>
+<pre data-lang="python" class="language-python "><code class="language-python" data-lang="python">m = 31 # bit数
+for b in range(m, -1, -1):
+    for i in range(N):
+        if (K &gt;&gt; b) &amp; 1:
+            nxt[vertex[b][i]][0] = max(nxt[vertex[b][i]][0], prv[i][0] + score[b][i])
+            nxt[vertex[b][i]][1] = max(nxt[vertex[b][i]][1], prv[i][1] + score[b][i])
+            nxt[i][0] = max(nxt[i][0], prv[i][0], prv[i][1])
+        else:
+            nxt[vertex[b][i]][0] = max(nxt[vertex[b][i]][0], prv[i][0] + score[b][i])
+            nxt[i][0] = max(nxt[i][0], prv[i][0])
+            nxt[i][1] = max(nxt[i][1], prv[i][1])
+    prv, nxt = nxt, prv
+
+</code></pre>
 <p>通常このようにDP更新を行う際は毎回 \(\mathrm{nxt}\) をからっぽ（初期状態）に戻す、などの操作が必要になりますが、今回 \(\mathrm{nxt}[b][i][j]\) に残っている値は「ひとつ前の bit を考えているときに移動しなかった場合」の値です（厳密にはやや異なりますが）。更新操作が \(\mathrm{chmax}\) のみなので、毎回の初期化は必要ないと判断し省きました。</p>
 <p>計算量は \(O(Nm) = O(N \log K )\) です。</p>
 <h3 id="出力">出力</h3>
@@ -227,54 +227,54 @@ $$</p>
 <h2 id="実装">実装</h2>
 <p>以上をまとめるとこのようなコードになります。</p>
 <p><a href="https://atcoder.jp/contests/abc175/submissions/15989429">提出コード（Python）</a></p>
-<pre data-lang="python" style="background-color:#282c34;color:#abb2bf;" class="language-python "><code class="language-python" data-lang="python"><span>N, K </span><span style="color:#56b6c2;">= map</span><span>(</span><span style="color:#56b6c2;">int</span><span>, </span><span style="color:#56b6c2;">input</span><span>().</span><span style="color:#e06c75;">split</span><span>())
-</span><span>P </span><span style="color:#56b6c2;">= list</span><span>(</span><span style="color:#56b6c2;">map</span><span>(</span><span style="color:#56b6c2;">int</span><span>, </span><span style="color:#56b6c2;">input</span><span>().</span><span style="color:#e06c75;">split</span><span>()))
-</span><span>_c </span><span style="color:#56b6c2;">= list</span><span>(</span><span style="color:#56b6c2;">map</span><span>(</span><span style="color:#56b6c2;">int</span><span>, </span><span style="color:#56b6c2;">input</span><span>().</span><span style="color:#e06c75;">split</span><span>()))
-</span><span>
-</span><span style="color:#7f848e;"># Cを書き換える
-</span><span>C </span><span style="color:#56b6c2;">= </span><span>[</span><span style="color:#d19a66;">0</span><span>] </span><span style="color:#56b6c2;">* </span><span>N
-</span><span style="color:#c678dd;">for </span><span>i </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(N):
-</span><span>    P[i] </span><span style="color:#56b6c2;">-= </span><span style="color:#d19a66;">1
-</span><span>    C[i] </span><span style="color:#56b6c2;">= </span><span>_c[P[i]]
-</span><span>
-</span><span>m </span><span style="color:#56b6c2;">= </span><span style="color:#d19a66;">31 </span><span style="color:#7f848e;"># bit数
-</span><span>
-</span><span style="color:#7f848e;"># ダブリング
-</span><span>vertex </span><span style="color:#56b6c2;">= list</span><span>()
-</span><span>score </span><span style="color:#56b6c2;">= list</span><span>()
-</span><span>vertex.</span><span style="color:#e06c75;">append</span><span>(P)
-</span><span>score.</span><span style="color:#e06c75;">append</span><span>(C)
-</span><span style="color:#c678dd;">for </span><span>b </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(</span><span style="color:#d19a66;">1</span><span>, m</span><span style="color:#56b6c2;">+</span><span style="color:#d19a66;">1</span><span>):
-</span><span>    p_bth </span><span style="color:#56b6c2;">= </span><span>[</span><span style="color:#d19a66;">0</span><span>] </span><span style="color:#56b6c2;">* </span><span>N
-</span><span>    c_bth </span><span style="color:#56b6c2;">= </span><span>[</span><span style="color:#d19a66;">0</span><span>] </span><span style="color:#56b6c2;">* </span><span>N
-</span><span>    </span><span style="color:#c678dd;">for </span><span>i </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(N):
-</span><span>        p_bth[i] </span><span style="color:#56b6c2;">= </span><span>vertex[b</span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>][vertex[b</span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>][i]]
-</span><span>        c_bth[i] </span><span style="color:#56b6c2;">= </span><span>score[b</span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>][i] </span><span style="color:#56b6c2;">+ </span><span>score[b</span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>][vertex[b</span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>][i]]
-</span><span>    vertex.</span><span style="color:#e06c75;">append</span><span>(p_bth)
-</span><span>    score.</span><span style="color:#e06c75;">append</span><span>(c_bth)
-</span><span>
-</span><span style="color:#7f848e;"># 桁DP
-</span><span style="color:#e5c07b;">MIN </span><span style="color:#56b6c2;">= -</span><span>(</span><span style="color:#d19a66;">1 </span><span style="color:#56b6c2;">&lt;&lt; </span><span style="color:#d19a66;">63</span><span>)
-</span><span>prv </span><span style="color:#56b6c2;">= </span><span>[[</span><span style="color:#e5c07b;">MIN</span><span>, </span><span style="color:#d19a66;">0</span><span>] </span><span style="color:#c678dd;">for </span><span style="color:#e5c07b;">_ </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(N)]
-</span><span>nxt </span><span style="color:#56b6c2;">= </span><span>[[</span><span style="color:#e5c07b;">MIN</span><span>, </span><span style="color:#e5c07b;">MIN</span><span>] </span><span style="color:#c678dd;">for </span><span style="color:#e5c07b;">_ </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(N)]
-</span><span style="color:#c678dd;">for </span><span>b </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(m, </span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>, </span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>):
-</span><span>    </span><span style="color:#c678dd;">for </span><span>i </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(N):
-</span><span>        </span><span style="color:#c678dd;">if </span><span>(K </span><span style="color:#56b6c2;">&gt;&gt; </span><span>b) </span><span style="color:#56b6c2;">&amp; </span><span style="color:#d19a66;">1</span><span>:
-</span><span>            nxt[vertex[b][i]][</span><span style="color:#d19a66;">0</span><span>] </span><span style="color:#56b6c2;">= max</span><span>(nxt[vertex[b][i]][</span><span style="color:#d19a66;">0</span><span>], prv[i][</span><span style="color:#d19a66;">0</span><span>] </span><span style="color:#56b6c2;">+ </span><span>score[b][i])
-</span><span>            nxt[vertex[b][i]][</span><span style="color:#d19a66;">1</span><span>] </span><span style="color:#56b6c2;">= max</span><span>(nxt[vertex[b][i]][</span><span style="color:#d19a66;">1</span><span>], prv[i][</span><span style="color:#d19a66;">1</span><span>] </span><span style="color:#56b6c2;">+ </span><span>score[b][i])
-</span><span>            nxt[i][</span><span style="color:#d19a66;">0</span><span>] </span><span style="color:#56b6c2;">= max</span><span>(nxt[i][</span><span style="color:#d19a66;">0</span><span>], prv[i][</span><span style="color:#d19a66;">0</span><span>], prv[i][</span><span style="color:#d19a66;">1</span><span>])
-</span><span>        </span><span style="color:#c678dd;">else</span><span>:
-</span><span>            nxt[vertex[b][i]][</span><span style="color:#d19a66;">0</span><span>] </span><span style="color:#56b6c2;">= max</span><span>(nxt[vertex[b][i]][</span><span style="color:#d19a66;">0</span><span>], prv[i][</span><span style="color:#d19a66;">0</span><span>] </span><span style="color:#56b6c2;">+ </span><span>score[b][i])
-</span><span>            nxt[i][</span><span style="color:#d19a66;">0</span><span>] </span><span style="color:#56b6c2;">= max</span><span>(nxt[i][</span><span style="color:#d19a66;">0</span><span>], prv[i][</span><span style="color:#d19a66;">0</span><span>])
-</span><span>            nxt[i][</span><span style="color:#d19a66;">1</span><span>] </span><span style="color:#56b6c2;">= max</span><span>(nxt[i][</span><span style="color:#d19a66;">1</span><span>], prv[i][</span><span style="color:#d19a66;">1</span><span>])
-</span><span>    prv, nxt </span><span style="color:#56b6c2;">= </span><span>nxt, prv
-</span><span>
-</span><span>ans </span><span style="color:#56b6c2;">= max</span><span>(</span><span style="color:#56b6c2;">max</span><span>(x) </span><span style="color:#c678dd;">for </span><span>x </span><span style="color:#c678dd;">in </span><span>prv)
-</span><span style="color:#c678dd;">if </span><span>ans </span><span style="color:#56b6c2;">== </span><span style="color:#d19a66;">0</span><span>:
-</span><span>    ans </span><span style="color:#56b6c2;">= max</span><span>(C)
-</span><span>
-</span><span style="color:#56b6c2;">print</span><span>(ans)
-</span></code></pre>
+<pre data-lang="python" class="language-python "><code class="language-python" data-lang="python">N, K = map(int, input().split())
+P = list(map(int, input().split()))
+_c = list(map(int, input().split()))
+
+# Cを書き換える
+C = [0] * N
+for i in range(N):
+    P[i] -= 1
+    C[i] = _c[P[i]]
+
+m = 31 # bit数
+
+# ダブリング
+vertex = list()
+score = list()
+vertex.append(P)
+score.append(C)
+for b in range(1, m+1):
+    p_bth = [0] * N
+    c_bth = [0] * N
+    for i in range(N):
+        p_bth[i] = vertex[b-1][vertex[b-1][i]]
+        c_bth[i] = score[b-1][i] + score[b-1][vertex[b-1][i]]
+    vertex.append(p_bth)
+    score.append(c_bth)
+
+# 桁DP
+MIN = -(1 &lt;&lt; 63)
+prv = [[MIN, 0] for _ in range(N)]
+nxt = [[MIN, MIN] for _ in range(N)]
+for b in range(m, -1, -1):
+    for i in range(N):
+        if (K &gt;&gt; b) &amp; 1:
+            nxt[vertex[b][i]][0] = max(nxt[vertex[b][i]][0], prv[i][0] + score[b][i])
+            nxt[vertex[b][i]][1] = max(nxt[vertex[b][i]][1], prv[i][1] + score[b][i])
+            nxt[i][0] = max(nxt[i][0], prv[i][0], prv[i][1])
+        else:
+            nxt[vertex[b][i]][0] = max(nxt[vertex[b][i]][0], prv[i][0] + score[b][i])
+            nxt[i][0] = max(nxt[i][0], prv[i][0])
+            nxt[i][1] = max(nxt[i][1], prv[i][1])
+    prv, nxt = nxt, prv
+
+ans = max(max(x) for x in prv)
+if ans == 0:
+    ans = max(C)
+
+print(ans)
+</code></pre>
 
 
 

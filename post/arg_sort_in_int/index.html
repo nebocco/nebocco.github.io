@@ -137,88 +137,88 @@
 <p>これ以外の切り分け方でも大丈夫ですが、座標の正負だけ見ればいいのでこれが一番楽だと思います。
 この段階で２点の属する領域が異なれば、それだけで大小関係を決定できます。</p>
 <h5 id="Python">Python</h5>
-<pre data-lang="python" style="background-color:#282c34;color:#abb2bf;" class="language-python "><code class="language-python" data-lang="python"><span style="color:#c678dd;">def </span><span style="color:#61afef;">area</span><span>(</span><span style="font-style:italic;color:#e06c75;">p</span><span>: </span><span style="color:#56b6c2;">tuple</span><span>[</span><span style="color:#56b6c2;">int</span><span>, </span><span style="color:#56b6c2;">int</span><span>]):
-</span><span>    x, y </span><span style="color:#56b6c2;">= </span><span>p
-</span><span>    </span><span style="color:#c678dd;">if </span><span>y </span><span style="color:#56b6c2;">&lt; </span><span style="color:#d19a66;">0</span><span>:
-</span><span>        </span><span style="color:#c678dd;">return </span><span style="color:#d19a66;">3
-</span><span>    </span><span style="color:#c678dd;">elif </span><span>x </span><span style="color:#56b6c2;">&lt; </span><span style="color:#d19a66;">0</span><span>:
-</span><span>        </span><span style="color:#c678dd;">return </span><span style="color:#d19a66;">2
-</span><span>    </span><span style="color:#c678dd;">else</span><span>:
-</span><span>        </span><span style="color:#c678dd;">return </span><span style="color:#d19a66;">1
-</span><span>
-</span><span style="color:#c678dd;">def </span><span style="color:#61afef;">arg_cmp</span><span>(</span><span style="font-style:italic;color:#e06c75;">p</span><span>: </span><span style="color:#56b6c2;">tuple</span><span>[</span><span style="color:#56b6c2;">int</span><span>, </span><span style="color:#56b6c2;">int</span><span>], </span><span style="font-style:italic;color:#e06c75;">q</span><span>: </span><span style="color:#56b6c2;">tuple</span><span>[</span><span style="color:#56b6c2;">int</span><span>, </span><span style="color:#56b6c2;">int</span><span>]):
-</span><span>    ap </span><span style="color:#56b6c2;">= </span><span style="color:#e06c75;">area</span><span>(p)
-</span><span>    aq </span><span style="color:#56b6c2;">= </span><span style="color:#e06c75;">area</span><span>(q)
-</span><span>    </span><span style="color:#c678dd;">if </span><span>ap </span><span style="color:#56b6c2;">&lt; </span><span>aq:
-</span><span>        </span><span style="color:#c678dd;">return </span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1
-</span><span>    </span><span style="color:#c678dd;">elif </span><span>ap </span><span style="color:#56b6c2;">&gt; </span><span>aq:
-</span><span>        </span><span style="color:#c678dd;">return </span><span style="color:#d19a66;">1
-</span><span>    </span><span style="color:#c678dd;">else</span><span>:
-</span><span>        </span><span style="color:#c678dd;">return </span><span style="color:#d19a66;">0 </span><span style="color:#7f848e;"># もっと詳しく比較する必要がある
-</span></code></pre>
+<pre data-lang="python" class="language-python "><code class="language-python" data-lang="python">def area(p: tuple[int, int]):
+    x, y = p
+    if y &lt; 0:
+        return 3
+    elif x &lt; 0:
+        return 2
+    else:
+        return 1
+
+def arg_cmp(p: tuple[int, int], q: tuple[int, int]):
+    ap = area(p)
+    aq = area(q)
+    if ap &lt; aq:
+        return -1
+    elif ap &gt; aq:
+        return 1
+    else:
+        return 0 # もっと詳しく比較する必要がある
+</code></pre>
 <h5 id="Rust">Rust</h5>
-<pre data-lang="rust" style="background-color:#282c34;color:#abb2bf;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#c678dd;">use </span><span>std::cmp::Ordering;
-</span><span>
-</span><span style="color:#c678dd;">fn </span><span style="color:#61afef;">area</span><span>(</span><span style="font-style:italic;color:#e06c75;">p</span><span>: (</span><span style="font-style:italic;color:#e06c75;">i64</span><span>, </span><span style="font-style:italic;color:#e06c75;">i64</span><span>)) -&gt; </span><span style="color:#c678dd;">u8 </span><span>{
-</span><span>    </span><span style="color:#c678dd;">let </span><span>(x, y) </span><span style="color:#56b6c2;">=</span><span> p;
-</span><span>    </span><span style="color:#c678dd;">if</span><span> y </span><span style="color:#56b6c2;">&lt; </span><span style="color:#d19a66;">0 </span><span>{ </span><span style="color:#d19a66;">3 </span><span>} </span><span style="color:#c678dd;">else if</span><span> x </span><span style="color:#56b6c2;">&lt; </span><span style="color:#d19a66;">0 </span><span>{ </span><span style="color:#d19a66;">2 </span><span>} </span><span style="color:#c678dd;">else </span><span>{ </span><span style="color:#d19a66;">1 </span><span>}
-</span><span>}
-</span><span>
-</span><span style="color:#c678dd;">fn </span><span style="color:#61afef;">arg_cmp</span><span>(</span><span style="font-style:italic;color:#e06c75;">p</span><span>: </span><span style="color:#56b6c2;">&amp;</span><span>(</span><span style="font-style:italic;color:#e06c75;">i64</span><span>, </span><span style="font-style:italic;color:#e06c75;">i64</span><span>), </span><span style="font-style:italic;color:#e06c75;">q</span><span>: </span><span style="color:#56b6c2;">&amp;</span><span>(</span><span style="font-style:italic;color:#e06c75;">i64</span><span>, </span><span style="font-style:italic;color:#e06c75;">i64</span><span>)) -&gt; Ordering {
-</span><span>    </span><span style="color:#c678dd;">let</span><span> ap </span><span style="color:#56b6c2;">= area</span><span>(</span><span style="color:#56b6c2;">*</span><span>p);
-</span><span>    </span><span style="color:#c678dd;">let</span><span> aq </span><span style="color:#56b6c2;">= area</span><span>(</span><span style="color:#56b6c2;">*</span><span>q);
-</span><span>    ap.</span><span style="color:#56b6c2;">cmp</span><span>(</span><span style="color:#56b6c2;">&amp;</span><span>aq) </span><span style="font-style:italic;color:#7f848e;">// もっと詳しく比較する必要がある
-</span><span>}
-</span></code></pre>
+<pre data-lang="rust" class="language-rust "><code class="language-rust" data-lang="rust">use std::cmp::Ordering;
+
+fn area(p: (i64, i64)) -&gt; u8 {
+    let (x, y) = p;
+    if y &lt; 0 { 3 } else if x &lt; 0 { 2 } else { 1 }
+}
+
+fn arg_cmp(p: &amp;(i64, i64), q: &amp;(i64, i64)) -&gt; Ordering {
+    let ap = area(*p);
+    let aq = area(*q);
+    ap.cmp(&amp;aq) &#x2F;&#x2F; もっと詳しく比較する必要がある
+}
+</code></pre>
 <h3 id="細かな比較">細かな比較</h3>
 <p><a href="https://mathwords.net/x1y2hikux2y1">座標平面上での三角形の面積の求め方</a> の考え方を利用すれば、面積の符号によって２点の位置関係を特定できます。
 ２点の偏角の差が $\pi$ 以上だと符号が反転したり変な感じになってしまうので、そうならないようにあらかじめ三つの領域に分割しました。（かしこい）</p>
 <h5 id="Python-1">Python</h5>
-<pre data-lang="python" style="background-color:#282c34;color:#abb2bf;" class="language-python "><code class="language-python" data-lang="python"><span style="color:#c678dd;">def </span><span style="color:#61afef;">arg_cmp</span><span>(</span><span style="font-style:italic;color:#e06c75;">p</span><span>: </span><span style="color:#56b6c2;">tuple</span><span>[</span><span style="color:#56b6c2;">int</span><span>, </span><span style="color:#56b6c2;">int</span><span>], </span><span style="font-style:italic;color:#e06c75;">q</span><span>: </span><span style="color:#56b6c2;">tuple</span><span>[</span><span style="color:#56b6c2;">int</span><span>, </span><span style="color:#56b6c2;">int</span><span>]):
-</span><span>    ap </span><span style="color:#56b6c2;">= </span><span style="color:#e06c75;">area</span><span>(p)
-</span><span>    aq </span><span style="color:#56b6c2;">= </span><span style="color:#e06c75;">area</span><span>(q)
-</span><span>    </span><span style="color:#c678dd;">if </span><span>ap </span><span style="color:#56b6c2;">&lt; </span><span>aq:
-</span><span>        </span><span style="color:#c678dd;">return </span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1
-</span><span>    </span><span style="color:#c678dd;">elif </span><span>ap </span><span style="color:#56b6c2;">&gt; </span><span>aq:
-</span><span>        </span><span style="color:#c678dd;">return </span><span style="color:#d19a66;">1
-</span><span>    </span><span style="color:#c678dd;">else</span><span>:
-</span><span>        px, py </span><span style="color:#56b6c2;">= </span><span>p
-</span><span>        qx, qy </span><span style="color:#56b6c2;">= </span><span>q
-</span><span>        z </span><span style="color:#56b6c2;">= </span><span>px </span><span style="color:#56b6c2;">* </span><span>qy </span><span style="color:#56b6c2;">- </span><span>py </span><span style="color:#56b6c2;">* </span><span>qx
-</span><span>        </span><span style="color:#c678dd;">if </span><span>z </span><span style="color:#56b6c2;">&gt; </span><span style="color:#d19a66;">0</span><span>:
-</span><span>            </span><span style="color:#c678dd;">return </span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1
-</span><span>        </span><span style="color:#c678dd;">elif </span><span>z </span><span style="color:#56b6c2;">&lt; </span><span style="color:#d19a66;">0</span><span>:
-</span><span>            </span><span style="color:#c678dd;">return </span><span style="color:#d19a66;">1
-</span><span>        </span><span style="color:#c678dd;">else</span><span>:
-</span><span>            </span><span style="color:#c678dd;">return </span><span style="color:#d19a66;">0
-</span></code></pre>
+<pre data-lang="python" class="language-python "><code class="language-python" data-lang="python">def arg_cmp(p: tuple[int, int], q: tuple[int, int]):
+    ap = area(p)
+    aq = area(q)
+    if ap &lt; aq:
+        return -1
+    elif ap &gt; aq:
+        return 1
+    else:
+        px, py = p
+        qx, qy = q
+        z = px * qy - py * qx
+        if z &gt; 0:
+            return -1
+        elif z &lt; 0:
+            return 1
+        else:
+            return 0
+</code></pre>
 <h5 id="Rust-1">Rust</h5>
-<pre data-lang="rust" style="background-color:#282c34;color:#abb2bf;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#c678dd;">use </span><span>std::cmp::Ordering;
-</span><span>
-</span><span style="color:#c678dd;">fn </span><span style="color:#61afef;">area</span><span>(</span><span style="font-style:italic;color:#e06c75;">p</span><span>: (</span><span style="font-style:italic;color:#e06c75;">i64</span><span>, </span><span style="font-style:italic;color:#e06c75;">i64</span><span>)) -&gt; </span><span style="color:#c678dd;">u8 </span><span>{
-</span><span>    </span><span style="color:#c678dd;">let </span><span>(x, y) </span><span style="color:#56b6c2;">=</span><span> p;
-</span><span>    </span><span style="color:#c678dd;">if</span><span> y </span><span style="color:#56b6c2;">&lt; </span><span style="color:#d19a66;">0 </span><span>{ </span><span style="color:#d19a66;">3 </span><span>} </span><span style="color:#c678dd;">else if</span><span> x </span><span style="color:#56b6c2;">&lt; </span><span style="color:#d19a66;">0 </span><span>{ </span><span style="color:#d19a66;">2 </span><span>} </span><span style="color:#c678dd;">else </span><span>{ </span><span style="color:#d19a66;">1 </span><span>}
-</span><span>}
-</span><span>
-</span><span style="color:#c678dd;">fn </span><span style="color:#61afef;">arg_cmp</span><span>(</span><span style="font-style:italic;color:#e06c75;">p</span><span>: </span><span style="color:#56b6c2;">&amp;</span><span>(</span><span style="font-style:italic;color:#e06c75;">i64</span><span>, </span><span style="font-style:italic;color:#e06c75;">i64</span><span>), </span><span style="font-style:italic;color:#e06c75;">q</span><span>: </span><span style="color:#56b6c2;">&amp;</span><span>(</span><span style="font-style:italic;color:#e06c75;">i64</span><span>, </span><span style="font-style:italic;color:#e06c75;">i64</span><span>)) -&gt; Ordering {
-</span><span>    </span><span style="color:#c678dd;">let</span><span> ap </span><span style="color:#56b6c2;">= area</span><span>(</span><span style="color:#56b6c2;">*</span><span>p);
-</span><span>    </span><span style="color:#c678dd;">let</span><span> aq </span><span style="color:#56b6c2;">= area</span><span>(</span><span style="color:#56b6c2;">*</span><span>q);
-</span><span>    ap.</span><span style="color:#56b6c2;">cmp</span><span>(</span><span style="color:#56b6c2;">&amp;</span><span>aq).</span><span style="color:#56b6c2;">then</span><span>((q.</span><span style="color:#d19a66;">0 </span><span style="color:#56b6c2;">*</span><span> p.</span><span style="color:#d19a66;">1</span><span>).</span><span style="color:#56b6c2;">cmp</span><span>(</span><span style="color:#56b6c2;">&amp;</span><span>(p.</span><span style="color:#d19a66;">0 </span><span style="color:#56b6c2;">*</span><span> q.</span><span style="color:#d19a66;">1</span><span>)))
-</span><span>}
-</span></code></pre>
+<pre data-lang="rust" class="language-rust "><code class="language-rust" data-lang="rust">use std::cmp::Ordering;
+
+fn area(p: (i64, i64)) -&gt; u8 {
+    let (x, y) = p;
+    if y &lt; 0 { 3 } else if x &lt; 0 { 2 } else { 1 }
+}
+
+fn arg_cmp(p: &amp;(i64, i64), q: &amp;(i64, i64)) -&gt; Ordering {
+    let ap = area(*p);
+    let aq = area(*q);
+    ap.cmp(&amp;aq).then((q.0 * p.1).cmp(&amp;(p.0 * q.1)))
+}
+</code></pre>
 <p>あとはこれを <code>sort</code> に渡せば OK です。Python では比較関数を直接渡すことはできないので、 <code>functools</code> の <code>cmp_to_key</code> を使いましょう。</p>
 <h5 id="Python-2">Python</h5>
-<pre data-lang="python" style="background-color:#282c34;color:#abb2bf;" class="language-python "><code class="language-python" data-lang="python"><span style="color:#c678dd;">from </span><span>functools </span><span style="font-style:italic;color:#c678dd;">import </span><span>cmp_to_key
-</span><span>
-</span><span>points </span><span style="color:#56b6c2;">= </span><span>[(</span><span style="color:#d19a66;">0</span><span>, </span><span style="color:#d19a66;">1</span><span>), (</span><span style="color:#d19a66;">2</span><span>, </span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">3</span><span>), (</span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">4</span><span>, </span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">5</span><span>), (</span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">6</span><span>, </span><span style="color:#d19a66;">7</span><span>)]
-</span><span>points.</span><span style="color:#e06c75;">sort</span><span>(</span><span style="font-style:italic;color:#e06c75;">key</span><span style="color:#56b6c2;">=</span><span style="color:#e06c75;">cmp_to_key</span><span>(arg_cmp))
-</span></code></pre>
+<pre data-lang="python" class="language-python "><code class="language-python" data-lang="python">from functools import cmp_to_key
+
+points = [(0, 1), (2, -3), (-4, -5), (-6, 7)]
+points.sort(key=cmp_to_key(arg_cmp))
+</code></pre>
 <h5 id="Rust-2">Rust</h5>
-<pre data-lang="rust" style="background-color:#282c34;color:#abb2bf;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#c678dd;">fn </span><span style="color:#61afef;">main</span><span>() {
-</span><span>    </span><span style="color:#c678dd;">let mut</span><span> points: Vec&lt;(</span><span style="color:#c678dd;">i64</span><span>,</span><span style="color:#c678dd;">i64</span><span>)&gt; </span><span style="color:#56b6c2;">= </span><span>vec![(</span><span style="color:#d19a66;">0</span><span>, </span><span style="color:#d19a66;">1</span><span>), (</span><span style="color:#d19a66;">2</span><span>, </span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">3</span><span>), (</span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">4</span><span>, </span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">5</span><span>), (</span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">6</span><span>, </span><span style="color:#d19a66;">7</span><span>)];
-</span><span>    points.</span><span style="color:#56b6c2;">sort_by</span><span>(arg_cmp);
-</span><span>}
-</span></code></pre>
+<pre data-lang="rust" class="language-rust "><code class="language-rust" data-lang="rust">fn main() {
+    let mut points: Vec&lt;(i64,i64)&gt; = vec![(0, 1), (2, -3), (-4, -5), (-6, 7)];
+    points.sort_by(arg_cmp);
+}
+</code></pre>
 <h4 id="補足">補足</h4>
 <p><code>area()</code> を書き換えるだけで偏角の範囲を $[- \pi / 2, \pi / 2)$ に変更したり、点 $(0, 0)$ を必ず先頭に持ってきたりできるのが嬉しいです。</p>
 <h3 id="使用例">使用例</h3>

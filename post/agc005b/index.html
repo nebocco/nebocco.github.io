@@ -161,32 +161,32 @@ $$</p>
 一般的にはソートに \(O( N \log N)\) かかってしまいますが、この問題では \(\{a_ i\}\) が順列であることから、バケツソートの要領で \(O(N)\) で並び替えることができます。全体の計算量も \(O(N)\) です。</p>
 <p>雑に実装すると両端の要素の更新を行う際におかしくなる可能性があるので、if 文などで適切に処理をしてください。以下の Python のコードでは負のインデックスを与えると末尾からアクセスできる仕様を利用して簡便に実装しています。</p>
 <p>ちなみに、更新に Union-Find を利用して \(O(N \alpha (N))\) で解くこともできます。</p>
-<pre data-lang="python" style="background-color:#282c34;color:#abb2bf;" class="language-python "><code class="language-python" data-lang="python"><span>N </span><span style="color:#56b6c2;">= int</span><span>(</span><span style="color:#56b6c2;">input</span><span>())
-</span><span>a </span><span style="color:#56b6c2;">= list</span><span>(</span><span style="color:#56b6c2;">map</span><span>(</span><span style="color:#56b6c2;">int</span><span>, </span><span style="color:#56b6c2;">input</span><span>().</span><span style="color:#e06c75;">split</span><span>()))
-</span><span>
-</span><span style="color:#7f848e;"># indexをソート
-</span><span>b </span><span style="color:#56b6c2;">= </span><span>[</span><span style="color:#d19a66;">0</span><span>] </span><span style="color:#56b6c2;">* </span><span>N
-</span><span style="color:#c678dd;">for </span><span>i </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(N):
-</span><span>    b[a[i] </span><span style="color:#56b6c2;">- </span><span style="color:#d19a66;">1</span><span>] </span><span style="color:#56b6c2;">= </span><span>i
-</span><span>
-</span><span style="color:#7f848e;"># 初期化端っこ対策としてひとつ余計に取っている
-</span><span>left </span><span style="color:#56b6c2;">= </span><span>[</span><span style="color:#d19a66;">0</span><span>] </span><span style="color:#56b6c2;">* </span><span>(N </span><span style="color:#56b6c2;">+ </span><span style="color:#d19a66;">1</span><span>)
-</span><span>right </span><span style="color:#56b6c2;">= </span><span>[</span><span style="color:#d19a66;">0</span><span>] </span><span style="color:#56b6c2;">* </span><span>(N </span><span style="color:#56b6c2;">+ </span><span style="color:#d19a66;">1</span><span>)
-</span><span style="color:#c678dd;">for </span><span>i </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(N </span><span style="color:#56b6c2;">+ </span><span style="color:#d19a66;">1</span><span>):
-</span><span>    left[i] </span><span style="color:#56b6c2;">= </span><span>i</span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1
-</span><span>    right[i] </span><span style="color:#56b6c2;">= </span><span>i</span><span style="color:#56b6c2;">+</span><span style="color:#d19a66;">1
-</span><span>
-</span><span style="color:#7f848e;"># 更新
-</span><span style="color:#c678dd;">for </span><span>idx </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">reversed</span><span>(b):
-</span><span>    left[right[idx]] </span><span style="color:#56b6c2;">= </span><span>left[idx]
-</span><span>    right[left[idx]] </span><span style="color:#56b6c2;">= </span><span>right[idx]
-</span><span>
-</span><span>ans </span><span style="color:#56b6c2;">= </span><span style="color:#d19a66;">0
-</span><span style="color:#c678dd;">for </span><span>i </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(N):
-</span><span>    ans </span><span style="color:#56b6c2;">+= </span><span>a[i] </span><span style="color:#56b6c2;">* </span><span>(i </span><span style="color:#56b6c2;">- </span><span>left[i]) </span><span style="color:#56b6c2;">* </span><span>(right[i] </span><span style="color:#56b6c2;">- </span><span>i)
-</span><span>
-</span><span style="color:#56b6c2;">print</span><span>(ans)
-</span></code></pre>
+<pre data-lang="python" class="language-python "><code class="language-python" data-lang="python">N = int(input())
+a = list(map(int, input().split()))
+
+# indexをソート
+b = [0] * N
+for i in range(N):
+    b[a[i] - 1] = i
+
+# 初期化端っこ対策としてひとつ余計に取っている
+left = [0] * (N + 1)
+right = [0] * (N + 1)
+for i in range(N + 1):
+    left[i] = i-1
+    right[i] = i+1
+
+# 更新
+for idx in reversed(b):
+    left[right[idx]] = left[idx]
+    right[left[idx]] = right[idx]
+
+ans = 0
+for i in range(N):
+    ans += a[i] * (i - left[i]) * (right[i] - i)
+
+print(ans)
+</code></pre>
 <h3 id="stackの活用">stackの活用</h3>
 <p>上と同様に \(\mathit{left} ,\ \mathit{right}\) を求めるのですが、今度は先頭の要素から順番に \(\mathit{left}\) を求めていくことにします。</p>
 <p>stack \(\mathit{buf}\) を用意し、これに順に \(1,\ 2,\ 3,\ \ldots\) を追加していきます。
@@ -195,40 +195,40 @@ $$</p>
 ）
 \(\mathit{left}\left[i\right] \leftarrow j\) と記録して \(\mathit{buf}\) に \(i\) を push し、次に進みます。</p>
 <p>この手順を繰り返すことで、すべての要素について \(\mathit{left}\) を求めることができます。同様の操作を右から行うことで \(\mathit{right}\) も求めることができます。各要素につき高々一度ずつしか push, pop が行われないので、計算量は \(O(N)\) です。</p>
-<pre data-lang="python" style="background-color:#282c34;color:#abb2bf;" class="language-python "><code class="language-python" data-lang="python"><span>N </span><span style="color:#56b6c2;">= int</span><span>(</span><span style="color:#56b6c2;">input</span><span>())
-</span><span>a </span><span style="color:#56b6c2;">= list</span><span>(</span><span style="color:#56b6c2;">map</span><span>(</span><span style="color:#56b6c2;">int</span><span>, </span><span style="color:#56b6c2;">input</span><span>().</span><span style="color:#e06c75;">split</span><span>()))
-</span><span>
-</span><span>left </span><span style="color:#56b6c2;">= </span><span>[</span><span style="color:#d19a66;">0</span><span>] </span><span style="color:#56b6c2;">* </span><span>(N </span><span style="color:#56b6c2;">+ </span><span style="color:#d19a66;">1</span><span>)
-</span><span>right </span><span style="color:#56b6c2;">= </span><span>[</span><span style="color:#d19a66;">0</span><span>] </span><span style="color:#56b6c2;">* </span><span>(N </span><span style="color:#56b6c2;">+ </span><span style="color:#d19a66;">1</span><span>)
-</span><span>
-</span><span style="color:#7f848e;"># 左から
-</span><span>buf </span><span style="color:#56b6c2;">= list</span><span>()
-</span><span style="color:#c678dd;">for </span><span>i </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(N):
-</span><span>    </span><span style="color:#c678dd;">while </span><span style="color:#56b6c2;">len</span><span>(buf) </span><span style="color:#56b6c2;">&gt; </span><span style="color:#d19a66;">0 </span><span style="color:#c678dd;">and </span><span>a[buf[</span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>]] </span><span style="color:#56b6c2;">&gt; </span><span>a[i]:
-</span><span>        buf.</span><span style="color:#e06c75;">pop</span><span>()
-</span><span>    </span><span style="color:#c678dd;">if </span><span style="color:#56b6c2;">len</span><span>(buf) </span><span style="color:#56b6c2;">&gt; </span><span style="color:#d19a66;">0</span><span>:
-</span><span>        left[i] </span><span style="color:#56b6c2;">= </span><span>buf[</span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>]
-</span><span>    </span><span style="color:#c678dd;">else</span><span>:
-</span><span>        left[i] </span><span style="color:#56b6c2;">= -</span><span style="color:#d19a66;">1
-</span><span>    buf.</span><span style="color:#e06c75;">append</span><span>(i)
-</span><span>
-</span><span style="color:#7f848e;"># 右から
-</span><span>buf </span><span style="color:#56b6c2;">= list</span><span>()
-</span><span style="color:#c678dd;">for </span><span>i </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">reversed</span><span>(</span><span style="color:#56b6c2;">range</span><span>(N)):
-</span><span>    </span><span style="color:#c678dd;">while </span><span style="color:#56b6c2;">len</span><span>(buf) </span><span style="color:#56b6c2;">&gt; </span><span style="color:#d19a66;">0 </span><span style="color:#c678dd;">and </span><span>a[buf[</span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>]] </span><span style="color:#56b6c2;">&gt; </span><span>a[i]:
-</span><span>        buf.</span><span style="color:#e06c75;">pop</span><span>()
-</span><span>    </span><span style="color:#c678dd;">if </span><span style="color:#56b6c2;">len</span><span>(buf) </span><span style="color:#56b6c2;">&gt; </span><span style="color:#d19a66;">0</span><span>:
-</span><span>        right[i] </span><span style="color:#56b6c2;">= </span><span>buf[</span><span style="color:#56b6c2;">-</span><span style="color:#d19a66;">1</span><span>]
-</span><span>    </span><span style="color:#c678dd;">else</span><span>:
-</span><span>        right[i] </span><span style="color:#56b6c2;">= </span><span>N
-</span><span>    buf.</span><span style="color:#e06c75;">append</span><span>(i)
-</span><span>
-</span><span>ans </span><span style="color:#56b6c2;">= </span><span style="color:#d19a66;">0
-</span><span style="color:#c678dd;">for </span><span>i </span><span style="color:#c678dd;">in </span><span style="color:#56b6c2;">range</span><span>(N):
-</span><span>    ans </span><span style="color:#56b6c2;">+= </span><span>a[i] </span><span style="color:#56b6c2;">* </span><span>(i </span><span style="color:#56b6c2;">- </span><span>left[i]) </span><span style="color:#56b6c2;">* </span><span>(right[i] </span><span style="color:#56b6c2;">- </span><span>i)
-</span><span>
-</span><span style="color:#56b6c2;">print</span><span>(ans)
-</span></code></pre>
+<pre data-lang="python" class="language-python "><code class="language-python" data-lang="python">N = int(input())
+a = list(map(int, input().split()))
+
+left = [0] * (N + 1)
+right = [0] * (N + 1)
+
+# 左から
+buf = list()
+for i in range(N):
+    while len(buf) &gt; 0 and a[buf[-1]] &gt; a[i]:
+        buf.pop()
+    if len(buf) &gt; 0:
+        left[i] = buf[-1]
+    else:
+        left[i] = -1
+    buf.append(i)
+
+# 右から
+buf = list()
+for i in reversed(range(N)):
+    while len(buf) &gt; 0 and a[buf[-1]] &gt; a[i]:
+        buf.pop()
+    if len(buf) &gt; 0:
+        right[i] = buf[-1]
+    else:
+        right[i] = N
+    buf.append(i)
+
+ans = 0
+for i in range(N):
+    ans += a[i] * (i - left[i]) * (right[i] - i)
+
+print(ans)
+</code></pre>
 <h2 id="実装">実装</h2>
 <ul>
 <li><a href="https://atcoder.jp/contests/agc005/submissions/16085209">Dancing Links 解法 (Python)</a>: 325 ms</li>
