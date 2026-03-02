@@ -121,7 +121,7 @@
 
 <p>みんなはちゃんと証明しましょう</p>
 <h2 id="問題">問題</h2>
-<p><a href="https://atcoder.jp/contests/abc224/tasks/abc224_g">AtCoder Beginner Contest 224 | G - Roll or Increment</a></p>
+<p><a rel="external" href="https://atcoder.jp/contests/abc224/tasks/abc224_g">AtCoder Beginner Contest 224 | G - Roll or Increment</a></p>
 <h2 id="解法">解法</h2>
 <p>現在の出目が $i$ の時、出目を $T$ に変える最適な戦略でかかる合計コストを $C(i)$ と書くことにします。
 戦略はゴールまで増やし続けるか一旦振り直すかです。</p>
@@ -138,36 +138,35 @@ $$</p>
 $r_a$ が $r_b$ より大きいとき、真の $r$ は $r_a$ より小さく、 小さいときは $r_a$ より大きいはずです。
 このように $r$ を二分探索することで真の $r$ および $C(i)$ が計算できます。求める答えは $C(S)$ です。</p>
 <h2 id="実装">実装</h2>
-<p><a href="https://atcoder.jp/contests/abc224/submissions/27074184">提出コード</a> (Python)</p>
-<pre data-lang="python" class="language-python "><code class="language-python" data-lang="python">from math import ceil
-
-N, S, T, A, B = map(float, input().split())
-
-hi = N * max(A, B)
-lo = 0
-for _ in range(64):
-    ra = (hi + lo) &#x2F; 2.
-
-    # A * (T - i) &lt;= B + r である i の個数
-    count = min(T, ceil((ra + B) &#x2F; A))
-    border = T - count
-
-    # C(i) の総和
-    total = (ra + B) * (border + (N - T)) + A * (count - 1) * count &#x2F; 2
-    rb = total &#x2F; N
-
-    if ra &gt; rb:
-        hi = ra
-    else:
-        lo = rb
-
-r = (hi + lo) &#x2F; 2
-if S &gt; T:
-    ans = r + B
-else:
-    ans = min(A * (T - S), r + B)
-print(f&quot;{ans:.16f}&quot;)
-</code></pre>
+<p><a rel="external" href="https://atcoder.jp/contests/abc224/submissions/27074184">提出コード</a> (Python)</p>
+<pre class="giallo" style="color: #D6DEEB; background-color: #011627;"><code data-lang="python"><span class="giallo-l"><span style="color: #C792EA;font-style: italic;">from</span><span> math</span><span style="color: #C792EA;font-style: italic;"> import</span><span> ceil</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span>N, S, T, A, B</span><span style="color: #C792EA;"> =</span><span style="color: #C5E478;"> map</span><span>(</span><span style="color: #C5E478;">float</span><span style="color: #D9F5DD;">,</span><span style="color: #C5E478;"> input</span><span>()</span><span style="color: #82AAFF;">.</span><span style="color: #B2CCD6;">split</span><span>())</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span>hi</span><span style="color: #C792EA;"> =</span><span> N</span><span style="color: #C792EA;"> *</span><span style="color: #C5E478;"> max</span><span>(</span><span style="color: #82AAFF;">A</span><span style="color: #D9F5DD;">,</span><span style="color: #82AAFF;"> B</span><span>)</span></span>
+<span class="giallo-l"><span>lo</span><span style="color: #C792EA;"> =</span><span style="color: #F78C6C;"> 0</span></span>
+<span class="giallo-l"><span style="color: #C792EA;font-style: italic;">for</span><span> _</span><span style="color: #C792EA;font-style: italic;"> in</span><span style="color: #C5E478;"> range</span><span>(</span><span style="color: #F78C6C;">64</span><span>):</span></span>
+<span class="giallo-l"><span>    ra</span><span style="color: #C792EA;"> =</span><span> (hi</span><span style="color: #C792EA;"> +</span><span> lo)</span><span style="color: #C792EA;"> /</span><span style="color: #F78C6C;"> 2</span><span>.</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: #637777;font-style: italic;">    # A * (T - i) &lt;= B + r である i の個数</span></span>
+<span class="giallo-l"><span>    count</span><span style="color: #C792EA;"> =</span><span style="color: #C5E478;"> min</span><span>(</span><span style="color: #82AAFF;">T</span><span style="color: #D9F5DD;">,</span><span style="color: #B2CCD6;"> ceil</span><span>(</span><span style="color: #82AAFF;">(ra</span><span style="color: #C792EA;"> +</span><span style="color: #82AAFF;"> B)</span><span style="color: #C792EA;"> /</span><span style="color: #82AAFF;"> A</span><span>))</span></span>
+<span class="giallo-l"><span>    border</span><span style="color: #C792EA;"> =</span><span> T</span><span style="color: #C792EA;"> -</span><span> count</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: #637777;font-style: italic;">    # C(i) の総和</span></span>
+<span class="giallo-l"><span>    total</span><span style="color: #C792EA;"> =</span><span> (ra</span><span style="color: #C792EA;"> +</span><span> B)</span><span style="color: #C792EA;"> *</span><span> (border</span><span style="color: #C792EA;"> +</span><span> (N</span><span style="color: #C792EA;"> -</span><span> T))</span><span style="color: #C792EA;"> +</span><span> A</span><span style="color: #C792EA;"> *</span><span> (count</span><span style="color: #C792EA;"> -</span><span style="color: #F78C6C;"> 1</span><span>)</span><span style="color: #C792EA;"> *</span><span> count</span><span style="color: #C792EA;"> /</span><span style="color: #F78C6C;"> 2</span></span>
+<span class="giallo-l"><span>    rb</span><span style="color: #C792EA;"> =</span><span> total</span><span style="color: #C792EA;"> /</span><span> N</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: #C792EA;font-style: italic;">    if</span><span> ra</span><span style="color: #C792EA;"> &gt;</span><span> rb:</span></span>
+<span class="giallo-l"><span>        hi</span><span style="color: #C792EA;"> =</span><span> ra</span></span>
+<span class="giallo-l"><span style="color: #C792EA;font-style: italic;">    else</span><span>:</span></span>
+<span class="giallo-l"><span>        lo</span><span style="color: #C792EA;"> =</span><span> rb</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span>r</span><span style="color: #C792EA;"> =</span><span> (hi</span><span style="color: #C792EA;"> +</span><span> lo)</span><span style="color: #C792EA;"> /</span><span style="color: #F78C6C;"> 2</span></span>
+<span class="giallo-l"><span style="color: #C792EA;font-style: italic;">if</span><span> S</span><span style="color: #C792EA;"> &gt;</span><span> T:</span></span>
+<span class="giallo-l"><span>    ans</span><span style="color: #C792EA;"> =</span><span> r</span><span style="color: #C792EA;"> +</span><span> B</span></span>
+<span class="giallo-l"><span style="color: #C792EA;font-style: italic;">else</span><span>:</span></span>
+<span class="giallo-l"><span>    ans</span><span style="color: #C792EA;"> =</span><span style="color: #C5E478;"> min</span><span>(</span><span style="color: #82AAFF;">A</span><span style="color: #C792EA;"> *</span><span style="color: #82AAFF;"> (T</span><span style="color: #C792EA;"> -</span><span style="color: #82AAFF;"> S)</span><span style="color: #D9F5DD;">,</span><span style="color: #82AAFF;"> r</span><span style="color: #C792EA;"> +</span><span style="color: #82AAFF;"> B</span><span>)</span></span>
+<span class="giallo-l"><span style="color: #C5E478;">print</span><span>(</span><span style="color: #C792EA;">f</span><span style="color: #ECC48D;">&quot;</span><span style="color: #82AAFF;">{ans</span><span style="color: #C792EA;">:.16f</span><span style="color: #82AAFF;">}</span><span style="color: #ECC48D;">&quot;</span><span>)</span></span></code></pre>
 <p>雑すぎる</p>
 
 

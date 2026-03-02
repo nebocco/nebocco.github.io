@@ -125,7 +125,7 @@
 <p>$O(N)$ で解きます。</p>
 <p>$O(N \log N)$ はこちら → <a href="https://blog.nebocco.dev/post/abc189c_dancing_links/">ABC189-C Mandarin Orange 解説（Dancing Links 編）</a></p>
 <h2 id="問題">問題</h2>
-<p><a href="https://atcoder.jp/contests/abc189/tasks/abc189_c">AtCoder Beginner Contest 189 | C - Mandarin Orange</a></p>
+<p><a rel="external" href="https://atcoder.jp/contests/abc189/tasks/abc189_c">AtCoder Beginner Contest 189 | C - Mandarin Orange</a></p>
 <h3 id="概要">概要</h3>
 <p>$$
 \max _ {1 \leq l \leq r \leq n} \left\lbrace (r - l + 1) \cdot \min _ {l \leq i \leq r} a _ i \right\rbrace
@@ -187,34 +187,32 @@ $$</p>
 <h2 id="実装">実装</h2>
 <p>境界を探すのを簡単にするため、stackには皿の大きさではなくindexを入れています。
 また、stackが空になった時の処理を単純化するため予め番兵を入れています。</p>
-<p><a href="https://atcoder.jp/contests/abc189/submissions/19762458">提出コード</a> (Python3)</p>
-<pre data-lang="python" class="language-python "><code class="language-python" data-lang="python">n = int(input())
-a = list(map(int, input().split()))
-a += [0] # 番兵
-
-left = [0] * n # left[i]: 皿iの左の境界
-right = [0] * n
-
-# 左から見る
-st = [-1] # 番兵
-for i in range(n):
-    while a[st[-1]] &gt;= a[i]:
-        st.pop()
-    left[i] = st[-1]
-    st.append(i)
-
-# 右から
-st = [n] # 番兵
-for i in range(n-1, -1, -1):
-    while a[st[-1]] &gt;= a[i]:
-        st.pop()
-    right[i] = st[-1]
-    st.append(i)
-
-ans = max(a[i] * (right[i] - left[i] - 1) for i in range(n))
-print(ans)
-</code></pre>
-
+<p><a rel="external" href="https://atcoder.jp/contests/abc189/submissions/19762458">提出コード</a> (Python3)</p>
+<pre class="giallo" style="color: #D6DEEB; background-color: #011627;"><code data-lang="python"><span class="giallo-l"><span>n</span><span style="color: #C792EA;"> =</span><span style="color: #C5E478;"> int</span><span>(</span><span style="color: #C5E478;">input</span><span>())</span></span>
+<span class="giallo-l"><span>a</span><span style="color: #C792EA;"> =</span><span style="color: #C5E478;"> list</span><span>(</span><span style="color: #C5E478;">map</span><span>(</span><span style="color: #C5E478;">int</span><span style="color: #D9F5DD;">,</span><span style="color: #C5E478;"> input</span><span>()</span><span style="color: #82AAFF;">.</span><span style="color: #B2CCD6;">split</span><span>()))</span></span>
+<span class="giallo-l"><span>a</span><span style="color: #C792EA;"> +=</span><span style="color: #D9F5DD;"> [</span><span style="color: #F78C6C;">0</span><span style="color: #D9F5DD;">]</span><span style="color: #637777;font-style: italic;"> # 番兵</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span>left</span><span style="color: #C792EA;"> =</span><span style="color: #D9F5DD;"> [</span><span style="color: #F78C6C;">0</span><span style="color: #D9F5DD;">]</span><span style="color: #C792EA;"> *</span><span> n</span><span style="color: #637777;font-style: italic;"> # left[i]: 皿iの左の境界</span></span>
+<span class="giallo-l"><span>right</span><span style="color: #C792EA;"> =</span><span style="color: #D9F5DD;"> [</span><span style="color: #F78C6C;">0</span><span style="color: #D9F5DD;">]</span><span style="color: #C792EA;"> *</span><span> n</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: #637777;font-style: italic;"># 左から見る</span></span>
+<span class="giallo-l"><span>st</span><span style="color: #C792EA;"> =</span><span style="color: #D9F5DD;"> [</span><span style="color: #C792EA;">-</span><span style="color: #F78C6C;">1</span><span style="color: #D9F5DD;">]</span><span style="color: #637777;font-style: italic;"> # 番兵</span></span>
+<span class="giallo-l"><span style="color: #C792EA;font-style: italic;">for</span><span> i</span><span style="color: #C792EA;font-style: italic;"> in</span><span style="color: #C5E478;"> range</span><span>(</span><span style="color: #82AAFF;">n</span><span>):</span></span>
+<span class="giallo-l"><span style="color: #C792EA;font-style: italic;">    while</span><span> a[st[</span><span style="color: #C792EA;">-</span><span style="color: #F78C6C;">1</span><span>]]</span><span style="color: #C792EA;"> &gt;=</span><span> a[i]:</span></span>
+<span class="giallo-l"><span>        st.</span><span style="color: #B2CCD6;">pop</span><span>()</span></span>
+<span class="giallo-l"><span>    left[i]</span><span style="color: #C792EA;"> =</span><span> st[</span><span style="color: #C792EA;">-</span><span style="color: #F78C6C;">1</span><span>]</span></span>
+<span class="giallo-l"><span>    st.</span><span style="color: #B2CCD6;">append</span><span>(</span><span style="color: #82AAFF;">i</span><span>)</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: #637777;font-style: italic;"># 右から</span></span>
+<span class="giallo-l"><span>st</span><span style="color: #C792EA;"> =</span><span style="color: #D9F5DD;"> [</span><span>n</span><span style="color: #D9F5DD;">]</span><span style="color: #637777;font-style: italic;"> # 番兵</span></span>
+<span class="giallo-l"><span style="color: #C792EA;font-style: italic;">for</span><span> i</span><span style="color: #C792EA;font-style: italic;"> in</span><span style="color: #C5E478;"> range</span><span>(</span><span style="color: #82AAFF;">n</span><span style="color: #C792EA;">-</span><span style="color: #F78C6C;">1</span><span style="color: #D9F5DD;">,</span><span style="color: #C792EA;"> -</span><span style="color: #F78C6C;">1</span><span style="color: #D9F5DD;">,</span><span style="color: #C792EA;"> -</span><span style="color: #F78C6C;">1</span><span>):</span></span>
+<span class="giallo-l"><span style="color: #C792EA;font-style: italic;">    while</span><span> a[st[</span><span style="color: #C792EA;">-</span><span style="color: #F78C6C;">1</span><span>]]</span><span style="color: #C792EA;"> &gt;=</span><span> a[i]:</span></span>
+<span class="giallo-l"><span>        st.</span><span style="color: #B2CCD6;">pop</span><span>()</span></span>
+<span class="giallo-l"><span>    right[i]</span><span style="color: #C792EA;"> =</span><span> st[</span><span style="color: #C792EA;">-</span><span style="color: #F78C6C;">1</span><span>]</span></span>
+<span class="giallo-l"><span>    st.</span><span style="color: #B2CCD6;">append</span><span>(</span><span style="color: #82AAFF;">i</span><span>)</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span>ans</span><span style="color: #C792EA;"> =</span><span style="color: #C5E478;"> max</span><span>(</span><span style="color: #82AAFF;">a</span><span>[</span><span style="color: #82AAFF;">i</span><span>]</span><span style="color: #C792EA;"> *</span><span style="color: #82AAFF;"> (right</span><span>[</span><span style="color: #82AAFF;">i</span><span>]</span><span style="color: #C792EA;"> -</span><span style="color: #82AAFF;"> left</span><span>[</span><span style="color: #82AAFF;">i</span><span>]</span><span style="color: #C792EA;"> -</span><span style="color: #F78C6C;"> 1</span><span style="color: #82AAFF;">)</span><span style="color: #C792EA;font-style: italic;"> for</span><span style="color: #82AAFF;"> i</span><span style="color: #C792EA;font-style: italic;"> in</span><span style="color: #C5E478;"> range</span><span>(</span><span style="color: #82AAFF;">n</span><span>))</span></span>
+<span class="giallo-l"><span style="color: #C5E478;">print</span><span>(</span><span style="color: #82AAFF;">ans</span><span>)</span></span></code></pre>
 
 
 <div class="pagination">

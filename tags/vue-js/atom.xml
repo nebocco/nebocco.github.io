@@ -23,7 +23,7 @@
         <id>https://blog.nebocco.dev/post/twisted_calculator/</id>
         
         <content type="html" xml:base="https://blog.nebocco.dev/post/twisted_calculator/">&lt;p&gt;初めてのWebアプリを作りました。&lt;&#x2F;p&gt;
-&lt;p&gt;&lt;del&gt;&lt;a href=&quot;https:&#x2F;&#x2F;twst-simulator.herokuapp.com&quot;&gt;ツイステのダメージ計算&lt;&#x2F;a&gt;&lt;&#x2F;del&gt; （&lt;strong&gt;2022&#x2F;07&#x2F;11 追記&lt;&#x2F;strong&gt;：公開を停止しました。）&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;del&gt;&lt;a rel=&quot;external&quot; href=&quot;https:&#x2F;&#x2F;twst-simulator.herokuapp.com&quot;&gt;ツイステのダメージ計算&lt;&#x2F;a&gt;&lt;&#x2F;del&gt; （&lt;strong&gt;2022&#x2F;07&#x2F;11 追記&lt;&#x2F;strong&gt;：公開を停止しました。）&lt;&#x2F;p&gt;
 &lt;p&gt;プログラミングをやっているからにはいつかWebの技術も触りたいなあ、と思いながらも特に作るアイデアもなくのうのうと過ごしていましたが、ふとこれを思いついたので作ってみました。&lt;&#x2F;p&gt;
 &lt;p&gt;これのためにHTML、CSS、JavaScript (Vue.js) を一から勉強しました。本当に大変だった&lt;&#x2F;p&gt;
 &lt;p&gt;URLがいつまでたってもGoogleに登録されないので検索に引っかからず、だれにも使ってもらえません   ウケるね   いつか登録されるといいですね&lt;&#x2F;p&gt;

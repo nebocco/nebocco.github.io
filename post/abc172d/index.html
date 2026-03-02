@@ -124,7 +124,7 @@
 
 <p>$O(\sqrt N)$ で解きます。</p>
 <h2 id="問題">問題</h2>
-<p><a href="https://atcoder.jp/contests/abc172/tasks/abc172_d">AtCoder Beginner Contest 172 | D - Sum of Divisors</a></p>
+<p><a rel="external" href="https://atcoder.jp/contests/abc172/tasks/abc172_d">AtCoder Beginner Contest 172 | D - Sum of Divisors</a></p>
 <h3 id="概要">概要</h3>
 <p>$$
 \sum _ {i=1} ^ {N} i \cdot \mathit{d}(i)
@@ -169,21 +169,20 @@ $$</p>
 <p>以上より、全体の答えを $O(M) = O(\sqrt N)$ で求めることができました。</p>
 <p>実装は前半後半の境界（$M$）付近がごちゃごちゃになりがちなので、前半部分を求める時は $M$ まで求めてしまうのではなく、後半部分がどこまでカバーできるのかを計算して、それに合わせて計算範囲を決めると楽です。また、 $M$ の計算方法によっては $N$ が極端に大きい・小さいケースや $N$ が平方数のケースなどでおかしくなることもあるので、注意が必要です。</p>
 <h2 id="実装">実装</h2>
-<p><a href="https://atcoder.jp/contests/abc172/submissions/14798227">提出コード（Python）</a></p>
-<pre data-lang="python" class="language-python "><code class="language-python" data-lang="python">def S(k):
-    return k * (k + 1) &#x2F;&#x2F; 2
-
-N = int(input())
-M = int((N+1)**.5)
-ans = 0
-# 前半
-for i in range(1, N &#x2F;&#x2F; (M+1) + 1):
-    ans += i * S(N &#x2F;&#x2F; i)
-# 後半
-for k in range(1, M+1):
-    ans += S(k) * (S(N&#x2F;&#x2F;k) - S(N&#x2F;&#x2F;(k+1)))
-print(ans)
-</code></pre>
+<p><a rel="external" href="https://atcoder.jp/contests/abc172/submissions/14798227">提出コード（Python）</a></p>
+<pre class="giallo" style="color: #D6DEEB; background-color: #011627;"><code data-lang="python"><span class="giallo-l"><span style="color: #C792EA;">def</span><span style="color: #82AAFF;font-style: italic;"> S</span><span style="color: #D9F5DD;">(</span><span style="color: #7FDBCA;">k</span><span style="color: #D9F5DD;">)</span><span>:</span></span>
+<span class="giallo-l"><span style="color: #C792EA;font-style: italic;">    return</span><span> k</span><span style="color: #C792EA;"> *</span><span> (k</span><span style="color: #C792EA;"> +</span><span style="color: #F78C6C;"> 1</span><span>)</span><span style="color: #C792EA;"> //</span><span style="color: #F78C6C;"> 2</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span>N</span><span style="color: #C792EA;"> =</span><span style="color: #C5E478;"> int</span><span>(</span><span style="color: #C5E478;">input</span><span>())</span></span>
+<span class="giallo-l"><span>M</span><span style="color: #C792EA;"> =</span><span style="color: #C5E478;"> int</span><span>(</span><span style="color: #82AAFF;">(N</span><span style="color: #C792EA;">+</span><span style="color: #F78C6C;">1</span><span style="color: #82AAFF;">)</span><span style="color: #C792EA;">**</span><span style="color: #F78C6C;">.5</span><span>)</span></span>
+<span class="giallo-l"><span>ans</span><span style="color: #C792EA;"> =</span><span style="color: #F78C6C;"> 0</span></span>
+<span class="giallo-l"><span style="color: #637777;font-style: italic;"># 前半</span></span>
+<span class="giallo-l"><span style="color: #C792EA;font-style: italic;">for</span><span> i</span><span style="color: #C792EA;font-style: italic;"> in</span><span style="color: #C5E478;"> range</span><span>(</span><span style="color: #F78C6C;">1</span><span style="color: #D9F5DD;">,</span><span style="color: #82AAFF;"> N</span><span style="color: #C792EA;"> //</span><span style="color: #82AAFF;"> (M</span><span style="color: #C792EA;">+</span><span style="color: #F78C6C;">1</span><span style="color: #82AAFF;">)</span><span style="color: #C792EA;"> +</span><span style="color: #F78C6C;"> 1</span><span>):</span></span>
+<span class="giallo-l"><span>    ans</span><span style="color: #C792EA;"> +=</span><span> i</span><span style="color: #C792EA;"> *</span><span style="color: #B2CCD6;"> S</span><span>(</span><span style="color: #82AAFF;">N</span><span style="color: #C792EA;"> //</span><span style="color: #82AAFF;"> i</span><span>)</span></span>
+<span class="giallo-l"><span style="color: #637777;font-style: italic;"># 後半</span></span>
+<span class="giallo-l"><span style="color: #C792EA;font-style: italic;">for</span><span> k</span><span style="color: #C792EA;font-style: italic;"> in</span><span style="color: #C5E478;"> range</span><span>(</span><span style="color: #F78C6C;">1</span><span style="color: #D9F5DD;">,</span><span style="color: #82AAFF;"> M</span><span style="color: #C792EA;">+</span><span style="color: #F78C6C;">1</span><span>):</span></span>
+<span class="giallo-l"><span>    ans</span><span style="color: #C792EA;"> +=</span><span style="color: #B2CCD6;"> S</span><span>(</span><span style="color: #82AAFF;">k</span><span>)</span><span style="color: #C792EA;"> *</span><span> (</span><span style="color: #B2CCD6;">S</span><span>(</span><span style="color: #82AAFF;">N</span><span style="color: #C792EA;">//</span><span style="color: #82AAFF;">k</span><span>)</span><span style="color: #C792EA;"> -</span><span style="color: #B2CCD6;"> S</span><span>(</span><span style="color: #82AAFF;">N</span><span style="color: #C792EA;">//</span><span style="color: #82AAFF;">(k</span><span style="color: #C792EA;">+</span><span style="color: #F78C6C;">1</span><span style="color: #82AAFF;">)</span><span>))</span></span>
+<span class="giallo-l"><span style="color: #C5E478;">print</span><span>(</span><span style="color: #82AAFF;">ans</span><span>)</span></span></code></pre>
 <p>時間も余裕ですね。 $O(N \log N)$ ってなんですか？</p>
 
 

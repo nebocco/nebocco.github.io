@@ -125,7 +125,7 @@
 <p>$O(N \log N)$ で解きます。</p>
 <p>$O(N)$ はこちら → <a href="https://blog.nebocco.dev/post/abc189c_stack/">ABC189-C Mandarin Orange 解説（stack 活用編）</a></p>
 <h2 id="問題">問題</h2>
-<p><a href="https://atcoder.jp/contests/abc189/tasks/abc189_c">AtCoder Beginner Contest 189 | C - Mandarin Orange</a></p>
+<p><a rel="external" href="https://atcoder.jp/contests/abc189/tasks/abc189_c">AtCoder Beginner Contest 189 | C - Mandarin Orange</a></p>
 <h3 id="概要">概要</h3>
 <p>$$
 \max _ {1 \leq l \leq r \leq n} \left\lbrace (r - l + 1) \cdot \min _ {l \leq i \leq r} a _ i \right\rbrace
@@ -201,31 +201,29 @@ $$</p>
 <h2 id="実装">実装</h2>
 <p>実装の際は両端の処理に注意しましょう。両端に大きさ $0$ の皿を番兵として置いておくと良いと思います。
 以下の実装ではPythonの仕様を利用して、末尾に一つ番兵を足すことで済ませています。</p>
-<p><a href="https://atcoder.jp/contests/abc189/submissions/19762458">提出コード</a> (Python3)</p>
-<pre data-lang="python" class="language-python "><code class="language-python" data-lang="python">n = int(input())
-a = list(map(int, input().split()))
-a += [0] # 番兵
-
-left = list(range(-1, n)) # left[i]: 皿iの左隣の皿の番号
-right = list(range(1, n+2))
-
-ans = 0
-
-# 大きい順に処理
-l = list(range(n))
-l.sort(key=lambda i: a[i])
-l.reverse()
-for i in l:
-    s = right[i] - left[i] - 1 # 収穫範囲
-    ans = max(ans, s * a[i])
-
-    # 「左隣の右隣」と「右隣の左隣」を書き換える
-    right[left[i]] = right[i]
-    left[right[i]] = left[i]
-
-print(ans)
-</code></pre>
-
+<p><a rel="external" href="https://atcoder.jp/contests/abc189/submissions/19762458">提出コード</a> (Python3)</p>
+<pre class="giallo" style="color: #D6DEEB; background-color: #011627;"><code data-lang="python"><span class="giallo-l"><span>n</span><span style="color: #C792EA;"> =</span><span style="color: #C5E478;"> int</span><span>(</span><span style="color: #C5E478;">input</span><span>())</span></span>
+<span class="giallo-l"><span>a</span><span style="color: #C792EA;"> =</span><span style="color: #C5E478;"> list</span><span>(</span><span style="color: #C5E478;">map</span><span>(</span><span style="color: #C5E478;">int</span><span style="color: #D9F5DD;">,</span><span style="color: #C5E478;"> input</span><span>()</span><span style="color: #82AAFF;">.</span><span style="color: #B2CCD6;">split</span><span>()))</span></span>
+<span class="giallo-l"><span>a</span><span style="color: #C792EA;"> +=</span><span style="color: #D9F5DD;"> [</span><span style="color: #F78C6C;">0</span><span style="color: #D9F5DD;">]</span><span style="color: #637777;font-style: italic;"> # 番兵</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span>left</span><span style="color: #C792EA;"> =</span><span style="color: #C5E478;"> list</span><span>(</span><span style="color: #C5E478;">range</span><span>(</span><span style="color: #C792EA;">-</span><span style="color: #F78C6C;">1</span><span style="color: #D9F5DD;">,</span><span style="color: #82AAFF;"> n</span><span>))</span><span style="color: #637777;font-style: italic;"> # left[i]: 皿iの左隣の皿の番号</span></span>
+<span class="giallo-l"><span>right</span><span style="color: #C792EA;"> =</span><span style="color: #C5E478;"> list</span><span>(</span><span style="color: #C5E478;">range</span><span>(</span><span style="color: #F78C6C;">1</span><span style="color: #D9F5DD;">,</span><span style="color: #82AAFF;"> n</span><span style="color: #C792EA;">+</span><span style="color: #F78C6C;">2</span><span>))</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span>ans</span><span style="color: #C792EA;"> =</span><span style="color: #F78C6C;"> 0</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: #637777;font-style: italic;"># 大きい順に処理</span></span>
+<span class="giallo-l"><span>l</span><span style="color: #C792EA;"> =</span><span style="color: #C5E478;"> list</span><span>(</span><span style="color: #C5E478;">range</span><span>(</span><span style="color: #82AAFF;">n</span><span>))</span></span>
+<span class="giallo-l"><span>l.</span><span style="color: #B2CCD6;">sort</span><span>(</span><span style="color: #D7DBE0;">key</span><span style="color: #C792EA;">=lambda</span><span style="color: #7FDBCA;"> i</span><span style="color: #82AAFF;">: a</span><span>[</span><span style="color: #82AAFF;">i</span><span>])</span></span>
+<span class="giallo-l"><span>l.</span><span style="color: #B2CCD6;">reverse</span><span>()</span></span>
+<span class="giallo-l"><span style="color: #C792EA;font-style: italic;">for</span><span> i</span><span style="color: #C792EA;font-style: italic;"> in</span><span> l:</span></span>
+<span class="giallo-l"><span>    s</span><span style="color: #C792EA;"> =</span><span> right[i]</span><span style="color: #C792EA;"> -</span><span> left[i]</span><span style="color: #C792EA;"> -</span><span style="color: #F78C6C;"> 1</span><span style="color: #637777;font-style: italic;"> # 収穫範囲</span></span>
+<span class="giallo-l"><span>    ans</span><span style="color: #C792EA;"> =</span><span style="color: #C5E478;"> max</span><span>(</span><span style="color: #82AAFF;">ans</span><span style="color: #D9F5DD;">,</span><span style="color: #82AAFF;"> s</span><span style="color: #C792EA;"> *</span><span style="color: #82AAFF;"> a</span><span>[</span><span style="color: #82AAFF;">i</span><span>])</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: #637777;font-style: italic;">    # 「左隣の右隣」と「右隣の左隣」を書き換える</span></span>
+<span class="giallo-l"><span>    right[left[i]]</span><span style="color: #C792EA;"> =</span><span> right[i]</span></span>
+<span class="giallo-l"><span>    left[right[i]]</span><span style="color: #C792EA;"> =</span><span> left[i]</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: #C5E478;">print</span><span>(</span><span style="color: #82AAFF;">ans</span><span>)</span></span></code></pre>
 
 
 <div class="pagination">

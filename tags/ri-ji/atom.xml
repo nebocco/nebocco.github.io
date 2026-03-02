@@ -24,18 +24,18 @@
         
         <content type="html" xml:base="https://blog.nebocco.dev/post/deploy_zola_blog/">&lt;p&gt;Zola でブログをつくり、GitHub Pages でホストして公開しました。&lt;&#x2F;p&gt;
 &lt;h4 id=&quot;Zola_とは&quot;&gt;Zola とは&lt;&#x2F;h4&gt;
-&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;www.getzola.org&#x2F;&quot;&gt;Zola&lt;&#x2F;a&gt; は Rust で書かれた静的サイトジェネレータ (SSG) です。&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;a rel=&quot;external&quot; href=&quot;https:&#x2F;&#x2F;www.getzola.org&#x2F;&quot;&gt;Zola&lt;&#x2F;a&gt; は Rust で書かれた静的サイトジェネレータ (SSG) です。&lt;&#x2F;p&gt;
 &lt;h2 id=&quot;移行の理由&quot;&gt;移行の理由&lt;&#x2F;h2&gt;
 &lt;p&gt;はてなブログに特に不満はなかったんですが、必要な機能だけに絞ったミニマルなブログを作りたいな～とずっと思っていました。&lt;&#x2F;p&gt;
 &lt;p&gt;加えて、自分の書いた記事がオンラインでしか見られないのはやや不安だし、Markdown で書いて Git で管理したい気持ちがありました。Markdown から自動で HTML を生成してくれる SSG なるものがあるらしい、と調べていたら、いい具合に使いやすそうなエンジンを見つけたので使ってみることにしました。&lt;&#x2F;p&gt;
 &lt;p&gt;大昔に買って放置していたドメインもついでに利用できていい感じです。&lt;&#x2F;p&gt;
 &lt;h4 id=&quot;参考にしたサイト&quot;&gt;参考にしたサイト&lt;&#x2F;h4&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;slnq.github.io&#x2F;post&#x2F;20230626&#x2F;&quot;&gt;Zolaでブログを作る - 夏果&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
-&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;shimopino.github.io&#x2F;blog&#x2F;crafting-tech-blog-with-zola&#x2F;&quot;&gt;Zolaで始める技術ブログ - shimopino&#x27;s blog&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
-&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;yng87.page&#x2F;blog&#x2F;2023&#x2F;zola&#x2F;&quot;&gt;Rust 製の静的サイトジェネレータ Zola を使ってみる - yng87.page&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
-&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;zenn.dev&#x2F;anz&#x2F;scraps&#x2F;ebf857a5cbcfb6&quot;&gt;Zola事始め作業ログ - anz&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
-&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;blog.ymgyt.io&#x2F;entry&#x2F;migrated-blog-to-zola-and-github-pages&#x2F;&quot;&gt;🚛 BlogをZola + Github Pagesに移行した - Happy developing&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a rel=&quot;external&quot; href=&quot;https:&#x2F;&#x2F;slnq.github.io&#x2F;post&#x2F;20230626&#x2F;&quot;&gt;Zolaでブログを作る - 夏果&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a rel=&quot;external&quot; href=&quot;https:&#x2F;&#x2F;shimopino.github.io&#x2F;blog&#x2F;crafting-tech-blog-with-zola&#x2F;&quot;&gt;Zolaで始める技術ブログ - shimopino&#x27;s blog&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a rel=&quot;external&quot; href=&quot;https:&#x2F;&#x2F;yng87.page&#x2F;blog&#x2F;2023&#x2F;zola&#x2F;&quot;&gt;Rust 製の静的サイトジェネレータ Zola を使ってみる - yng87.page&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a rel=&quot;external&quot; href=&quot;https:&#x2F;&#x2F;zenn.dev&#x2F;anz&#x2F;scraps&#x2F;ebf857a5cbcfb6&quot;&gt;Zola事始め作業ログ - anz&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a rel=&quot;external&quot; href=&quot;https:&#x2F;&#x2F;blog.ymgyt.io&#x2F;entry&#x2F;migrated-blog-to-zola-and-github-pages&#x2F;&quot;&gt;🚛 BlogをZola + Github Pagesに移行した - Happy developing&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
 &lt;&#x2F;ul&gt;
 &lt;h2 id=&quot;今後の更新&quot;&gt;今後の更新&lt;&#x2F;h2&gt;
 &lt;p&gt;ブログも長らく書いていなかったけど、これを機に書いていこうかなと思っています。ただ競プロはすっかり引退してしまったので、昔書いていたような解説記事はあんまり書かなくなりそうです。日記とか技術的な個人メモみたいな感覚で気軽に更新できたらいいな。&lt;&#x2F;p&gt;

@@ -121,7 +121,7 @@
 
 <p>余談が本編</p>
 <h2 id="問題">問題</h2>
-<p><a href="https://yukicoder.me/problems/no/119">yukicoder - No.119 旅行のツアーの問題</a></p>
+<p><a rel="external" href="https://yukicoder.me/problems/no/119">yukicoder - No.119 旅行のツアーの問題</a></p>
 <h3 id="概要">概要</h3>
 <p>$N$ 個の国があり、それぞれの国 $i \; (0 \leq i &lt; N)$ に対して以下の行動のうち一つを選ぶ。</p>
 <ul>
@@ -132,7 +132,7 @@
 <p>ただし、いくつかの国のペア $i, j$ に対して「国 $i$ のツアー旅行に行くならば、国 $j$ の個人旅行に行ってはならない」という形の制約が課される。得られる最大の利得を求めよ。</p>
 <h2 id="解法">解法</h2>
 <p>パッと見た感じだと Project Selection Plobrem（PSP、「燃やす埋める」などとも呼ばれています）を使って解けそうだけど、取りうる状態が三つあるので少し工夫が必要です。ここでは二種類の方針を紹介します。</p>
-<p><strong>注意</strong> :「燃やす埋める」という名前を嫌う人がいるので記事中では PSP と表現していますが、この記事でやっていることは紛れもなく「燃やす埋める」です（考え方が少し違うらしい）。本来の PSP については <a href="https://tokoharuland.hateblo.jp/entry/2017/12/25/000003">Project Selection (燃やす埋める) 周りの話についてもう少し考えた - とこはるのまとめ</a> で解説されています。</p>
+<p><strong>注意</strong> :「燃やす埋める」という名前を嫌う人がいるので記事中では PSP と表現していますが、この記事でやっていることは紛れもなく「燃やす埋める」です（考え方が少し違うらしい）。本来の PSP については <a rel="external" href="https://tokoharuland.hateblo.jp/entry/2017/12/25/000003">Project Selection (燃やす埋める) 周りの話についてもう少し考えた - とこはるのまとめ</a> で解説されています。</p>
 <h3 id="1._辺の切断">1. 辺の切断</h3>
 <p>まず多くの人が解説している方針を紹介します。</p>
 <p>一般的にはPSPは頂点の割り振りに関する問題として捉えられますが、ここでは「辺をいくつか選んで切断する」という、本来の最小カット問題に近い形式で問題を解釈してみます。</p>
@@ -175,24 +175,22 @@
   
 <p>$i_1$ と $i_2$ は元々同じ頂点を表しているので、これらは分断されないようにコスト $\infty$ の辺で繋いでおきましょう。こうすることで、禁止制約は上流から下流への一方通行になり、連鎖することを防げます。</p>
 <p>このグラフで始点から終点への最小カット（= 最大流）を求めればいいです。最小カットのコストを $K$ とすると、最終的な答えは $\sum_{i} (b_i+c_i) - K$ となります。</p>
-<pre data-lang="rust" class="language-rust "><code class="language-rust" data-lang="rust">let u = |i| { 2 * i }; &#x2F;&#x2F; i_1
-let v = |i| { 2 * i + 1 }; &#x2F;&#x2F; i_2
-let source = u(n);
-let sink = v(n);
-let mut ans = 0;
-let mut din = Dinic::new();
-for &amp;(i, j) in &amp;cl { &#x2F;&#x2F; 禁止制約
-  din.add_edge(u(i), v(j), INF);
-}
-for (i, &amp;(b, c)) in plans.iter().enumerate() { &#x2F;&#x2F; 各選択の報酬
-  ans += b + c;
-  din.add_edge(source, u(i), b);
-  din.add_edge(u(i), v(i), INF);
-  din.add_edge(v(i), sink, c);
-}
-ans -= din.max_flow(source, sink).0;
-</code></pre>
-<h3 id="2._頂点の分配">2. 頂点の分配</h3>
+<pre class="giallo" style="color: #D6DEEB; background-color: #011627;"><code data-lang="rust"><span class="giallo-l"><span style="color: #C792EA;">let</span><span style="color: #C5E478;"> u</span><span style="color: #C792EA;"> = |</span><span style="color: #C5E478;">i</span><span style="color: #C792EA;">|</span><span> {</span><span style="color: #F78C6C;"> 2</span><span style="color: #7FDBCA;"> *</span><span style="color: #C5E478;"> i</span><span> };</span><span style="color: #637777;font-style: italic;"> // i_1</span></span>
+<span class="giallo-l"><span style="color: #C792EA;">let</span><span style="color: #C5E478;"> v</span><span style="color: #C792EA;"> = |</span><span style="color: #C5E478;">i</span><span style="color: #C792EA;">|</span><span> {</span><span style="color: #F78C6C;"> 2</span><span style="color: #7FDBCA;"> *</span><span style="color: #C5E478;"> i</span><span style="color: #7FDBCA;"> +</span><span style="color: #F78C6C;"> 1</span><span> };</span><span style="color: #637777;font-style: italic;"> // i_2</span></span>
+<span class="giallo-l"><span style="color: #C792EA;">let</span><span style="color: #C5E478;"> source</span><span style="color: #C792EA;"> =</span><span style="color: #82AAFF;font-style: italic;"> u</span><span>(</span><span style="color: #C5E478;">n</span><span>);</span></span>
+<span class="giallo-l"><span style="color: #C792EA;">let</span><span style="color: #C5E478;"> sink</span><span style="color: #C792EA;"> =</span><span style="color: #82AAFF;font-style: italic;"> v</span><span>(</span><span style="color: #C5E478;">n</span><span>);</span></span>
+<span class="giallo-l"><span style="color: #C792EA;">let</span><span style="color: #C792EA;font-style: italic;"> mut</span><span style="color: #C5E478;"> ans</span><span style="color: #C792EA;"> =</span><span style="color: #F78C6C;"> 0</span><span>;</span></span>
+<span class="giallo-l"><span style="color: #C792EA;">let</span><span style="color: #C792EA;font-style: italic;"> mut</span><span style="color: #C5E478;"> din</span><span style="color: #C792EA;"> =</span><span> Dinic</span><span style="color: #7FDBCA;">::</span><span style="color: #82AAFF;font-style: italic;">new</span><span>();</span></span>
+<span class="giallo-l"><span style="color: #C792EA;font-style: italic;">for</span><span style="color: #7FDBCA;"> &amp;</span><span>(</span><span style="color: #C5E478;">i</span><span>,</span><span style="color: #C5E478;"> j</span><span>)</span><span style="color: #C792EA;"> in</span><span style="color: #7FDBCA;"> &amp;</span><span style="color: #C5E478;">cl</span><span> {</span><span style="color: #637777;font-style: italic;"> // 禁止制約</span></span>
+<span class="giallo-l"><span style="color: #C5E478;">  din</span><span style="color: #7FDBCA;">.</span><span style="color: #82AAFF;font-style: italic;">add_edge</span><span>(</span><span style="color: #82AAFF;font-style: italic;">u</span><span>(</span><span style="color: #C5E478;">i</span><span>),</span><span style="color: #82AAFF;font-style: italic;"> v</span><span>(</span><span style="color: #C5E478;">j</span><span>),</span><span style="color: #82AAFF;"> INF</span><span>);</span></span>
+<span class="giallo-l"><span>}</span></span>
+<span class="giallo-l"><span style="color: #C792EA;font-style: italic;">for</span><span> (</span><span style="color: #C5E478;">i</span><span>,</span><span style="color: #7FDBCA;"> &amp;</span><span>(</span><span style="color: #C5E478;">b</span><span>,</span><span style="color: #C5E478;"> c</span><span>))</span><span style="color: #C792EA;"> in</span><span style="color: #C5E478;"> plans</span><span style="color: #7FDBCA;">.</span><span style="color: #82AAFF;font-style: italic;">iter</span><span>()</span><span style="color: #7FDBCA;">.</span><span style="color: #82AAFF;font-style: italic;">enumerate</span><span>() {</span><span style="color: #637777;font-style: italic;"> // 各選択の報酬</span></span>
+<span class="giallo-l"><span style="color: #C5E478;">  ans</span><span style="color: #C792EA;"> +=</span><span style="color: #C5E478;"> b</span><span style="color: #7FDBCA;"> +</span><span style="color: #C5E478;"> c</span><span>;</span></span>
+<span class="giallo-l"><span style="color: #C5E478;">  din</span><span style="color: #7FDBCA;">.</span><span style="color: #82AAFF;font-style: italic;">add_edge</span><span>(</span><span style="color: #C5E478;">source</span><span>,</span><span style="color: #82AAFF;font-style: italic;"> u</span><span>(</span><span style="color: #C5E478;">i</span><span>),</span><span style="color: #C5E478;"> b</span><span>);</span></span>
+<span class="giallo-l"><span style="color: #C5E478;">  din</span><span style="color: #7FDBCA;">.</span><span style="color: #82AAFF;font-style: italic;">add_edge</span><span>(</span><span style="color: #82AAFF;font-style: italic;">u</span><span>(</span><span style="color: #C5E478;">i</span><span>),</span><span style="color: #82AAFF;font-style: italic;"> v</span><span>(</span><span style="color: #C5E478;">i</span><span>),</span><span style="color: #82AAFF;"> INF</span><span>);</span></span>
+<span class="giallo-l"><span style="color: #C5E478;">  din</span><span style="color: #7FDBCA;">.</span><span style="color: #82AAFF;font-style: italic;">add_edge</span><span>(</span><span style="color: #82AAFF;font-style: italic;">v</span><span>(</span><span style="color: #C5E478;">i</span><span>),</span><span style="color: #C5E478;"> sink</span><span>,</span><span style="color: #C5E478;"> c</span><span>);</span></span>
+<span class="giallo-l"><span>}</span></span>
+<span class="giallo-l"><span style="color: #C5E478;">ans</span><span style="color: #C792EA;"> -=</span><span style="color: #C5E478;"> din</span><span style="color: #7FDBCA;">.</span><span style="color: #82AAFF;font-style: italic;">max_flow</span><span>(</span><span style="color: #C5E478;">source</span><span>,</span><span style="color: #C5E478;"> sink</span><span>)</span><span style="color: #7FDBCA;">.</span><span style="color: #F78C6C;">0</span><span>;</span></span></code></pre><h3 id="2._頂点の分配">2. 頂点の分配</h3>
 <p>続いて、一般的な PSP 同様、頂点を始点側と終点側に割り振る問題として捉える方針で解いてみます。
 ソースを $\text{True}(\top)$ 、シンクを $\text{False}(⊥)$ として、頂点を割り振っていきます。</p>
 <p>以下の二頂点を用意します。</p>
@@ -257,28 +255,26 @@ $$</p>
   </figure>
   
 <p>これで始点から終点まで流せばOKです。最終的な答えは $\sum_{i} (b_i+c_i) - K$ です。</p>
-<pre data-lang="rust" class="language-rust "><code class="language-rust" data-lang="rust">let u = |i| { 2 * i };
-let v = |i| { 2 * i + 1 };
-let source = u(n);
-let sink = v(n);
-let mut ans = 0;
-let mut din = Dinic::new();
-for &amp;(i, j) in &amp;cl { &#x2F;&#x2F; 禁止制約
-  din.add_edge(v(i), u(j), INF);
-}
-for (i, &amp;(b, c)) in plans.iter().enumerate() { &#x2F;&#x2F; 各選択の報酬
-  ans += b + c;
-  din.add_edge(v(i), u(i), INF);
-  din.add_edge(source, u(i), b);
-  din.add_edge(u(i), v(i), b + c);
-  din.add_edge(v(i), sink, c);
-}
-ans -= din.max_flow(source, sink).0;
-</code></pre>
-<h2 id="実装">実装</h2>
+<pre class="giallo" style="color: #D6DEEB; background-color: #011627;"><code data-lang="rust"><span class="giallo-l"><span style="color: #C792EA;">let</span><span style="color: #C5E478;"> u</span><span style="color: #C792EA;"> = |</span><span style="color: #C5E478;">i</span><span style="color: #C792EA;">|</span><span> {</span><span style="color: #F78C6C;"> 2</span><span style="color: #7FDBCA;"> *</span><span style="color: #C5E478;"> i</span><span> };</span></span>
+<span class="giallo-l"><span style="color: #C792EA;">let</span><span style="color: #C5E478;"> v</span><span style="color: #C792EA;"> = |</span><span style="color: #C5E478;">i</span><span style="color: #C792EA;">|</span><span> {</span><span style="color: #F78C6C;"> 2</span><span style="color: #7FDBCA;"> *</span><span style="color: #C5E478;"> i</span><span style="color: #7FDBCA;"> +</span><span style="color: #F78C6C;"> 1</span><span> };</span></span>
+<span class="giallo-l"><span style="color: #C792EA;">let</span><span style="color: #C5E478;"> source</span><span style="color: #C792EA;"> =</span><span style="color: #82AAFF;font-style: italic;"> u</span><span>(</span><span style="color: #C5E478;">n</span><span>);</span></span>
+<span class="giallo-l"><span style="color: #C792EA;">let</span><span style="color: #C5E478;"> sink</span><span style="color: #C792EA;"> =</span><span style="color: #82AAFF;font-style: italic;"> v</span><span>(</span><span style="color: #C5E478;">n</span><span>);</span></span>
+<span class="giallo-l"><span style="color: #C792EA;">let</span><span style="color: #C792EA;font-style: italic;"> mut</span><span style="color: #C5E478;"> ans</span><span style="color: #C792EA;"> =</span><span style="color: #F78C6C;"> 0</span><span>;</span></span>
+<span class="giallo-l"><span style="color: #C792EA;">let</span><span style="color: #C792EA;font-style: italic;"> mut</span><span style="color: #C5E478;"> din</span><span style="color: #C792EA;"> =</span><span> Dinic</span><span style="color: #7FDBCA;">::</span><span style="color: #82AAFF;font-style: italic;">new</span><span>();</span></span>
+<span class="giallo-l"><span style="color: #C792EA;font-style: italic;">for</span><span style="color: #7FDBCA;"> &amp;</span><span>(</span><span style="color: #C5E478;">i</span><span>,</span><span style="color: #C5E478;"> j</span><span>)</span><span style="color: #C792EA;"> in</span><span style="color: #7FDBCA;"> &amp;</span><span style="color: #C5E478;">cl</span><span> {</span><span style="color: #637777;font-style: italic;"> // 禁止制約</span></span>
+<span class="giallo-l"><span style="color: #C5E478;">  din</span><span style="color: #7FDBCA;">.</span><span style="color: #82AAFF;font-style: italic;">add_edge</span><span>(</span><span style="color: #82AAFF;font-style: italic;">v</span><span>(</span><span style="color: #C5E478;">i</span><span>),</span><span style="color: #82AAFF;font-style: italic;"> u</span><span>(</span><span style="color: #C5E478;">j</span><span>),</span><span style="color: #82AAFF;"> INF</span><span>);</span></span>
+<span class="giallo-l"><span>}</span></span>
+<span class="giallo-l"><span style="color: #C792EA;font-style: italic;">for</span><span> (</span><span style="color: #C5E478;">i</span><span>,</span><span style="color: #7FDBCA;"> &amp;</span><span>(</span><span style="color: #C5E478;">b</span><span>,</span><span style="color: #C5E478;"> c</span><span>))</span><span style="color: #C792EA;"> in</span><span style="color: #C5E478;"> plans</span><span style="color: #7FDBCA;">.</span><span style="color: #82AAFF;font-style: italic;">iter</span><span>()</span><span style="color: #7FDBCA;">.</span><span style="color: #82AAFF;font-style: italic;">enumerate</span><span>() {</span><span style="color: #637777;font-style: italic;"> // 各選択の報酬</span></span>
+<span class="giallo-l"><span style="color: #C5E478;">  ans</span><span style="color: #C792EA;"> +=</span><span style="color: #C5E478;"> b</span><span style="color: #7FDBCA;"> +</span><span style="color: #C5E478;"> c</span><span>;</span></span>
+<span class="giallo-l"><span style="color: #C5E478;">  din</span><span style="color: #7FDBCA;">.</span><span style="color: #82AAFF;font-style: italic;">add_edge</span><span>(</span><span style="color: #82AAFF;font-style: italic;">v</span><span>(</span><span style="color: #C5E478;">i</span><span>),</span><span style="color: #82AAFF;font-style: italic;"> u</span><span>(</span><span style="color: #C5E478;">i</span><span>),</span><span style="color: #82AAFF;"> INF</span><span>);</span></span>
+<span class="giallo-l"><span style="color: #C5E478;">  din</span><span style="color: #7FDBCA;">.</span><span style="color: #82AAFF;font-style: italic;">add_edge</span><span>(</span><span style="color: #C5E478;">source</span><span>,</span><span style="color: #82AAFF;font-style: italic;"> u</span><span>(</span><span style="color: #C5E478;">i</span><span>),</span><span style="color: #C5E478;"> b</span><span>);</span></span>
+<span class="giallo-l"><span style="color: #C5E478;">  din</span><span style="color: #7FDBCA;">.</span><span style="color: #82AAFF;font-style: italic;">add_edge</span><span>(</span><span style="color: #82AAFF;font-style: italic;">u</span><span>(</span><span style="color: #C5E478;">i</span><span>),</span><span style="color: #82AAFF;font-style: italic;"> v</span><span>(</span><span style="color: #C5E478;">i</span><span>),</span><span style="color: #C5E478;"> b</span><span style="color: #7FDBCA;"> +</span><span style="color: #C5E478;"> c</span><span>);</span></span>
+<span class="giallo-l"><span style="color: #C5E478;">  din</span><span style="color: #7FDBCA;">.</span><span style="color: #82AAFF;font-style: italic;">add_edge</span><span>(</span><span style="color: #82AAFF;font-style: italic;">v</span><span>(</span><span style="color: #C5E478;">i</span><span>),</span><span style="color: #C5E478;"> sink</span><span>,</span><span style="color: #C5E478;"> c</span><span>);</span></span>
+<span class="giallo-l"><span>}</span></span>
+<span class="giallo-l"><span style="color: #C5E478;">ans</span><span style="color: #C792EA;"> -=</span><span style="color: #C5E478;"> din</span><span style="color: #7FDBCA;">.</span><span style="color: #82AAFF;font-style: italic;">max_flow</span><span>(</span><span style="color: #C5E478;">source</span><span>,</span><span style="color: #C5E478;"> sink</span><span>)</span><span style="color: #7FDBCA;">.</span><span style="color: #F78C6C;">0</span><span>;</span></span></code></pre><h2 id="実装">実装</h2>
 <ul>
-<li><a href="https://yukicoder.me/submissions/630915">解法 1</a> (Rust)</li>
-<li><a href="https://yukicoder.me/submissions/630914">解法 2</a> (Rust)</li>
+<li><a rel="external" href="https://yukicoder.me/submissions/630915">解法 1</a> (Rust)</li>
+<li><a rel="external" href="https://yukicoder.me/submissions/630914">解法 2</a> (Rust)</li>
 </ul>
 <h2 id="余談">余談</h2>
 <p>初見で解いていたとき、「三種類の値を取るときは、各要素に対して二つの頂点を用意していい感じに包含関係を入れるといい」という話を何となく聞いたことがあったので、二種類の命題</p>
@@ -290,7 +286,7 @@ ans -= din.max_flow(source, sink).0;
 <p>$x, y$ の真偽もうまく $p, q, r$ に対応して、コストも劣モジュラになりますが、禁止制約が「 $y_i \to \lnot x_j \lor y_j$ 」となってしまい、グラフで表現することができません。</p>
 <p>包含関係をどのように設定すればうまくいきそうか、を判断する材料として、二種類の方針を紹介します。</p>
 <h3 id="1._包含関係のある条件の一般的な表現">1. 包含関係のある条件の一般的な表現</h3>
-<p><a href="http://tokoharuland.hateblo.jp/entry/2017/12/25/000003">Project Selection (燃やす埋める) 周りの話についてもう少し考えた - とこはるのまとめ</a> の後半で紹介されている考え方です。 $k$ 状態を取りうる変数を、今回作ったグラフのように</p>
+<p><a rel="external" href="http://tokoharuland.hateblo.jp/entry/2017/12/25/000003">Project Selection (燃やす埋める) 周りの話についてもう少し考えた - とこはるのまとめ</a> の後半で紹介されている考え方です。 $k$ 状態を取りうる変数を、今回作ったグラフのように</p>
 <ul>
 <li>$a_1 = s_1$</li>
 <li>$a_2 = s_1 \lor s_2$</li>
@@ -382,10 +378,10 @@ $$</p>
 <p>正直この方法にどのくらい汎用性があるのかは分かりません。ただ、これに限らず、グラフ表現をする上でコストが劣モジュラであることが必要だということを常に念頭におきながら問題を整理することで、なんとなく見通しを立てやすくなるのかもしれません。</p>
 <h3 id="参考記事">参考記事</h3>
 <ul>
-<li><a href="http://tokoharuland.hateblo.jp/entry/2017/11/12/234636">『燃やす埋める』と『ProjectSelectionProblem』 - とこはるのまとめ</a></li>
-<li><a href="http://tokoharuland.hateblo.jp/entry/2017/12/25/000003">Project Selection (燃やす埋める) 周りの話についてもう少し考えた - とこはるのまとめ</a></li>
-<li><a href="https://kmyk.github.io/blog/blog/2017/12/05/minimum-cut-and-project-selection-problem/">最小カットとProject Selection Problemのまとめ - うさぎ小屋</a></li>
-<li><a href="https://theory-and-me.hatenablog.com/entry/2020/03/13/180935">燃やす埋める問題と劣モジュラ関数のグラフ表現可能性 その① - 私と理論</a></li>
+<li><a rel="external" href="http://tokoharuland.hateblo.jp/entry/2017/11/12/234636">『燃やす埋める』と『ProjectSelectionProblem』 - とこはるのまとめ</a></li>
+<li><a rel="external" href="http://tokoharuland.hateblo.jp/entry/2017/12/25/000003">Project Selection (燃やす埋める) 周りの話についてもう少し考えた - とこはるのまとめ</a></li>
+<li><a rel="external" href="https://kmyk.github.io/blog/blog/2017/12/05/minimum-cut-and-project-selection-problem/">最小カットとProject Selection Problemのまとめ - うさぎ小屋</a></li>
+<li><a rel="external" href="https://theory-and-me.hatenablog.com/entry/2020/03/13/180935">燃やす埋める問題と劣モジュラ関数のグラフ表現可能性 その① - 私と理論</a></li>
 </ul>
 
 

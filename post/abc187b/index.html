@@ -124,7 +124,7 @@
 
 <p>\(O(N \log N)\) で解きます。</p>
 <h2 id="問題">問題</h2>
-<p><a href="https://atcoder.jp/contests/abc187/tasks/abc187_b">AtCoder Beginner Contest 187 | B - Gentle Pairs</a></p>
+<p><a rel="external" href="https://atcoder.jp/contests/abc187/tasks/abc187_b">AtCoder Beginner Contest 187 | B - Gentle Pairs</a></p>
 <h3 id="概要">概要</h3>
 <p>与えられる点の集合 \(S\) の中から二点を選ぶとき、それらを結んだ直線の傾きが \(-1\) 以上 \(1\) 以下になる組み合わせはいくつあるか？</p>
 <h2 id="解法">解法</h2>
@@ -141,36 +141,34 @@
 （「平面走査」と呼ばれるテクニックです。）</p>
 <h2 id="実装">実装</h2>
 <p>今回の制約ではわざわざ座標圧縮を行う必要はありませんが、負数がなくなるよう底上げする処理が必要なのでせっかくだしやることにしました。</p>
-<p><a href="https://atcoder.jp/contests/abc187/submissions/19253538">提出コード（Python）</a></p>
-<pre data-lang="python" class="language-python "><code class="language-python" data-lang="python">class FenwickTree:
-    # 実装略
-
-N = int(input())
-P = [tuple(map(int, input().split())) for _ in range(N)]
-
-# 座標変換
-P = [(x-y, x+y) for (x, y) in P]
-
-# 座標圧縮
-def compress(p):
-    x_set = sorted(set([x for (x, y) in p]))
-    y_set = sorted(set([y for (x, y) in p]))
-    x_dict = {x:i for i, x in enumerate(x_set)}
-    y_dict = {y:i for i, y in enumerate(y_set)}
-    return [(x_dict[x], y_dict[y]) for (x, y) in p]
-
-P = compress(P)
-
-# 平面走査
-P.sort()
-bit = FenwickTree(N)
-ans = 0
-for (_, y) in P:
-    ans += bit.bitsum(y+1)
-    bit.bitadd(y, 1)
-print(ans)
-</code></pre>
-
+<p><a rel="external" href="https://atcoder.jp/contests/abc187/submissions/19253538">提出コード（Python）</a></p>
+<pre class="giallo" style="color: #D6DEEB; background-color: #011627;"><code data-lang="python"><span class="giallo-l"><span style="color: #C792EA;">class</span><span style="color: #FFCB8B;"> FenwickTree</span><span>:</span></span>
+<span class="giallo-l"><span style="color: #637777;font-style: italic;">    # 実装略</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span>N</span><span style="color: #C792EA;"> =</span><span style="color: #C5E478;"> int</span><span>(</span><span style="color: #C5E478;">input</span><span>())</span></span>
+<span class="giallo-l"><span>P</span><span style="color: #C792EA;"> =</span><span style="color: #D9F5DD;"> [</span><span style="color: #C5E478;">tuple</span><span>(</span><span style="color: #C5E478;">map</span><span>(</span><span style="color: #C5E478;">int</span><span style="color: #D9F5DD;">,</span><span style="color: #C5E478;"> input</span><span>()</span><span style="color: #82AAFF;">.</span><span style="color: #B2CCD6;">split</span><span>()))</span><span style="color: #C792EA;font-style: italic;"> for</span><span> _</span><span style="color: #C792EA;font-style: italic;"> in</span><span style="color: #C5E478;"> range</span><span>(</span><span style="color: #82AAFF;">N</span><span>)</span><span style="color: #D9F5DD;">]</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: #637777;font-style: italic;"># 座標変換</span></span>
+<span class="giallo-l"><span>P</span><span style="color: #C792EA;"> =</span><span style="color: #D9F5DD;"> [</span><span>(x</span><span style="color: #C792EA;">-</span><span>y, x</span><span style="color: #C792EA;">+</span><span>y)</span><span style="color: #C792EA;font-style: italic;"> for</span><span> (x, y)</span><span style="color: #C792EA;font-style: italic;"> in</span><span> P</span><span style="color: #D9F5DD;">]</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: #637777;font-style: italic;"># 座標圧縮</span></span>
+<span class="giallo-l"><span style="color: #C792EA;">def</span><span style="color: #82AAFF;font-style: italic;"> compress</span><span style="color: #D9F5DD;">(</span><span style="color: #7FDBCA;">p</span><span style="color: #D9F5DD;">)</span><span>:</span></span>
+<span class="giallo-l"><span>    x_set</span><span style="color: #C792EA;"> =</span><span style="color: #C5E478;"> sorted</span><span>(</span><span style="color: #C5E478;">set</span><span>(</span><span style="color: #D9F5DD;">[</span><span style="color: #82AAFF;">x</span><span style="color: #C792EA;font-style: italic;"> for</span><span style="color: #82AAFF;"> (x, y)</span><span style="color: #C792EA;font-style: italic;"> in</span><span style="color: #82AAFF;"> p</span><span style="color: #D9F5DD;">]</span><span>))</span></span>
+<span class="giallo-l"><span>    y_set</span><span style="color: #C792EA;"> =</span><span style="color: #C5E478;"> sorted</span><span>(</span><span style="color: #C5E478;">set</span><span>(</span><span style="color: #D9F5DD;">[</span><span style="color: #82AAFF;">y</span><span style="color: #C792EA;font-style: italic;"> for</span><span style="color: #82AAFF;"> (x, y)</span><span style="color: #C792EA;font-style: italic;"> in</span><span style="color: #82AAFF;"> p</span><span style="color: #D9F5DD;">]</span><span>))</span></span>
+<span class="giallo-l"><span>    x_dict</span><span style="color: #C792EA;"> =</span><span> {x:i</span><span style="color: #C792EA;font-style: italic;"> for</span><span> i, x</span><span style="color: #C792EA;font-style: italic;"> in</span><span style="color: #C5E478;"> enumerate</span><span>(</span><span style="color: #82AAFF;">x_set</span><span>)}</span></span>
+<span class="giallo-l"><span>    y_dict</span><span style="color: #C792EA;"> =</span><span> {y:i</span><span style="color: #C792EA;font-style: italic;"> for</span><span> i, y</span><span style="color: #C792EA;font-style: italic;"> in</span><span style="color: #C5E478;"> enumerate</span><span>(</span><span style="color: #82AAFF;">y_set</span><span>)}</span></span>
+<span class="giallo-l"><span style="color: #C792EA;font-style: italic;">    return</span><span style="color: #D9F5DD;"> [</span><span>(x_dict[x], y_dict[y])</span><span style="color: #C792EA;font-style: italic;"> for</span><span> (x, y)</span><span style="color: #C792EA;font-style: italic;"> in</span><span> p</span><span style="color: #D9F5DD;">]</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span>P</span><span style="color: #C792EA;"> =</span><span style="color: #B2CCD6;"> compress</span><span>(</span><span style="color: #82AAFF;">P</span><span>)</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: #637777;font-style: italic;"># 平面走査</span></span>
+<span class="giallo-l"><span>P.</span><span style="color: #B2CCD6;">sort</span><span>()</span></span>
+<span class="giallo-l"><span>bit</span><span style="color: #C792EA;"> =</span><span style="color: #B2CCD6;"> FenwickTree</span><span>(</span><span style="color: #82AAFF;">N</span><span>)</span></span>
+<span class="giallo-l"><span>ans</span><span style="color: #C792EA;"> =</span><span style="color: #F78C6C;"> 0</span></span>
+<span class="giallo-l"><span style="color: #C792EA;font-style: italic;">for</span><span> (_, y)</span><span style="color: #C792EA;font-style: italic;"> in</span><span> P:</span></span>
+<span class="giallo-l"><span>    ans</span><span style="color: #C792EA;"> +=</span><span> bit.</span><span style="color: #B2CCD6;">bitsum</span><span>(</span><span style="color: #82AAFF;">y</span><span style="color: #C792EA;">+</span><span style="color: #F78C6C;">1</span><span>)</span></span>
+<span class="giallo-l"><span>    bit.</span><span style="color: #B2CCD6;">bitadd</span><span>(</span><span style="color: #82AAFF;">y</span><span style="color: #D9F5DD;">,</span><span style="color: #F78C6C;"> 1</span><span>)</span></span>
+<span class="giallo-l"><span style="color: #C5E478;">print</span><span>(</span><span style="color: #82AAFF;">ans</span><span>)</span></span></code></pre>
 
 
 <div class="pagination">

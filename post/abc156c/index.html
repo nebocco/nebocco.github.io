@@ -124,7 +124,7 @@
 
 <p>\(O(N)\) で解きます。</p>
 <h2 id="問題">問題</h2>
-<p><a href="https://atcoder.jp/contests/abc156/tasks/abc156_c">AtCoder Beginner Contest 156 | C - Rally</a></p>
+<p><a rel="external" href="https://atcoder.jp/contests/abc156/tasks/abc156_c">AtCoder Beginner Contest 156 | C - Rally</a></p>
 <h3 id="概要">概要</h3>
 <p>$$
 \underset{P}{\min} \sum _ {i=1} ^ {N} (X _ i - P) ^ 2
@@ -155,19 +155,18 @@ f(P) &amp;    \searrow   &amp;  f(\frac{S}{N}) &amp;   \nearrow      \\ \hline
 $$</p>
 <p>つまり、 \(f(P)\) は \(X\) の平均値 \(\overline{X} = \frac{S}{N} \) で最小値をとることがわかります。ただし、この問題の \(P\) は整数の値しか取りえないので、 \( f ( \lfloor \overline{X} \rfloor ) , f ( \lceil \overline{X} \rceil ) \) のうち小さいほうを出力します。</p>
 <h2 id="実装">実装</h2>
-<p><a href="https://atcoder.jp/contests/abc156/submissions/16070519">提出コード（Python）</a></p>
-<pre data-lang="python" class="language-python "><code class="language-python" data-lang="python">N = int(input())
-X = list(map(int, input().split()))
-
-def cost(p):
-    res = 0
-    for x in X:
-        res += (x - p)**2
-    return res
-
-m = sum(X) &#x2F;&#x2F; N
-print(min(cost(m), cost(m+1)))
-</code></pre>
+<p><a rel="external" href="https://atcoder.jp/contests/abc156/submissions/16070519">提出コード（Python）</a></p>
+<pre class="giallo" style="color: #D6DEEB; background-color: #011627;"><code data-lang="python"><span class="giallo-l"><span>N</span><span style="color: #C792EA;"> =</span><span style="color: #C5E478;"> int</span><span>(</span><span style="color: #C5E478;">input</span><span>())</span></span>
+<span class="giallo-l"><span>X</span><span style="color: #C792EA;"> =</span><span style="color: #C5E478;"> list</span><span>(</span><span style="color: #C5E478;">map</span><span>(</span><span style="color: #C5E478;">int</span><span style="color: #D9F5DD;">,</span><span style="color: #C5E478;"> input</span><span>()</span><span style="color: #82AAFF;">.</span><span style="color: #B2CCD6;">split</span><span>()))</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: #C792EA;">def</span><span style="color: #82AAFF;font-style: italic;"> cost</span><span style="color: #D9F5DD;">(</span><span style="color: #7FDBCA;">p</span><span style="color: #D9F5DD;">)</span><span>:</span></span>
+<span class="giallo-l"><span>    res</span><span style="color: #C792EA;"> =</span><span style="color: #F78C6C;"> 0</span></span>
+<span class="giallo-l"><span style="color: #C792EA;font-style: italic;">    for</span><span> x</span><span style="color: #C792EA;font-style: italic;"> in</span><span> X:</span></span>
+<span class="giallo-l"><span>        res</span><span style="color: #C792EA;"> +=</span><span> (x</span><span style="color: #C792EA;"> -</span><span> p)</span><span style="color: #C792EA;">**</span><span style="color: #F78C6C;">2</span></span>
+<span class="giallo-l"><span style="color: #C792EA;font-style: italic;">    return</span><span> res</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span>m</span><span style="color: #C792EA;"> =</span><span style="color: #C5E478;"> sum</span><span>(</span><span style="color: #82AAFF;">X</span><span>)</span><span style="color: #C792EA;"> //</span><span> N</span></span>
+<span class="giallo-l"><span style="color: #C5E478;">print</span><span>(</span><span style="color: #C5E478;">min</span><span>(</span><span style="color: #B2CCD6;">cost</span><span>(</span><span style="color: #82AAFF;">m</span><span>)</span><span style="color: #D9F5DD;">,</span><span style="color: #B2CCD6;"> cost</span><span>(</span><span style="color: #82AAFF;">m</span><span style="color: #C792EA;">+</span><span style="color: #F78C6C;">1</span><span>)))</span></span></code></pre>
 <p>余談ですが、 \(P\) に \(\overline{X}\) が入ることを念頭において冒頭の式を見ると、この問題は \(X\) のデータに対して最小二乗法を用いて最確値を求めることに相当している、と気づけます。統計学の素養のある人なら問題を見た瞬間に「あ、残差二乗和の最小値だから \(P = \overline{X}\) だ」と察知できたりするのでしょうか。</p>
 
 
