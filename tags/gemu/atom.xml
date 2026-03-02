@@ -4,8 +4,49 @@
     <link rel="self" type="application/atom+xml" href="https://blog.nebocco.dev/tags/gemu/atom.xml"/>
     <link rel="alternate" type="text/html" href="https://blog.nebocco.dev"/>
     <generator uri="https://www.getzola.org/">Zola</generator>
-    <updated>2021-06-21T00:00:00+00:00</updated>
+    <updated>2026-03-02T00:00:00+00:00</updated>
     <id>https://blog.nebocco.dev/tags/gemu/atom.xml</id>
+    <entry xml:lang="ja">
+        <title>『ギルド探求団へようこそ！』感想</title>
+        <published>2026-03-02T00:00:00+00:00</published>
+        <updated>2026-03-02T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              nebocco
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://blog.nebocco.dev/post/welcome/"/>
+        <id>https://blog.nebocco.dev/post/welcome/</id>
+        
+        <content type="html" xml:base="https://blog.nebocco.dev/post/welcome/">&lt;p&gt;「ギルド探求団へようこそ！」というゲームを遊びました。論理パズルというか、情報整理が主題のパズルゲーム。&lt;&#x2F;p&gt;
+&lt;iframe src=&quot;https:&#x2F;&#x2F;store.steampowered.com&#x2F;widget&#x2F;4327530&#x2F;&quot; frameborder=&quot;0&quot; width=&quot;646&quot; height=&quot;190&quot;&gt;&lt;&#x2F;iframe&gt;
+&lt;p&gt;断片的な記録を頼りに、ギルドに所属する全パーティの構成を復元する、というゲーム。&lt;&#x2F;p&gt;
+&lt;p&gt;かかった時間は 3 時間くらい。&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;感想&quot;&gt;感想&lt;&#x2F;h3&gt;
+&lt;p&gt;楽しかった！こういう類のゲームは疲れそうという理由でなんとなく敬遠していたけど、まんまとのめり込んでクリアまで一気にプレイしてしまった。（むしろ一気にプレイしないと情報を覚えていられなかったかも。）&lt;&#x2F;p&gt;
+&lt;h4 id=&quot;情報収集&quot;&gt;情報収集&lt;&#x2F;h4&gt;
+&lt;p&gt;情報が記載されたメモの ID を入力することで、該当の情報を閲覧できるシステム。&lt;&#x2F;p&gt;
+&lt;p&gt;基本的には起点となるメモ内で言及されている他のメモを順に検索……と芋づる式に収集していくことになる。途中からは見知らぬメモの ID を推測する必要が生じるけど、その点はそれほど詰まらずにすんなりと通過できた。この部分に難儀した人にとってはまた違ったゲーム体験になっていそう。&lt;&#x2F;p&gt;
+&lt;p&gt;あるパーティについての必要十分な情報が出揃うと、回答可能なことがゲーム内で通知されるのだけれど、「もう分かるの！？まだ全然不確定要素あるけど！？！？」と驚かされることがしばしば。そこからメモを読み返してなんとか情報を拾い上げ、という形で進めていくことになる。理論上は隅々まで覚えていればすぐに埋められるのだろうけど、何度同じメモを見返したことやら……&lt;&#x2F;p&gt;
+&lt;p&gt;また、あるパーティの情報を求めて資料を深堀りしていると、思いがけず全く別のパーティの情報が確定したりと、散逸している情報が次々に紐づいていくのは、かなり気持ちがいい体験だった。&lt;&#x2F;p&gt;
+&lt;h4 id=&quot;背景ストーリー&quot;&gt;背景ストーリー&lt;&#x2F;h4&gt;
+&lt;p&gt;情報を集めていくうちに、各パーティ間の交流関係やこれまでのギルド全体の歴史が徐々に明かされていく。序盤で登場した何気ない要素が後々ストーリー上重要な意味を持つことが判明したりと、かなり作り込まれていた。&lt;&#x2F;p&gt;
+&lt;p&gt;エピローグの内容含め、色々なキャラクターに愛着が持てる良いシナリオだった。&lt;&#x2F;p&gt;
+&lt;h4 id=&quot;ヒント&quot;&gt;ヒント&lt;&#x2F;h4&gt;
+&lt;p&gt;作者が公式のヒント・解説を用意してくれているので、そこまで慣れていない人でも取り組みやすそう。メタ的な当て勘だったり総当りで当ててしまった部分についてもしっかりと解き筋が用意されていて、クリア後にこれを読むところまで含めて楽しめた。&lt;&#x2F;p&gt;
+&lt;p&gt;https:&#x2F;&#x2F;steamcommunity.com&#x2F;sharedfiles&#x2F;filedetails&#x2F;?id=3648020630&lt;&#x2F;p&gt;
+&lt;p&gt;冒頭の注意事項、信頼できる。&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;類似のゲーム&quot;&gt;類似のゲーム&lt;&#x2F;h3&gt;
+&lt;p&gt;他の人の感想を見ていると、多くの人が『Return of the Obra Dinn &#x2F; オブラディン号の帰還』を類似のゲームとして引き合いに出していた。こういう形式の原点とも言える作品らしい。&lt;&#x2F;p&gt;
+&lt;iframe src=&quot;https:&#x2F;&#x2F;store.steampowered.com&#x2F;widget&#x2F;653530&#x2F;&quot; frameborder=&quot;0&quot; width=&quot;646&quot; height=&quot;190&quot;&gt;&lt;&#x2F;iframe&gt;
+&lt;p&gt;完全に机の上で情報の収集・分析が完結する本作に比べて、こちらは３Ｄの探索要素があるみたい。プレイしたことがなかったので、ウィッシュリストに入れておいた。&lt;&#x2F;p&gt;
+</content>
+        
+    </entry>
     <entry xml:lang="ja">
         <title>ツイステのダメージ計算 Web アプリを作りました</title>
         <published>2021-06-21T00:00:00+00:00</published>
